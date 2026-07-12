@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Level 1 Certificate</title><style>:root{--accent:#198754;--gold:#c28b20;--ink:#3b220c;--bg:#f7ecd0;--paper:linear-gradient(135deg,#fffdf6,#fff2cc);--inner:#19875438;}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink);}
+  body{background:var(--bg);}
+  .toolbar{height:56px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 10px;position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);box-shadow:0 3px 14px rgba(0,0,0,.12)}
+  .toolbar button{border:0;border-radius:12px;padding:10px 16px;font-size:15px;font-weight:1000;cursor:pointer;background:#7b2d13;color:white;box-shadow:0 3px 0 #3b1709}
+  .toolbar .hint{font-size:13px;font-weight:800;color:#6b4a26}
+  .stage{min-height:calc(100dvh - 56px);display:flex;align-items:center;justify-content:center;padding:12px;}
+  .page{width:min(96vw, calc((100dvh - 86px) * 1.414));aspect-ratio:297/210;background:var(--paper);border:10px double var(--accent);border-radius:26px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.18);text-align:center;}
+  .page:before{content:"";position:absolute;inset:3.3%;border:2px solid var(--inner);border-radius:18px;pointer-events:none;z-index:1}
+  .content{position:relative;z-index:2;height:100%;padding:4.1% 6.4%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ribbon{display:inline-block;background:var(--accent);color:white;border-radius:999px;padding:.65em 1.35em;font-weight:1000;letter-spacing:.08em;font-size:clamp(12px,1.85vw,19px);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+  h1{font-size:clamp(24px,4.2vw,44px);margin:.58em 0 .16em;color:#7b2d13;letter-spacing:.03em;line-height:1.02}
+  .level{font-size:clamp(16px,2.5vw,26px);font-weight:1000;color:var(--accent);margin-bottom:1em}
+  .txt{font-size:clamp(13px,1.9vw,20px);font-weight:850;line-height:1.28;max-width:80%;margin:.15em auto}
+  .name{font-size:clamp(25px,4.35vw,47px);font-weight:1000;margin:.38em auto;color:#271506;border-bottom:4px solid var(--gold);display:inline-block;min-width:min(52%,430px);max-width:88%;padding:0 .45em .15em;text-transform:uppercase;line-height:1.05;word-break:break-word}
+  .rank{font-size:clamp(21px,3.4vw,35px);font-weight:1000;color:var(--accent);margin:.48em 0 .18em;line-height:1.05}
+  .phrase{font-size:clamp(14px,2vw,21px);font-weight:900;color:#6a4a2d;margin-top:.25em;font-style:italic}
+  .grade{display:inline-block;margin:.65em auto 0;background:#fff;border:3px solid var(--gold);border-radius:16px;padding:.38em .9em;font-size:clamp(14px,2.15vw,23px);font-weight:1000;color:#7b2d13}.grade:empty{display:none}
+  .stars{font-size:clamp(23px,3.6vw,38px);margin-top:.34em;line-height:1}
+  .sign{width:82%;display:flex;justify-content:space-around;gap:8%;margin-top:1.2em;font-size:clamp(12px,1.75vw,19px);font-weight:900;line-height:1.45}
+  .brand{position:absolute;right:4.2%;bottom:3.2%;font-size:clamp(10px,1.25vw,14px);font-weight:900;color:#7b4b20;opacity:.82;z-index:3}
+  @page{size:A4 landscape;margin:0}
+  @media print{
+    html,body{width:297mm;height:210mm;background:white!important;overflow:hidden;}
+    .toolbar{display:none!important}
+    .stage{padding:0;display:block;min-height:0;width:297mm;height:210mm;}
+    .page{width:297mm;height:210mm;aspect-ratio:auto;margin:0;box-shadow:none;border-radius:0;}
+  }
+</style></head><body>
+<div class="toolbar"><button onclick="window.print()">🖨 Print / Save PDF</button><button onclick="window.close()">← Close</button><span class="hint">A4 landscape · fits at 100%</span></div>
+<main class="stage"><section class="page"><div class="content">
+  <div class="ribbon">⭐ LEVEL 1</div>
+  <h1>CERTIFICATE OF ACHIEVEMENT</h1>
+  <div class="level">THE FIRST STEP</div>
+  <p class="txt">This certificate is proudly awarded to</p>
+  <div class="name" id="studentName">STUDENT</div>
+  <p class="txt">For successfully completing Level 1 and taking the first steps in English verbs.</p>
+  <div class="rank">VERB EXPLORER</div>
+  <div class="phrase">“Every great journey begins with a single step.”</div>
+  <div class="grade" id="gradeBox"></div>
+  <div class="stars">⭐</div>
+  <div class="sign"><div><span id="teacherName">____________________</span><br>Teacher</div><div><span id="dateText"></span><br>Date</div></div>
+  <div class="brand">From Class to Book · The Verb Market</div>
+</div></section></main><script>
+  const params = new URLSearchParams(location.search);
+  const student = (params.get('student') || params.get('name') || 'STUDENT').toUpperCase();
+  const date = params.get('date') || new Date().toLocaleDateString('en-GB');
+  const grade = params.get('grade') || params.get('average') || '';
+  const teacher = params.get('teacher') || params.get('profesor') || params.get('professora') || '';
+  document.getElementById('studentName').textContent = student;
+  document.getElementById('dateText').textContent = date;
+  if (teacher) document.getElementById('teacherName').textContent = teacher;
+  if (grade) document.getElementById('gradeBox').textContent = 'Average grade: ' + grade + '/10';
+</script></body></html>

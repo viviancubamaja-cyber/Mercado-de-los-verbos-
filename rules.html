@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercado de los Verbos · Rules</title>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#ffe8a6,#f4b85f 55%,#8b4a19);
+      color:#2b1808;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .page{
+      width:min(1100px,96vw);
+      background:#fff8df;
+      border:7px solid #8b4a19;
+      border-radius:30px;
+      box-shadow:0 16px 0 rgba(0,0,0,.22),0 20px 45px rgba(0,0,0,.25);
+      padding:26px;
+    }
+    h1{margin:0 0 6px;text-align:center;font-size:clamp(34px,5vw,62px);color:#7b2d13;line-height:1}
+    .sub{text-align:center;font-weight:900;font-size:clamp(18px,2.2vw,28px);color:#0a3b63;margin-bottom:18px}
+    .intro{background:#fff1bd;border:4px solid #d39a2e;border-radius:20px;padding:14px 18px;font-size:clamp(17px,1.8vw,23px);font-weight:800;text-align:center;margin-bottom:18px}
+    .levels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{background:white;border:4px solid #8b4a19;border-radius:22px;padding:16px;box-shadow:0 5px 0 rgba(139,74,25,.25)}
+    .card h2{margin:0 0 10px;text-align:center;color:#7b2d13;font-size:clamp(24px,2.7vw,34px)}
+    .badge{display:block;text-align:center;margin:-2px auto 12px;width:max-content;background:#0a3b63;color:white;border-radius:999px;padding:7px 14px;font-weight:900;font-size:16px}
+    .step{display:flex;gap:10px;align-items:flex-start;background:#fff8df;border:2px solid #e1bf72;border-radius:14px;padding:10px;margin:8px 0;font-weight:800;font-size:clamp(15px,1.45vw,20px);line-height:1.2}
+    .ico{font-size:28px;line-height:1;min-width:34px;text-align:center}
+    .final{margin-top:18px;background:#e8ffe8;border:4px solid #2a9d43;border-radius:18px;padding:13px;text-align:center;font-weight:900;font-size:clamp(17px,2vw,25px);color:#124f24}
+    .actions{display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+    button,a.btn{appearance:none;border:0;text-decoration:none;background:#23a846;color:white;border-radius:18px;padding:14px 28px;font-size:clamp(18px,2vw,26px);font-weight:900;box-shadow:0 6px 0 #0d6324;cursor:pointer}
+    a.btn.secondary{background:#ffd143;color:#3a2105;box-shadow:0 6px 0 #b47d00}
+    @media(max-width:850px){.levels{grid-template-columns:1fr}.page{padding:18px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>📖 HOW TO PLAY</h1>
+    <div class="sub">Vivian Virtual Guide · Mercado de los Verbos</div>
+    <div class="intro">No hace falta saber inglés para ayudar. Sigue el camino: <b>Study → Play → Test → Verb Master</b>.</div>
+    <section class="levels">
+      <article class="card">
+        <h2>⭐ Level 1</h2>
+        <span class="badge">Learn the verbs</span>
+        <div class="step"><span class="ico">📗</span><span>Abre el libro de estudio, escucha y repite los verbos.</span></div>
+        <div class="step"><span class="ico">✍️</span><span>Escribe los verbos en tu libreta: español → infinitivo.</span></div>
+        <div class="step"><span class="ico">🏪</span><span>Entra al mercado y practica comprando verbos.</span></div>
+        <div class="step"><span class="ico">📘</span><span>Cuando estés preparado, haz el test del nivel.</span></div>
+      </article>
+      <article class="card">
+        <h2>⭐⭐ Level 2</h2>
+        <span class="badge">Buy letters</span>
+        <div class="step"><span class="ico">✅</span><span>Escribe el verbo en inglés y pulsa CHECK.</span></div>
+        <div class="step"><span class="ico">🛒</span><span>Compra solo las letras que cambian.</span></div>
+        <div class="step"><span class="ico">💰</span><span>Elige la moneda correcta y pulsa PAY.</span></div>
+        <div class="step"><span class="ico">📘</span><span>Haz microtests y luego el examen final.</span></div>
+      </article>
+      <article class="card">
+        <h2>⭐⭐⭐ Level 3</h2>
+        <span class="badge">Verb Master</span>
+        <div class="step"><span class="ico">🏪</span><span>Trabaja con las tres formas del verbo.</span></div>
+        <div class="step"><span class="ico">🎁</span><span>Usa los regalos cuando el mercado te los dé.</span></div>
+        <div class="step"><span class="ico">🏆</span><span>Consigue la nota Verb Master en el examen.</span></div>
+        <div class="step"><span class="ico">📜</span><span>Tu profe podrá preparar el diploma oficial.</span></div>
+      </article>
+    </section>
+    <div class="final">Aprende poco a poco. Un puesto cada vez. ¡Tú puedes!</div>
+    <div class="actions">
+      <button onclick="history.back()">⬅️ Volver al Mercado</button>
+      <a class="btn secondary" href="index.html">🏠 Menú niveles</a>
+    </div>
+  </main>
+</body>
+</html>

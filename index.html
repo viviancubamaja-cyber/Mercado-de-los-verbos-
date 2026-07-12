@@ -1,11 +1,1628 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=Mercado_Digital_Primaria_19_FONDO_MERCADO.html">
-  <title>Mercado de los Verbos</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mercado de Verbos - VERSION 1.0 GOLD</title>
+<style>
+  :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#2b241b;background:#fff7df;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(#fff3bf,#f7d58a);}
+  .card{width:min(920px,94vw);background:#fffaf0;border:4px solid #7b4b20;border-radius:28px;box-shadow:0 18px 45px rgba(0,0,0,.22);padding:30px;text-align:center;}
+  h1{margin:0 0 8px;font-size:clamp(32px,5vw,58px);color:#7b2d13;}
+  .subtitle{font-size:clamp(18px,2.4vw,26px);margin:0 0 28px;color:#4a3422;font-weight:700;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0 10px;}
+  a.level{display:block;text-decoration:none;color:#23180e;background:#ffe08a;border:3px solid #8b541f;border-radius:22px;padding:22px 14px;transition:.15s transform,.15s box-shadow;box-shadow:0 8px 0 #8b541f;font-weight:900;}
+  a.level:hover{transform:translateY(-3px);box-shadow:0 11px 0 #8b541f;}
+  a.level:active{transform:translateY(5px);box-shadow:0 3px 0 #8b541f;}
+  .big{display:block;font-size:clamp(26px,3.8vw,42px);margin-bottom:6px;}
+  .small{display:block;font-size:clamp(15px,2vw,20px);font-weight:800;}
+  .note{margin-top:24px;font-size:16px;color:#5a4533;line-height:1.45;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}.card{padding:22px}}
+
+  .teacher-toggle{margin-top:22px;background:#7b2d13;color:white;border:0;border-radius:16px;padding:12px 18px;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 0 #4a1b0c;}
+  .teacher-toggle:hover{filter:brightness(1.08)}
+  .teacher-panel{position:fixed;inset:0;background:rgba(20,12,5,.72);z-index:99999;display:none;align-items:center;justify-content:center;padding:18px;}
+  .teacher-box{width:min(1120px,96vw);max-height:92vh;overflow:auto;background:#fffaf0;border:4px solid #7b4b20;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:22px;text-align:left;}
+  .teacher-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+  .teacher-head h2{margin:0;color:#7b2d13;font-size:clamp(24px,3vw,36px)}
+  .teacher-close,.teacher-refresh{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer;}
+  .teacher-close{background:#f7b733;color:#3b220c}.teacher-refresh{background:#198754;color:white}
+  .teacher-login{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff0c7;border:2px solid #b98233;border-radius:16px;padding:14px;margin:12px 0;}
+  .teacher-login input,.teacher-search{font-size:16px;padding:10px 12px;border:2px solid #b98233;border-radius:10px;background:white;}
+  .teacher-login button{background:#7b2d13;color:white;border:0;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer;}
+  .teacher-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;}
+  .teacher-stat{background:#ffe08a;border:2px solid #8b541f;border-radius:16px;padding:12px;text-align:center;font-weight:900;}
+  .teacher-stat span{display:block;font-size:28px;color:#7b2d13;}
+  .teacher-stat-action{cursor:pointer;position:relative;transition:.12s transform,.12s filter,.12s box-shadow;user-select:none;}
+  .teacher-stat-action:hover{filter:brightness(1.04);transform:translateY(-2px);box-shadow:0 5px 0 #8b541f;}
+  .teacher-stat-action:active{transform:translateY(2px);box-shadow:0 2px 0 #8b541f;}
+  .teacher-stat-hint{display:inline-block;margin-left:6px;font-size:18px;}
+  .teacher-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 14px;}
+
+  /* FIX30 - Gestión de profesor conectada a Supabase con respaldo local */
+  .teacher-groups-panel{background:#fff8df;border:2px solid #d6a85c;border-radius:18px;padding:14px;margin:12px 0 14px;}
+  .teacher-groups-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .teacher-groups-head h3{margin:0;color:#7b2d13;font-size:24px;}
+  .teacher-new-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .teacher-new-group input,.teacher-group-filter,.teacher-group-select{font-size:15px;padding:9px 10px;border:2px solid #b98233;border-radius:10px;background:white;font-weight:800;}
+  .teacher-assign-btn{background:#0d6efd;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #084298;}
+  .teacher-edit-btn{background:#f7b733;color:#3b220c;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #9f6a13;}
+  .teacher-remove-group-btn{background:#6c757d;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #343a40;}
+  .teacher-delete-btn{background:#dc3545;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #842029;}
+  .teacher-message-btn{background:#6f42c1;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #432874;}
+  .teacher-assign-btn:hover,.teacher-edit-btn:hover,.teacher-remove-group-btn:hover,.teacher-delete-btn:hover,.teacher-message-btn:hover{filter:brightness(1.08)}
+  /* VERSION 1.0 GOLD - QR, tarjeta familiar y diploma premium */
+  .teacher-qr-btn{background:#20c997;color:#063b2f;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #0f7660;}
+  .teacher-card-family-btn{background:#0dcaf0;color:#04313b;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #087990;}
+  .teacher-diploma-btn{background:#ffc107;color:#4a3000;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #b88900;}
+  .teacher-qr-btn:hover,.teacher-card-family-btn:hover,.teacher-diploma-btn:hover{filter:brightness(1.08)}
+  .gold-preview{display:grid;gap:14px;text-align:center;}
+  .gold-code{font-size:28px;font-weight:1000;color:#7b2d13;background:#fff0c7;border:2px dashed #b98233;border-radius:14px;padding:10px;}
+  .gold-qr-img{width:220px;height:220px;image-rendering:pixelated;margin:auto;border:8px solid white;box-shadow:0 4px 16px rgba(0,0,0,.18);}
+  .gold-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .gold-print-btn{background:#198754;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;}
+  .gold-copy-btn{background:#7b2d13;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;}
+  .gold-level-btn{background:#fff0c7;color:#7b2d13;border:3px solid #b98233;border-radius:18px;padding:12px 14px;font-weight:1000;cursor:pointer;min-width:135px;box-shadow:0 4px 0 #d6a85c;}
+  .gold-level-btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .gold-play-btn{background:#6f42c1;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #3d246b;}
+  .gold-share-btn{background:#d63384;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #8a174f;}
+  .gold-diploma-preview{background:linear-gradient(135deg,#fffaf0,#fff0c7);border:5px double #7b4b20;border-radius:22px;padding:22px;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+  .gold-diploma-preview .big{font-size:28px;font-weight:1000;color:#7b2d13;margin:4px 0}
+  .gold-diploma-preview .name{font-size:32px;font-weight:1000;color:#3b220c;margin:12px 0}
+  .gold-diploma-preview .rank{font-size:25px;font-weight:1000;margin:12px 0;color:#7b2d13}
+  .gold-diploma-preview .small{font-size:16px;font-weight:850;color:#5a3b1f;line-height:1.35}
+
+
+  .teacher-assign-overlay{position:fixed;inset:0;background:rgba(20,12,5,.55);z-index:100005;display:none;align-items:center;justify-content:center;padding:18px;}
+  .teacher-assign-box{width:min(440px,94vw);background:#fffaf0;border:4px solid #7b4b20;border-radius:22px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:20px;color:#44260d;}
+  .teacher-assign-box h3{margin:0 0 8px;color:#7b2d13;font-size:26px;}
+  .teacher-assign-box p{margin:0 0 12px;font-weight:800;}
+  .teacher-assign-options{display:grid;gap:8px;margin:12px 0 16px;max-height:42vh;overflow:auto;padding-right:4px;}
+  .teacher-assign-option{display:flex;gap:10px;align-items:center;background:white;border:2px solid #d6a85c;border-radius:14px;padding:10px 12px;font-weight:1000;cursor:pointer;}
+  .teacher-assign-option input{transform:scale(1.2)}
+  .teacher-assign-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+  .teacher-assign-save{background:#198754;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;}
+  .teacher-assign-cancel{background:#f7b733;color:#3b220c;border:0;border-radius:12px;padding:10px 14px;font-weight:1000;cursor:pointer;}
+  .teacher-new-group button,.teacher-card-btn{background:#7b2d13;color:white;border:0;border-radius:10px;padding:10px 13px;font-weight:1000;cursor:pointer;}
+  .teacher-create-student-btn{background:#198754!important;color:white!important;box-shadow:0 3px 0 #0f5132;}
+  .teacher-groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .teacher-group-card{background:white;border:2px solid #b98233;border-radius:16px;padding:12px;text-align:center;font-weight:900;color:#44260d;box-shadow:0 4px 0 #d6a85c;}
+  .teacher-group-card strong{display:block;color:#7b2d13;font-size:18px;margin-bottom:3px;}
+  .teacher-group-card span{display:block;font-size:13px;color:#6a4a2d;}
+  .teacher-group-card button{margin-top:8px;background:#198754;color:white;border:0;border-radius:9px;padding:7px 10px;font-weight:1000;cursor:pointer;}
+  .teacher-group-pill{display:inline-block;background:#e9f7ef;color:#0f5132;border:1px solid #198754;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:1000;margin-left:6px;}
+  .teacher-student-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}
+  .teacher-edit-form{display:grid;gap:10px;margin:12px 0 16px;}
+  .teacher-edit-form label{font-weight:1000;color:#44260d;}
+  .teacher-edit-form input,.teacher-edit-form select{width:100%;box-sizing:border-box;font-size:17px;padding:10px 12px;border:2px solid #b98233;border-radius:12px;background:white;font-weight:900;}
+  .teacher-warning{background:#fff3cd;border:2px solid #f7b733;border-radius:14px;padding:10px 12px;font-weight:900;color:#664d03;line-height:1.35;margin:10px 0;}
+  .teacher-message-textarea{width:100%;box-sizing:border-box;min-height:150px;font-size:16px;line-height:1.35;padding:12px;border:2px solid #b98233;border-radius:14px;background:white;font-weight:700;resize:vertical;}
+  .teacher-message-small{font-size:13px;font-weight:800;color:#6a4a2d;margin-top:-6px;}
+  .family-teacher-note{display:none;text-align:left;background:#f3edff;border:2px solid #8d6adf;border-radius:20px;padding:16px 18px;margin:16px auto;color:#3d246b;box-shadow:0 5px 0 #d9c9ff;}
+  .family-teacher-note strong{display:block;font-size:20px;margin-bottom:8px;color:#3d246b;}
+  .family-teacher-note .teacher-note-body{font-size:17px;line-height:1.45;font-weight:800;white-space:pre-wrap;}
+  @media(max-width:900px){.teacher-groups-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.teacher-groups-grid{grid-template-columns:1fr}.teacher-student-actions{justify-content:flex-start}}
+  .student-card{background:white;border:2px solid #d6a85c;border-radius:16px;margin:10px 0;overflow:hidden;}
+  .student-title{background:#fff0c7;padding:12px 14px;font-weight:900;color:#44260d;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .student-body{padding:12px;overflow:auto;}
+  .teacher-table{width:100%;border-collapse:collapse;font-size:14px;}
+  .teacher-table th{background:#7b2d13;color:white;position:sticky;top:0;}
+  .teacher-table th,.teacher-table td{padding:8px;border:1px solid #e4c58e;text-align:center;}
+  .teacher-table td:first-child,.teacher-table th:first-child{text-align:left;}
+  .badge{display:inline-block;border-radius:999px;padding:3px 8px;font-weight:900;font-size:12px;}
+  .b1{background:#d1e7dd;color:#0f5132}.b2{background:#cff4fc;color:#055160}.b3{background:#f8d7da;color:#842029}.bexam{background:#e2d9f3;color:#3d246b}.bpuesto{background:#fff3cd;color:#664d03}
+  @media(max-width:720px){.teacher-stats{grid-template-columns:repeat(2,1fr)}.teacher-box{padding:14px}.teacher-table{font-size:12px}}
+
+
+
+  /* V1.1 - Panel Familia: lectura Supabase + presentación humanizada */
+  .family-toggle{margin-top:22px;margin-left:10px;background:#198754;color:white;border:0;border-radius:16px;padding:12px 18px;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 0 #0f5132;}
+  .family-toggle:hover{filter:brightness(1.08)}
+  .family-panel{position:fixed;inset:0;background:rgba(20,12,5,.72);z-index:99998;display:none;align-items:center;justify-content:center;padding:18px;}
+  .family-box{width:min(760px,94vw);max-height:92vh;overflow:auto;background:#fffaf0;border:4px solid #7b4b20;border-radius:28px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:26px;text-align:center;}
+  .family-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;text-align:left;}
+  .family-head h2{margin:0;color:#7b2d13;font-size:clamp(24px,3vw,38px)}
+  .family-close{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer;background:#f7b733;color:#3b220c;}
+  .family-intro{font-size:18px;font-weight:800;color:#4a3422;line-height:1.35;margin:10px auto 18px;max-width:610px;}
+  .family-form{background:#fff0c7;border:2px solid #b98233;border-radius:22px;padding:18px;margin:14px auto;text-align:left;max-width:560px;}
+  .family-form label{display:block;font-size:18px;font-weight:900;color:#44260d;margin-bottom:8px;}
+  .family-form input{width:100%;box-sizing:border-box;font-size:20px;padding:13px 14px;border:3px solid #b98233;border-radius:14px;background:white;font-weight:800;}
+  .family-form button{width:100%;margin-top:14px;background:#198754;color:white;border:0;border-radius:16px;padding:14px 18px;font-size:20px;font-weight:1000;cursor:pointer;box-shadow:0 6px 0 #0f5132;}
+  .family-status{min-height:24px;margin:12px 0 0;font-weight:900;color:#7b2d13;text-align:center;}
+  .family-preview{display:none;margin-top:18px;background:white;border:2px solid #d6a85c;border-radius:22px;padding:20px;text-align:left;}
+  .family-preview h3{margin:0;text-align:center;color:#7b2d13;font-size:28px;}
+  .family-subtitle{text-align:center;margin:6px 0 18px;font-size:16px;font-weight:900;color:#6a4a2d;}
+  .family-progress-row{margin:16px 0;font-weight:900;color:#44260d;background:#fffaf0;border:2px solid #ead0a0;border-radius:16px;padding:12px;}
+  .family-progress-label{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;}
+  .family-level-state{font-size:14px;font-weight:1000;color:#6a4a2d;margin-top:6px;text-align:right;}
+  .family-percent{color:#7b2d13;font-size:18px;}
+  .family-bar{height:30px;background:#f4e0b2;border:2px solid #b98233;border-radius:999px;overflow:hidden;margin-top:5px;}
+  .family-bar span{display:block;height:100%;width:0%;background:#198754;border-radius:999px;transition:width .25s ease;}
+  .family-bar span.starting{background:#d9534f;}
+  .family-bar span.good{background:#f0ad4e;}
+  .family-bar span.excellent{background:#198754;}
+  .family-stands-title{margin:10px 0 7px;font-size:14px;font-weight:1000;color:#6a4a2d;}
+  .family-stands-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;}
+  .family-stand{min-width:0;background:#fff;border:2px solid #d6a85c;border-radius:11px;padding:7px 4px;text-align:center;line-height:1.05;}
+  .family-stand strong{display:block;font-size:12px;color:#5a3b1f;white-space:nowrap;}
+  .family-stand span{display:block;margin-top:4px;font-size:14px;font-weight:1000;color:#7b2d13;white-space:nowrap;}
+  .family-stand.pending{background:#f7f4ed;border-color:#c9c1b4;}
+  .family-stand.pending span{color:#615c54;font-size:12px;}
+  .family-overview{margin-top:18px;background:linear-gradient(135deg,#fff0c7,#fffaf0);border:3px solid #b98233;border-radius:20px;padding:16px;text-align:center;font-weight:1000;color:#44260d;}
+  .family-overview-title{font-size:18px;color:#7b2d13;margin-bottom:8px;}
+  .family-overview-main{font-size:30px;color:#7b2d13;line-height:1.1;}
+  .family-overview-hint{font-size:15px;color:#6a4a2d;margin-top:6px;}
+  .family-overview-bar{height:24px;background:#f4e0b2;border:2px solid #b98233;border-radius:999px;overflow:hidden;margin-top:12px;}
+  .family-overview-bar span{display:block;height:100%;width:0%;background:#198754;border-radius:999px;transition:width .25s ease;}
+  .family-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;}
+  .family-mini-card{background:#fff0c7;border:2px solid #b98233;border-radius:16px;padding:12px;text-align:center;font-weight:900;min-height:92px;display:flex;flex-direction:column;justify-content:center;}
+  .family-mini-card .icon{font-size:24px;line-height:1;}
+  .family-mini-card .value{font-size:20px;color:#7b2d13;margin-top:5px;}
+  .family-mini-card .hint{font-size:13px;color:#6a4a2d;margin-top:3px;font-weight:900;line-height:1.15;}
+  .family-message{margin-top:16px;background:#e9f7ef;border:2px solid #198754;border-radius:18px;padding:16px;text-align:center;font-weight:900;color:#0f5132;font-size:18px;line-height:1.35;}
+  .family-companion{margin-top:12px;background:#fff8df;border:2px solid #d6a85c;border-radius:18px;padding:13px;text-align:center;font-weight:900;color:#5a3b1f;font-size:16px;line-height:1.35;}
+  .family-celebration{display:none;margin-top:14px;background:#fff0f4;border:2px solid #d63384;border-radius:18px;padding:15px;text-align:center;font-weight:1000;color:#7b123f;font-size:18px;line-height:1.35;}
+  .family-celebration .en-line,.family-message .en-line{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+  .family-audio-btn{border:0;border-radius:999px;background:#7b2d13;color:white;font-weight:1000;cursor:pointer;padding:5px 9px;font-size:16px;box-shadow:0 3px 0 #3b1709;}
+  .family-audio-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #3b1709;}
+  .family-mini-card .hint:empty{display:none;}
+  .family-note{margin-top:12px;text-align:center;font-weight:900;color:#4a3422;font-size:14px;}
+  @media(max-width:820px){.family-cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:720px){.family-toggle{margin-left:0}.family-cards{grid-template-columns:1fr}.family-box{padding:18px}.family-bar{height:26px}.family-stands-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.family-stand{padding:7px 3px}}
+
+</style>
 </head>
 <body>
-  <p>Abriendo Mercado de los Verbos...</p>
+  <main class="card">
+    <h1>🛒 Mercado de Verbos</h1>
+    <p class="subtitle">3 juegos independientes</p>
+    <section class="grid" aria-label="Elegir nivel">
+      <a class="level" href="nivel1_libro1_test1.html">
+        <span class="big">Nivel 1</span>
+        <span class="small">Libro 1 / Test 1</span>
+      </a>
+      <a class="level" href="nivel2_libro2_test2.html">
+        <span class="big">Nivel 2</span>
+        <span class="small">Libro 2 / Test 2</span>
+      </a>
+      <a class="level" href="nivel3_libro3_test3.html">
+        <span class="big">Nivel 3</span>
+        <span class="small">Libro 3 / Test 3</span>
+      </a>
+    </section>
+    <p class="note">Elige un nivel para empezar a jugar.</p>
+    <button class="teacher-toggle" id="openTeacherPanel">👩‍🏫 Área del profesor</button>
+    <button class="family-toggle" id="openFamilyPanel">👨‍👩‍👧 Familia</button>
+
+  </main>
+
+<script id="mv-fase3-2-auto-sync-save-exit">
+(function(){
+  // FASE 3.2: sincronización automática al pulsar Save and exit.
+  // No recupera desde Supabase y no cambia el progreso local.
+  if(window.__mvFase32AutoSyncInstalled) return;
+  window.__mvFase32AutoSyncInstalled = true;
+
+  function mvAutoSyncAfterSave(){
+    try{
+      if(typeof window.mvSincronizarProgresoLocal !== "function") return;
+      window.__mvAutoSyncInProgress = true;
+      var p = window.mvSincronizarProgresoLocal();
+      if(p && typeof p.finally === "function"){
+        p.finally(function(){ window.__mvAutoSyncInProgress = false; });
+      }else{
+        window.__mvAutoSyncInProgress = false;
+      }
+    }catch(e){
+      console.warn("[FASE 3.2] La sincronización automática falló, pero el juego sigue normal.", e);
+      window.__mvAutoSyncInProgress = false;
+    }
+  }
+
+  var oldSaveAndExit = window.saveAndExit;
+  window.saveAndExit = function(){
+    var result;
+    try{
+      if(typeof oldSaveAndExit === "function") result = oldSaveAndExit.apply(this, arguments);
+    }finally{
+      // Dejamos que primero se complete el guardado local y la pantalla de salida.
+      setTimeout(mvAutoSyncAfterSave, 350);
+    }
+    return result;
+  };
+})();
+</script>
+
+  <section class="family-panel" id="familyPanel" aria-hidden="true">
+    <div class="family-box">
+      <div class="family-head">
+        <h2>👨‍👩‍👧 Panel Familia</h2>
+        <button class="family-close" id="closeFamilyPanel">Cerrar</button>
+      </div>
+      <p class="family-intro">Escribe el código familiar del alumno para consultar su progreso.</p>
+      <div class="family-form">
+        <label for="familyStudentName">Código familiar</label>
+        <input id="familyStudentName" type="text" placeholder="Ej. MV-7K4P82" autocomplete="off">
+        <button id="familyViewProgress">VER PROGRESO</button>
+        <div class="family-status" id="familyStatus"></div>
+      </div>
+      <div class="family-preview" id="familyPreview">
+        <h3 id="familyPreviewTitle">👦 Alumno</h3>
+        <div class="family-subtitle">Acompañando su aprendizaje</div>
+
+        <div class="family-progress-row">
+          <div class="family-progress-label"><span>Nivel 1</span><span class="family-percent" id="familyPct1">0%</span></div>
+          <div class="family-bar"><span id="familyBar1" style="width:0%"></span></div>
+          <div class="family-level-state" id="familyState1">Comenzando</div>
+          <div class="family-stands-title">Notas por puesto</div>
+          <div class="family-stands-grid" id="familyStands1" aria-label="Notas de los puestos del Nivel 1"></div>
+        </div>
+        <div class="family-progress-row">
+          <div class="family-progress-label"><span>Nivel 2</span><span class="family-percent" id="familyPct2">0%</span></div>
+          <div class="family-bar"><span id="familyBar2" style="width:0%"></span></div>
+          <div class="family-level-state" id="familyState2">Comenzando</div>
+          <div class="family-stands-title">Notas por puesto</div>
+          <div class="family-stands-grid" id="familyStands2" aria-label="Notas de los puestos del Nivel 2"></div>
+        </div>
+        <div class="family-progress-row">
+          <div class="family-progress-label"><span>Nivel 3</span><span class="family-percent" id="familyPct3">0%</span></div>
+          <div class="family-bar"><span id="familyBar3" style="width:0%"></span></div>
+          <div class="family-level-state" id="familyState3">Comenzando</div>
+          <div class="family-stands-title">Notas por puesto</div>
+          <div class="family-stands-grid" id="familyStands3" aria-label="Notas de los puestos del Nivel 3"></div>
+        </div>
+
+        <div class="family-overview">
+          <div class="family-overview-title">📚 Progreso general</div>
+          <div class="family-overview-main" id="familyPuestos">0 / 45</div>
+          <div class="family-overview-hint" id="familyPuestosHint">45 puestos por descubrir</div>
+          <div class="family-overview-bar"><span id="familyOverallBar" style="width:0%"></span></div>
+          <div class="family-overview-hint" id="familyOverallPct">0 % del recorrido</div>
+        </div>
+
+        <div class="family-cards">
+          <div class="family-mini-card"><span class="icon">📝</span><strong>Aprendizaje</strong><span class="value" id="familyMicrotests">Sin datos</span><span class="hint" id="familyMicrotestsHint"></span></div>
+          <div class="family-mini-card"><span class="icon">🎯</span><strong>Siguiente reto</strong><span class="value" id="familyObjective">Preparándose</span><span class="hint" id="familyObjectiveHint">Next challenge</span></div>
+          <div class="family-mini-card"><span class="icon">🏆</span><strong>Diploma</strong><span class="value" id="familyDiploma">🟡 En progreso</span><span class="hint" id="familyDiplomaHint"></span></div>
+          <div class="family-mini-card"><span class="icon">🕒</span><strong>Última actividad</strong><span class="value" id="familyLastActivity">Sin datos</span><span class="hint" id="familyLastActivityHint"></span></div>
+        </div>
+
+        <div class="family-celebration" id="familyCelebration"></div>
+        <div class="family-message" id="familyMessage">💪 Ha comenzado su camino. Cada puesto completado cuenta.</div>
+        <div class="family-teacher-note" id="familyTeacherNote"><strong>💬 Mensaje del profesor</strong><div class="teacher-note-body" id="familyTeacherNoteBody">No hay mensajes del profesor en este momento.</div></div>
+        <div class="family-companion" id="familyCompanion">Gracias por acompañarle en su aprendizaje. La constancia y el apoyo de la familia son una parte muy importante de este camino.</div>
+        <p class="family-note" id="familyNote">Datos leídos desde Supabase. El panel solo consulta; no modifica el progreso.</p>
+      </div>
+    </div>
+  </section>
+
+<script id="mv-panel-familia-v16-fix25a-codigo-familia">
+(function(){
+  if(window.__mvPanelFamiliaV15) return;
+  window.__mvPanelFamiliaV15 = true;
+
+  const URL="https://zpdcfbunxwhzqlrxrpaj.supabase.co";
+  const KEY="sb_publishable_G_B_l1OHXH4n7wjj7M6lZA_el-AgLP0";
+  const TABLE="sesiones";
+  const NOTE_KEY='mv_teacher_family_notes_v1';
+  const NOTE_TABLE='notas_familia';
+  function loadFamilyNotes(){ try{return JSON.parse(localStorage.getItem(NOTE_KEY)||'{}');}catch(e){return {};} }
+  function familyNoteKeyFromName(name){ return (typeof makeFamilyCode==='function' && name) ? normCode(makeFamilyCode(name)) : normCode(name); }
+  function getFamilyNoteFor(name,code){
+    const notes=loadFamilyNotes();
+    return notes[normCode(code)] || notes[familyNoteKeyFromName(name)] || notes[norm(name)] || '';
+  }
+  async function getFamilyNoteForRemote(name,code){
+    const local=getFamilyNoteFor(name,code);
+    const c=normCode(code)||familyNoteKeyFromName(name);
+    try{
+      if(!c) return local;
+      const res=await fetch(`${URL}/rest/v1/${NOTE_TABLE}?select=mensaje&codigo_familiar=eq.${encodeURIComponent(c)}&limit=1`,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(!res.ok) return local;
+      const js=await res.json();
+      return (js[0] && js[0].mensaje) ? js[0].mensaje : local;
+    }catch(e){ return local; }
+  }
+  function showFamilyTeacherNote(txt){
+    const box=document.getElementById('familyTeacherNote');
+    const body=document.getElementById('familyTeacherNoteBody');
+    if(!box || !body) return;
+    const clean=String(txt||'').trim();
+    body.textContent=clean || 'No hay mensajes del profesor en este momento.';
+    box.style.display='block';
+  }
+
+  const panel=document.getElementById('familyPanel');
+  const input=document.getElementById('familyStudentName');
+  const status=document.getElementById('familyStatus');
+  const preview=document.getElementById('familyPreview');
+  const title=document.getElementById('familyPreviewTitle');
+
+  function val(r,names,def=''){
+    for(const n of names){
+      if(r && r[n]!==undefined && r[n]!==null && r[n]!=='' ) return r[n];
+    }
+    return def;
+  }
+  function norm(x){
+    return String(x||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
+  }
+  function normCode(x){
+    return String(x||'').trim().toUpperCase().replace(/\s+/g,'').replace(/[–—]/g,'-');
+  }
+  function makeFamilyCode(name){
+    // Código provisional estable hasta que exista campo codigo_familia en Supabase.
+    // No modifica la base de datos: se calcula siempre igual a partir del nombre del alumno.
+    const base=norm(name);
+    let h=2166136261;
+    for(let i=0;i<base.length;i++){
+      h ^= base.charCodeAt(i);
+      h = Math.imul(h,16777619) >>> 0;
+    }
+    const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let out='';
+    for(let i=0;i<6;i++){
+      out += alphabet[h % alphabet.length];
+      h = Math.floor(h / alphabet.length) ^ (h >>> 7);
+    }
+    return 'MV-'+out;
+  }
+  window.mvMakeFamilyCode = makeFamilyCode;
+  function rowFamilyCode(r){
+    const stored=val(r,['codigo_familia','codigo_familiar','family_code','familyCode','codigoFamilia','codigo'],'');
+    if(stored) return normCode(stored);
+    const alumno=val(r,['alumno','nombre','student','nombre_alumno'],'');
+    return alumno ? normCode(makeFamilyCode(alumno)) : '';
+  }
+  function note(r){
+    const n=Number(val(r,['nota','nota_examen','score','calificacion'],NaN));
+    return Number.isFinite(n)?n:NaN;
+  }
+  function fecha(s){
+    if(!s) return {main:'Sin datos',hint:'Cuando juegue aparecerá aquí'};
+    try{
+      const d=new Date(s);
+      const now=new Date();
+      const fmtTime=d.toLocaleTimeString('es-ES',{timeZone:'Atlantic/Canary',hour:'2-digit',minute:'2-digit'});
+      const dayMs=24*60*60*1000;
+      const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      const that=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+      const diff=Math.floor((today-that)/dayMs);
+      const dateText=d.toLocaleDateString('es-ES',{timeZone:'Atlantic/Canary',day:'2-digit',month:'2-digit',year:'2-digit'});
+      if(diff===0) return {main:'Hoy',hint:fmtTime};
+      if(diff===1) return {main:'Ayer',hint:fmtTime};
+      if(diff>1 && diff<7) return {main:'Hace '+diff+' días',hint:dateText};
+      return {main:dateText,hint:fmtTime};
+    }catch(e){ return {main:String(s),hint:''}; }
+  }
+  function rowTxt(r){
+    return String([
+      val(r,['tipo_actividad','tipo','actividad'],''),
+      val(r,['referencia','reference'],''),
+      val(r,['nombre_test','test','titulo','title'],'')
+    ].join(' ')).toLowerCase();
+  }
+  function tipoTxt(r){
+    return rowTxt(r);
+  }
+  function isExam(r){
+    const t=tipoTxt(r);
+    return t.includes('examen') || t.includes('exam') || t.includes('general');
+  }
+  function isMicrotest(r){
+    const t=tipoTxt(r);
+    return t.includes('micro') || t.includes('mini') || t.includes('test puesto') || t.includes('mini test') || t.includes('microtest');
+  }
+  function isEnrollmentRow(r){ return norm(val(r,['tipo_actividad','tipo','actividad'],'')).replace(/\s+/g,'_')==='alta_alumno'; }
+  function isPuesto(r){
+    const t=tipoTxt(r);
+    // Para el progreso familiar solo cuentan los puestos del mercado, no exámenes ni microtests.
+    return (t.includes('puesto') || (!isExam(r) && !isMicrotest(r)));
+  }
+  function puestoNum(r){
+    const raw=val(r,['numero_actividad','puesto','stand','actividad_numero','referencia'],NaN);
+    const m=String(raw).match(/\d+/);
+    const n=m?Number(m[0]):Number(raw);
+    return Number.isFinite(n)?n:NaN;
+  }
+  function isCompletedPuestoRecord(r){
+    const tipo=norm(val(r,['tipo_actividad','tipo','actividad'],''));
+    if(tipo.includes('intento') || isExam(r) || isMicrotest(r)) return false;
+    return tipo==='puesto' || tipo==='stand' || tipo==='market stand' || (!tipo && isPuesto(r));
+  }
+  function formatStandNote(n){
+    if(!Number.isFinite(n)) return 'Pendiente';
+    const rounded=Math.round(n*10)/10;
+    return (Number.isInteger(rounded)?String(rounded):rounded.toFixed(1))+'/10';
+  }
+  function renderStandDetails(level,notes){
+    const box=document.getElementById('familyStands'+level);
+    if(!box) return;
+    let html='';
+    for(let stand=1;stand<=15;stand++){
+      const value=notes && notes[stand];
+      const done=Number.isFinite(value);
+      const shown=formatStandNote(value);
+      html+='<div class="family-stand'+(done?'':' pending')+'" title="Nivel '+level+', Puesto '+stand+': '+shown+'"><strong>Puesto '+stand+'</strong><span>'+shown+'</span></div>';
+    }
+    box.innerHTML=html;
+  }
+  function setText(id,txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+  function escHtml(x){ return String(x||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c;}); }
+  function audioButton(text){ return '<button class="family-audio-btn" type="button" data-say="'+escHtml(text)+'" title="Listen in English">🔊</button>'; }
+  function speakEnglish(text){
+    try{
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='en-GB'; u.rate=0.88; u.pitch=1.05;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  function setHtml(id,html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+  function levelState(pct){
+    if(pct>=100) return '🏆 Nivel completado';
+    if(pct>=70) return '🟢 Excelente progreso';
+    if(pct>=30) return '🟡 Buen progreso';
+    if(pct>0) return '🔴 Comenzando';
+    return '⚪ Pendiente';
+  }
+  function barClass(pct){
+    if(pct>=70) return 'excellent';
+    if(pct>=30) return 'good';
+    return 'starting';
+  }
+  function setBar(n,pct,count){
+    pct=Math.max(0,Math.min(100,Math.round(pct||0)));
+    count=Number.isFinite(count)?Math.max(0,Math.min(15,Math.round(count))):Math.round((pct/100)*15);
+    const bar=document.getElementById('familyBar'+n);
+    const lab=document.getElementById('familyPct'+n);
+    const state=document.getElementById('familyState'+n);
+    if(bar){ bar.style.width=pct+'%'; bar.className=barClass(pct); }
+    if(lab) lab.textContent=count+' de 15 · '+pct+'%';
+    if(state) state.textContent=levelState(pct);
+  }
+  function setOverall(total){
+    const pct=Math.round((Math.max(0,Math.min(45,total||0))/45)*100);
+    const bar=document.getElementById('familyOverallBar');
+    if(bar){ bar.style.width=pct+'%'; bar.className=barClass(pct); }
+    setText('familyOverallPct', total>=45 ? 'Recorrido completo' : (pct+' % del recorrido'));
+  }
+  function examLevel(r){
+    const n=Number(val(r,['nivel'],'') || 0);
+    return (n>=1 && n<=3) ? n : NaN;
+  }
+  function activeLevel(counts){
+    const idx = counts.findIndex(c=>c<15);
+    return idx>=0 ? idx+1 : 3;
+  }
+  function objectiveText(counts, examBest){
+    const firstOpen = counts.findIndex(c=>c<15) + 1;
+    if(!firstOpen){
+      return {main:'🎓 Diploma', hint:'Final goal'};
+    }
+    const lvl=firstOpen;
+    const c=counts[lvl-1] || 0;
+    if(c===0){
+      return {main:(lvl===1?'Comenzar Nivel 1':'Comenzar Nivel '+lvl), hint:(lvl===1?'Start Level 1':'Start Level '+lvl)};
+    }
+    if(c<15){
+      return {main:'Completar Nivel '+lvl, hint:'Complete Level '+lvl};
+    }
+    const ex=examBest[lvl];
+    if(Number.isFinite(ex) && ex>=5) return {main:'🏅 Superado', hint:'Passed · '+ex.toFixed(1)+' / 10'};
+    return {main:'🎯 Examen general', hint:'Final test'};
+  }
+  function resetPreview(name){
+    title.textContent='👦 '+name;
+    ['1','2','3'].forEach(n=>setBar(n,0));
+    [1,2,3].forEach(n=>renderStandDetails(n,{}));
+    setText('familyPuestos','0 / 45');
+    setText('familyPuestosHint','45 puestos por descubrir');
+    setOverall(0);
+    setText('familyMicrotests','Sin datos');
+    setText('familyMicrotestsHint','');
+    setText('familyObjective','Preparándose');
+    setText('familyObjectiveHint','Next challenge');
+    setText('familyDiploma','🟡 En progreso');
+    setText('familyDiplomaHint','');
+    setText('familyLastActivity','Sin datos');
+    setText('familyLastActivityHint','');
+    setHtml('familyCelebration','');
+    const cel=document.getElementById('familyCelebration'); if(cel) cel.style.display='none';
+    const msgEl=document.getElementById('familyMessage'); if(msgEl) msgEl.style.display='block';
+    showFamilyTeacherNote('');
+    setHtml('familyMessage','🌱 El camino empieza con el primer puesto del Mercado de los Verbos.<br><span class="en-line">The journey starts here. '+audioButton('The journey starts here.')+'</span>');
+    setText('familyCompanion','Gracias por acompañarle en su aprendizaje. La constancia y el apoyo de la familia son una parte muy importante de este camino.');
+  }
+  function messageHtml(total,maxLevelPct,level){
+    if(total>=45) return '👑 Ha completado todo el Mercado de los Verbos.<br><span class="en-line">Verb Market completed! '+audioButton('Verb Market completed!')+'</span>';
+    if(total>=43) return '🎯 Solo quedan dos puestos.<br><span class="en-line">Almost there! '+audioButton('Almost there!')+'</span>';
+    if(maxLevelPct>=100){
+      if(level<=1) return '🏆 ¡Nivel completado!<br><span class="en-line">Level completed! '+audioButton('Level completed!')+'</span>';
+      return '<span class="en-line">🏆 Level completed! '+audioButton('Level completed!')+'</span>';
+    }
+    if(maxLevelPct>=70){
+      if(level<=1) return '🌟 ¡Excelente progreso!<br><span class="en-line">Excellent progress! '+audioButton('Excellent progress!')+'</span>';
+      if(level===2) return '<span class="en-line">🌟 Excellent progress! '+audioButton('Excellent progress!')+'</span><br>Sigue avanzando.';
+      return '<span class="en-line">🌟 Excellent progress! '+audioButton('Excellent progress!')+'</span>';
+    }
+    if(maxLevelPct>=50){
+      if(level<=1) return '💪 Ya ha superado la mitad del nivel.<br><span class="en-line">Keep going! '+audioButton('Keep going!')+'</span>';
+      if(level===2) return '<span class="en-line">💪 Keep going! '+audioButton('Keep going!')+'</span><br>Ya supera la mitad.';
+      return '<span class="en-line">💪 Keep going! '+audioButton('Keep going!')+'</span>';
+    }
+    if(total>0){
+      if(level<=1) return '🚶 Está aprendiendo paso a paso.<br><span class="en-line">Step by step. '+audioButton('Step by step.')+'</span>';
+      if(level===2) return '<span class="en-line">🚶 Step by step. '+audioButton('Step by step.')+'</span><br>Cada puesto cuenta.';
+      return '<span class="en-line">🚶 Step by step. '+audioButton('Step by step.')+'</span>';
+    }
+    return '🌱 Todavía no hay puestos completados.<br><span class="en-line">Ready to start! '+audioButton('Ready to start!')+'</span>';
+  }
+  function celebrationHtml(counts,total){
+    let lvl=0;
+    for(let i=0;i<3;i++){ if(counts[i]>=15) lvl=i+1; }
+    if(total>=45) return {show:true, html:'🏆 <strong>¡Lo has conseguido!</strong><br>Has completado todo el Mercado de los Verbos.<br><span class="en-line">Congratulations! You did it! '+audioButton('Congratulations! You did it!')+'</span>'};
+    if(lvl===1) return {show:true, html:'🎉 <strong>¡Enhorabuena!</strong><br>Has superado el primer nivel.<br><span class="en-line">Let\'s start Level 2! '+audioButton('Let\'s start Level 2!')+'</span>'};
+    if(lvl===2) return {show:true, html:'🌟 <strong>¡Excelente trabajo!</strong><br>Ya solo queda un paso para completar el Mercado.<br><span class="en-line">Final level ahead! '+audioButton('Final level ahead!')+'</span>'};
+    return {show:false, html:''};
+  }
+  function learningCard(avgMicro,microCount,total,counts){
+    if(Number.isFinite(avgMicro)){
+      return {main:avgMicro.toFixed(1)+' / 10 ⭐', hint:microCount+' microtests'};
+    }
+    if(total>0){
+      const completed=counts.filter(c=>c>=15).length;
+      if(completed>0){
+        if(completed===1) return {main:'Nivel 1', hint:'Completado'};
+        if(completed===2) return {main:'Nivel 2', hint:'Completado'};
+        return {main:'Nivel 3', hint:'Completado'};
+      }
+      return {main:total+' puestos', hint:'Práctica en marcha'};
+    }
+    return {main:'Sin datos', hint:''};
+  }
+  function companion(total,avgMicro){
+    const phrases=[
+      'Cada verbo aprendido es un paso más hacia la confianza al comunicarse en inglés.',
+      'La constancia de hoy será la seguridad de mañana.',
+      'Aprender poco a poco permite avanzar con más firmeza.',
+      'Gracias por acompañarle en este camino de aprendizaje.',
+      'El progreso no se mide solo por las notas, sino también por el esfuerzo y la constancia.'
+    ];
+    if(total>=45) return 'Su constancia ha dado fruto. Gracias por acompañarle durante todo este recorrido.';
+    if(Number.isFinite(avgMicro) && avgMicro>=9) return 'Además de avanzar, está consiguiendo muy buenos resultados en los microtests. ¡Excelente trabajo!';
+    if(total>=15) return 'Cada paso que da hoy le acerca a una mayor confianza para leer, comprender y utilizar los verbos en inglés.';
+    if(total>0) return 'Ya hay práctica real registrada. Cada puesto completado también forma parte del aprendizaje.';
+    return phrases[Math.floor(Math.random()*phrases.length)];
+  }
+  function open(){
+    panel.style.display='flex';
+    panel.setAttribute('aria-hidden','false');
+    status.textContent='';
+    preview.style.display='none';
+    setTimeout(function(){ input && input.focus(); },80);
+  }
+  function close(){
+    panel.style.display='none';
+    panel.setAttribute('aria-hidden','true');
+  }
+
+  async function view(){
+    const access=(input.value||'').trim();
+    if(!access){
+      status.textContent='Escribe el código familiar para ver el progreso.';
+      preview.style.display='none';
+      input.focus();
+      return;
+    }
+
+    status.textContent='Buscando datos reales en Supabase...';
+    preview.style.display='none';
+    resetPreview('Alumno');
+
+    try{
+      const res=await fetch(`${URL}/rest/v1/${TABLE}?select=*&order=created_at.desc&limit=3000`,{
+        headers:{apikey:KEY,Authorization:'Bearer '+KEY}
+      });
+      if(!res.ok) throw new Error('Supabase respondió '+res.status);
+      const all=await res.json();
+      const wantedCode=normCode(access);
+      const wantedName=norm(access); // compatibilidad temporal para pruebas antiguas
+      const rows=all.filter(r=>{
+        const code=rowFamilyCode(r);
+        const alumno=norm(val(r,['alumno','nombre','student','nombre_alumno'],''));
+        return (code && code===wantedCode) || alumno===wantedName;
+      });
+
+      if(!rows.length){
+        status.textContent='No encontré registros para ese código familiar. Revisa que esté escrito igual que en la tarjeta.';
+        preview.style.display='block';
+        return;
+      }
+
+      const activityRows=rows.filter(r=>!isEnrollmentRow(r));
+      const byLevel={1:new Set(),2:new Set(),3:new Set()};
+      const notesByLevel={1:{},2:{},3:{}};
+      const microNotes=[];
+      const examBest={1:NaN,2:NaN,3:NaN};
+      activityRows.forEach(r=>{
+        const nivel=Number(val(r,['nivel'],'') || 0);
+        const p=puestoNum(r);
+        if(byLevel[nivel] && isCompletedPuestoRecord(r) && Number.isFinite(p) && p>=1 && p<=15){
+          byLevel[nivel].add(p);
+        }
+        if(notesByLevel[nivel] && isCompletedPuestoRecord(r) && Number.isFinite(p) && p>=1 && p<=15 && notesByLevel[nivel][p]===undefined){
+          const standNote=note(r);
+          if(Number.isFinite(standNote)) notesByLevel[nivel][p]=standNote;
+        }
+        if(isMicrotest(r)){
+          const n=note(r);
+          if(Number.isFinite(n)) microNotes.push(n);
+        }
+        if(isExam(r) && !isMicrotest(r)){
+          const el=examLevel(r);
+          const en=note(r);
+          if(Number.isFinite(el) && Number.isFinite(en) && (!Number.isFinite(examBest[el]) || en>examBest[el])) examBest[el]=en;
+        }
+      });
+
+      const counts=[1,2,3].map(n=>byLevel[n].size);
+      counts.forEach((c,i)=>setBar(i+1,(c/15)*100,c));
+      [1,2,3].forEach(n=>renderStandDetails(n,notesByLevel[n]));
+      const total=counts.reduce((a,b)=>a+b,0);
+      const maxPct=Math.max(...counts.map(c=>(c/15)*100));
+      const avgMicro=microNotes.length?(microNotes.reduce((a,b)=>a+b,0)/microNotes.length):NaN;
+      const last=activityRows[0] && activityRows[0].created_at;
+
+      const familyStudentName=String(val(rows[0],['alumno','nombre','student','nombre_alumno'],'Alumno'));
+      title.textContent='👦 '+familyStudentName;
+      showFamilyTeacherNote(await getFamilyNoteForRemote(familyStudentName,rowFamilyCode(rows[0])));
+      setText('familyPuestos',total+' / 45');
+      setText('familyPuestosHint', total>=45 ? 'Recorrido completo' : (45-total)+' puestos por descubrir');
+      setOverall(total);
+      const learn=learningCard(avgMicro,microNotes.length,total,counts);
+      setText('familyMicrotests',learn.main);
+      setText('familyMicrotestsHint',learn.hint);
+      const obj=objectiveText(counts,examBest);
+      setText('familyObjective',obj.main);
+      setText('familyObjectiveHint',obj.hint);
+      setText('familyDiploma',total>=45?'🏆 Disponible':'🟡 En progreso');
+      setText('familyDiplomaHint','');
+      const f=fecha(last);
+      setText('familyLastActivity',f.main);
+      setText('familyLastActivityHint',f.hint);
+      const cel=celebrationHtml(counts,total);
+      const celEl=document.getElementById('familyCelebration');
+      const msgEl=document.getElementById('familyMessage');
+      if(celEl){ celEl.innerHTML=cel.html; celEl.style.display=cel.show?'block':'none'; }
+      if(msgEl){
+        if(cel.show){ msgEl.innerHTML=''; msgEl.style.display='none'; }
+        else { msgEl.innerHTML=messageHtml(total,maxPct,activeLevel(counts)); msgEl.style.display='block'; }
+      }
+      setText('familyCompanion',companion(total,avgMicro));
+      status.textContent=activityRows.length ? 'Progreso cargado correctamente. Registros de actividad: '+activityRows.length+'. Código: '+rowFamilyCode(rows[0])+'.' : 'Todavía no hay actividad registrada. Código familiar reconocido: '+rowFamilyCode(rows[0])+'.';
+      preview.style.display='block';
+      if(window.__mvRequestedCelebration){
+        const reqLevel=String(window.__mvRequestedCelebration);
+        const info=window.mvGoldDiplomaInfo ? window.mvGoldDiplomaInfo(reqLevel) : {level:reqLevel,rank:'VERB MASTER',phrase:'Learning is the greatest adventure of all.'};
+        const txt=window.mvGoldCertificateText ? window.mvGoldCertificateText(familyStudentName,reqLevel) : ('Congratulations '+familyStudentName+'!');
+        const celEl2=document.getElementById('familyCelebration');
+        const msgEl2=document.getElementById('familyMessage');
+        if(celEl2){
+          celEl2.innerHTML='🏆 <strong>Level '+info.level+' Certificate</strong><br><span style="font-size:22px">'+info.rank+'</span><br>'+info.phrase+'<br><span class="en-line">Listen to your certificate <button class="family-audio-btn" type="button" data-say="'+escHtml(txt)+'" title="Listen in English">🔊</button></span>';
+          celEl2.style.display='block';
+        }
+        if(msgEl2){ msgEl2.innerHTML=''; msgEl2.style.display='none'; }
+      }
+    }catch(e){
+      status.textContent='No se pudieron cargar los datos: '+e.message;
+      preview.style.display='none';
+    }
+  }
+
+  document.getElementById('openFamilyPanel').onclick=open;
+  document.getElementById('closeFamilyPanel').onclick=close;
+  document.getElementById('familyViewProgress').onclick=view;
+  input.addEventListener('keydown',function(e){ if(e.key==='Enter') view(); });
+  panel.addEventListener('click',function(e){
+    const btn=e.target && e.target.closest ? e.target.closest('.family-audio-btn') : null;
+    if(btn){ e.preventDefault(); speakEnglish(btn.getAttribute('data-say')||'Great job!'); return; }
+    if(e.target===panel) close();
+  });
+})();
+</script>
+
+
+  <section class="teacher-panel" id="teacherPanel" aria-hidden="true">
+    <div class="teacher-box">
+      <div class="teacher-head">
+        <h2>👩‍🏫 Panel del Profesor</h2>
+        <div><button class="teacher-refresh" id="refreshTeacher">Actualizar</button> <button class="teacher-close" id="closeTeacherPanel">Cerrar</button></div>
+      </div>
+      <div class="teacher-login" id="teacherLogin">
+        <strong>Acceso profesor:</strong>
+        <input id="teacherCode" type="password" placeholder="Código" autocomplete="off">
+        <input id="teacherFullName" type="text" placeholder="Nombre y apellidos del profesor" autocomplete="name">
+        <button id="teacherEnter">Entrar</button>
+        <small>Clave provisional: <b>PROFE</b></small>
+      </div>
+      <div id="teacherContent" style="display:none">
+        <div class="teacher-stats">
+          <div class="teacher-stat teacher-stat-action" id="statStudentsCard" title="Ver todos los alumnos">Alumnos <span class="teacher-stat-hint">👆</span><span id="statStudents">0</span></div>
+          <div class="teacher-stat">Registros<span id="statRows">0</span></div>
+          <div class="teacher-stat">Media puestos<span id="statAvgPuestos">-</span></div>
+          <div class="teacher-stat">Media exámenes<span id="statAvgExams">-</span></div>
+        </div>
+        <section class="teacher-groups-panel" id="teacherGroupsPanel">
+          <div class="teacher-groups-head">
+            <h3>📚 Mis grupos</h3>
+            <div class="teacher-new-group">
+              <input id="newTeacherGroupName" type="text" placeholder="Ej. Lunes 16:00 / 3.º A">
+              <button id="createTeacherGroup" type="button">➕ Crear grupo</button>
+              <button id="openCreateTeacherStudent" class="teacher-create-student-btn" type="button">➕ CREAR ALUMNO</button>
+            </div>
+          </div>
+          <div class="teacher-groups-grid" id="teacherGroupsGrid">
+            <div class="teacher-group-card"><strong>Sin grupos todavía</strong><span>Crea grupos libres: horarios, clases o particulares.</span></div>
+          </div>
+        </section>
+        <div class="teacher-tools">
+          <input class="teacher-search" id="teacherSearch" placeholder="Buscar alumno...">
+          <select class="teacher-search" id="teacherLevelFilter"><option value="">Todos los niveles</option><option value="1">Nivel 1</option><option value="2">Nivel 2</option><option value="3">Nivel 3</option></select>
+          <select class="teacher-group-filter" id="teacherGroupFilter"><option value="">Todos los grupos</option><option value="__unassigned__">Sin grupo</option></select>
+        </div>
+        <div id="teacherStatus">Pulsa actualizar para cargar datos.</div>
+        <div id="teacherResults"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherCreateStudentOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherCreateStudentTitle">
+      <h3 id="teacherCreateStudentTitle">➕ Crear alumno</h3>
+      <div class="teacher-edit-form">
+        <label>Nombre<input id="teacherCreateStudentName" type="text" autocomplete="off"></label>
+        <label>Apellidos<input id="teacherCreateStudentSurname" type="text" autocomplete="off"></label>
+        <label>Grupo<select id="teacherCreateStudentGroup"></select></label>
+      </div>
+      <div class="teacher-warning">Se creará con progreso vacío y podrá recibir inmediatamente su código y QR familiar.</div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherCreateStudentCancel">Cancelar</button>
+        <button type="button" class="teacher-assign-save" id="teacherCreateStudentSave">Crear alumno</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherAssignOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherAssignTitle">
+      <h3 id="teacherAssignTitle">Asignar grupo</h3>
+      <p id="teacherAssignStudent">Alumno</p>
+      <div class="teacher-assign-options" id="teacherAssignOptions"></div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherAssignCancel">Cancelar</button>
+        <button type="button" class="teacher-assign-save" id="teacherAssignSave">Guardar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherEditOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherEditTitle">
+      <h3 id="teacherEditTitle">Editar alumno</h3>
+      <p id="teacherEditStudent">Alumno</p>
+      <div class="teacher-edit-form">
+        <label>Nombre del alumno
+          <input id="teacherEditName" type="text" autocomplete="off">
+        </label>
+        <label>Grupo
+          <select id="teacherEditGroup"></select>
+        </label>
+      </div>
+      <div class="teacher-warning">Solo se cambia el nombre del alumno y su grupo. El progreso se conserva.</div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherEditCancel">Cancelar</button>
+        <button type="button" class="teacher-assign-save" id="teacherEditSave">Guardar cambios</button>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="teacher-assign-overlay" id="teacherMessageOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherMessageTitle">
+      <h3 id="teacherMessageTitle">💬 Mensaje para la familia</h3>
+      <p id="teacherMessageStudent">Alumno</p>
+      <textarea id="teacherMessageText" class="teacher-message-textarea" maxlength="1000" placeholder="Escribe aquí el mensaje que verá la familia..."></textarea>
+      <div class="teacher-message-small">Máximo 1000 caracteres. La familia solo podrá leer este mensaje.</div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherMessageCancel">Cancelar</button>
+        <button type="button" class="teacher-delete-btn" id="teacherMessageClear">Borrar mensaje</button>
+        <button type="button" class="teacher-assign-save" id="teacherMessageSave">💾 Guardar mensaje</button>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="teacher-assign-overlay" id="teacherGoldOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherGoldTitle" style="width:min(620px,94vw)">
+      <h3 id="teacherGoldTitle">🌟 Versión 1.0 GOLD</h3>
+      <p id="teacherGoldStudent">Alumno</p>
+      <div class="gold-preview" id="teacherGoldContent"></div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherGoldCancel">Cerrar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherDeleteOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherDeleteTitle">
+      <h3 id="teacherDeleteTitle">⚠️ Eliminar alumno</h3>
+      <p id="teacherDeleteStudent">Alumno</p>
+      <div class="teacher-warning">Esta acción eliminará sus registros de Supabase, su historial, exámenes, microtests, progreso y datos del Panel Familia. No se puede deshacer.</div>
+      <p>Para confirmar, escribe <b>ELIMINAR</b>:</p>
+      <div class="teacher-edit-form"><input id="teacherDeleteConfirm" type="text" autocomplete="off" placeholder="ELIMINAR"></div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherDeleteCancel">Cancelar</button>
+        <button type="button" class="teacher-delete-btn" id="teacherDeleteSave">🗑 Eliminar alumno</button>
+      </div>
+    </div>
+  </section>
+
+
+<script id="mv-profesor-panel-v1">
+(function(){
+  const URL="https://zpdcfbunxwhzqlrxrpaj.supabase.co";
+  const KEY="sb_publishable_G_B_l1OHXH4n7wjj7M6lZA_el-AgLP0";
+  const TABLE="sesiones";
+  const panel=document.getElementById('teacherPanel');
+  const content=document.getElementById('teacherContent');
+  const login=document.getElementById('teacherLogin');
+  const status=document.getElementById('teacherStatus');
+  const results=document.getElementById('teacherResults');
+  let rows=[];
+  const GROUPS_KEY='mv_teacher_groups_v1';
+  const ASSIGN_KEY='mv_teacher_group_assignments_v1';
+  const NOTE_KEY='mv_teacher_family_notes_v1';
+  // FIX30: tablas administrativas en Supabase. Si aún no existen, el panel sigue funcionando con respaldo local.
+  const GROUP_TABLE='grupos';
+  const ASSIGN_TABLE='alumno_grupo';
+  const NOTE_TABLE='notas_familia';
+  let groupsCache=null;
+  let assignmentsCache=null;
+  let notesCache=null;
+  let adminRemoteAvailable=false;
+  let adminRemoteInfo='';
+  let assigningStudent='';
+  const assignOverlay=document.getElementById('teacherAssignOverlay');
+  const assignStudentLabel=document.getElementById('teacherAssignStudent');
+  const assignOptions=document.getElementById('teacherAssignOptions');
+  let editingStudent='';
+  let deletingStudent='';
+  const editOverlay=document.getElementById('teacherEditOverlay');
+  const editStudentLabel=document.getElementById('teacherEditStudent');
+  const editNameInput=document.getElementById('teacherEditName');
+  const editGroupSelect=document.getElementById('teacherEditGroup');
+  const messageOverlay=document.getElementById('teacherMessageOverlay');
+  const messageStudentLabel=document.getElementById('teacherMessageStudent');
+  const messageText=document.getElementById('teacherMessageText');
+  let messagingStudent='';
+  const deleteOverlay=document.getElementById('teacherDeleteOverlay');
+  const deleteStudentLabel=document.getElementById('teacherDeleteStudent');
+  const deleteConfirmInput=document.getElementById('teacherDeleteConfirm');
+  const createStudentOverlay=document.getElementById('teacherCreateStudentOverlay');
+  const createStudentName=document.getElementById('teacherCreateStudentName');
+  const createStudentSurname=document.getElementById('teacherCreateStudentSurname');
+  const createStudentGroup=document.getElementById('teacherCreateStudentGroup');
+  function readLocalJson(key,def){ try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(def));}catch(e){return def;} }
+  function loadGroups(){ if(groupsCache===null) groupsCache=readLocalJson(GROUPS_KEY,[]); return groupsCache; }
+  function saveGroups(groups){ groupsCache=groups; localStorage.setItem(GROUPS_KEY,JSON.stringify(groups)); }
+  function loadAssignments(){ if(assignmentsCache===null) assignmentsCache=readLocalJson(ASSIGN_KEY,{}); return assignmentsCache; }
+  function saveAssignments(obj){ assignmentsCache=obj; localStorage.setItem(ASSIGN_KEY,JSON.stringify(obj)); }
+  function loadNotes(){ if(notesCache===null) notesCache=readLocalJson(NOTE_KEY,{}); return notesCache; }
+  function saveNotes(obj){ notesCache=obj; localStorage.setItem(NOTE_KEY,JSON.stringify(obj)); }
+  async function sb(path,options={}){
+    const headers=Object.assign({apikey:KEY,Authorization:'Bearer '+KEY},options.headers||{});
+    return fetch(`${URL}/rest/v1/${path}`,Object.assign({},options,{headers}));
+  }
+  async function loadAdminData(){
+    // Carga grupos, asignaciones y mensajes desde Supabase. Si las tablas no existen todavía, conserva datos locales.
+    adminRemoteAvailable=false; adminRemoteInfo='respaldo local';
+    try{
+      const [gRes,aRes,nRes]=await Promise.all([
+        sb(`${GROUP_TABLE}?select=nombre&order=nombre.asc`),
+        sb(`${ASSIGN_TABLE}?select=alumno,grupo`),
+        sb(`${NOTE_TABLE}?select=codigo_familiar,alumno,mensaje`)
+      ]);
+      if(!gRes.ok || !aRes.ok || !nRes.ok) throw new Error('tablas administrativas no disponibles');
+      const gRows=await gRes.json();
+      const aRows=await aRes.json();
+      const nRows=await nRes.json();
+      saveGroups([...new Set(gRows.map(r=>String(r.nombre||'').trim()).filter(Boolean))]);
+      const ass={}; aRows.forEach(r=>{ const a=String(r.alumno||'').trim(); const g=String(r.grupo||'').trim(); if(a && g) ass[slug(a)]=g; }); saveAssignments(ass);
+      const ns={}; nRows.forEach(r=>{ const code=String(r.codigo_familiar||'').trim(); const alumno=String(r.alumno||'').trim(); const msg=String(r.mensaje||'').trim(); if(msg){ if(code) ns[code]=msg; if(alumno && !code) ns[familyCodeForName(alumno)]=msg; } }); saveNotes(ns);
+      adminRemoteAvailable=true; adminRemoteInfo='Supabase';
+    }catch(e){
+      groupsCache=readLocalJson(GROUPS_KEY,[]); assignmentsCache=readLocalJson(ASSIGN_KEY,{}); notesCache=readLocalJson(NOTE_KEY,{});
+      adminRemoteInfo='respaldo local';
+    }
+  }
+  async function remoteCreateGroup(name){
+    if(!name) return;
+    try{ const res=await sb(GROUP_TABLE,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({nombre:name})}); if(res.ok) adminRemoteAvailable=true; }catch(e){}
+  }
+  async function remoteSetStudentGroup(alumno,groupName){
+    if(!alumno) return;
+    try{
+      await sb(`${ASSIGN_TABLE}?alumno=eq.${encodeURIComponent(alumno)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+      if(groupName){ const res=await sb(ASSIGN_TABLE,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({alumno:alumno,grupo:groupName})}); if(res.ok) adminRemoteAvailable=true; }
+    }catch(e){}
+  }
+  async function remoteSaveTeacherMessage(alumno,txt){
+    if(!alumno) return;
+    const code=noteKeyForName(alumno);
+    try{
+      await sb(`${NOTE_TABLE}?codigo_familiar=eq.${encodeURIComponent(code)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+      if(txt){ const res=await sb(NOTE_TABLE,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({codigo_familiar:code,alumno:alumno,mensaje:txt})}); if(res.ok) adminRemoteAvailable=true; }
+    }catch(e){}
+  }
+  async function remoteDeleteStudentAdmin(alumno){
+    if(!alumno) return;
+    const code=noteKeyForName(alumno);
+    try{
+      await Promise.all([
+        sb(`${ASSIGN_TABLE}?alumno=eq.${encodeURIComponent(alumno)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}}),
+        sb(`${NOTE_TABLE}?codigo_familiar=eq.${encodeURIComponent(code)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}}),
+        sb(`${NOTE_TABLE}?alumno=eq.${encodeURIComponent(alumno)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}})
+      ]);
+    }catch(e){}
+  }
+  function familyCodeForName(name){ return (typeof window.mvMakeFamilyCode==='function') ? window.mvMakeFamilyCode(name) : slug(name).toUpperCase(); }
+  function noteKeyForName(name){ return familyCodeForName(name); }
+  function teacherNoteFor(name){ const notes=loadNotes(); return notes[noteKeyForName(name)] || notes[slug(name)] || ''; }
+  function slug(x){ return String(x||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
+  function open(){panel.style.display='flex';panel.setAttribute('aria-hidden','false');}
+  function close(){panel.style.display='none';panel.setAttribute('aria-hidden','true');}
+  document.getElementById('openTeacherPanel').onclick=open;
+  document.getElementById('closeTeacherPanel').onclick=close;
+  function enterTeacherPanel(){
+    const input=document.getElementById('teacherCode');
+    const code=(input && input.value ? input.value : '').trim().toUpperCase();
+    if(code!=='PROFE'){
+      alert('Código incorrecto.');
+      if(input){ input.focus(); input.select(); }
+      return;
+    }
+    const teacherNameInput=document.getElementById('teacherFullName');
+    const teacherName=(teacherNameInput && teacherNameInput.value ? teacherNameInput.value : '').trim();
+    if(teacherName) localStorage.setItem('mv_teacher_full_name_v1', teacherName);
+    login.style.display='none';
+    content.style.display='block';
+    loadData();
+  }
+  const savedTeacherName=localStorage.getItem('mv_teacher_full_name_v1')||'';
+  const teacherFullNameInput=document.getElementById('teacherFullName');
+  if(teacherFullNameInput) teacherFullNameInput.value=savedTeacherName;
+  document.getElementById('teacherEnter').onclick=enterTeacherPanel;
+  document.getElementById('teacherCode').addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      e.preventDefault();
+      enterTeacherPanel();
+    }
+  });
+  const teacherFullNameEnter=document.getElementById('teacherFullName');
+  if(teacherFullNameEnter) teacherFullNameEnter.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){ e.preventDefault(); enterTeacherPanel(); }
+  });
+  document.getElementById('refreshTeacher').onclick=function(){ if(content.style.display!=='none') loadData(); };
+  document.getElementById('teacherSearch').oninput=render;
+  document.getElementById('teacherLevelFilter').onchange=render;
+  document.getElementById('teacherGroupFilter').onchange=render;
+
+  // FIX31 - Acceso rápido: tarjeta Alumnos = volver a todos los alumnos
+  function showAllTeacherStudents(){
+    const search=document.getElementById('teacherSearch');
+    const level=document.getElementById('teacherLevelFilter');
+    const group=document.getElementById('teacherGroupFilter');
+    if(search) search.value='';
+    if(level) level.value='';
+    if(group) group.value='';
+    render();
+    const anchor=document.getElementById('teacherResults') || document.getElementById('teacherContent');
+    if(anchor && anchor.scrollIntoView){ anchor.scrollIntoView({behavior:'smooth',block:'start'}); }
+    status.textContent='Mostrando todos los alumnos. Puedes asignarlos o cambiar su grupo.';
+  }
+  const statStudentsCard=document.getElementById('statStudentsCard');
+  if(statStudentsCard){
+    statStudentsCard.setAttribute('role','button');
+    statStudentsCard.setAttribute('tabindex','0');
+    statStudentsCard.onclick=showAllTeacherStudents;
+    statStudentsCard.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showAllTeacherStudents(); } };
+  }
+  document.getElementById('createTeacherGroup').onclick=async function(){
+    const input=document.getElementById('newTeacherGroupName');
+    const name=(input.value||'').trim();
+    if(!name){ alert('Escribe un nombre de grupo.'); return; }
+    const groups=loadGroups();
+    if(groups.some(g=>slug(g)===slug(name))){ alert('Ese grupo ya existe.'); return; }
+    groups.push(name); saveGroups(groups); input.value=''; status.textContent='Guardando grupo...'; await remoteCreateGroup(name); render();
+  };
+  document.getElementById('newTeacherGroupName').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('createTeacherGroup').click(); });
+  document.getElementById('openCreateTeacherStudent').onclick=openCreateStudentModal;
+  document.getElementById('teacherCreateStudentCancel').onclick=closeCreateStudentModal;
+  document.getElementById('teacherCreateStudentSave').onclick=createStudentBeforePlaying;
+  if(createStudentOverlay) createStudentOverlay.addEventListener('click',function(e){if(e.target===createStudentOverlay) closeCreateStudentModal();});
+  results.addEventListener('click',function(e){
+    const target=e.target && e.target.closest ? e.target : null;
+    if(!target) return;
+    const assign=target.closest('.teacher-assign-btn');
+    if(assign){ openAssignModal(assign.getAttribute('data-student')||''); return; }
+    const edit=target.closest('.teacher-edit-btn');
+    if(edit){ openEditModal(edit.getAttribute('data-student')||''); return; }
+    const msg=target.closest('.teacher-message-btn');
+    if(msg){ openMessageModal(msg.getAttribute('data-student')||''); return; }
+    const remove=target.closest('.teacher-remove-group-btn');
+    if(remove){
+      const alumno=remove.getAttribute('data-student')||'';
+      if(confirm('¿Quitar a '+alumno+' de su grupo y dejarlo en Sin grupo?')) setStudentGroup(alumno,'');
+      return;
+    }
+    const del=target.closest('.teacher-delete-btn[data-student]');
+    if(del){ openDeleteModal(del.getAttribute('data-student')||''); return; }
+  });
+  results.addEventListener('change',function(e){
+    // Compatibilidad: si queda algún selector antiguo, también guarda correctamente.
+    const sel=e.target && e.target.closest ? e.target.closest('.teacher-group-select') : null;
+    if(!sel) return;
+    setStudentGroup(sel.getAttribute('data-student')||'', sel.value||'');
+  });
+  document.getElementById('teacherAssignCancel').onclick=closeAssignModal;
+  document.getElementById('teacherAssignSave').onclick=function(){
+    if(!assigningStudent) return closeAssignModal();
+    const chosen=assignOptions.querySelector('input[name="teacherAssignGroup"]:checked');
+    setStudentGroup(assigningStudent, chosen ? chosen.value : '');
+    closeAssignModal();
+  };
+  if(assignOverlay){ assignOverlay.addEventListener('click',function(e){ if(e.target===assignOverlay) closeAssignModal(); }); }
+  document.getElementById('teacherEditCancel').onclick=closeEditModal;
+  document.getElementById('teacherEditSave').onclick=function(){ saveEditStudent(); };
+  if(editOverlay){ editOverlay.addEventListener('click',function(e){ if(e.target===editOverlay) closeEditModal(); }); }
+  document.getElementById('teacherMessageCancel').onclick=closeMessageModal;
+  document.getElementById('teacherMessageSave').onclick=function(){ saveTeacherMessage(); };
+  document.getElementById('teacherMessageClear').onclick=function(){ clearTeacherMessage(); };
+  if(messageOverlay){ messageOverlay.addEventListener('click',function(e){ if(e.target===messageOverlay) closeMessageModal(); }); }
+  document.getElementById('teacherDeleteCancel').onclick=closeDeleteModal;
+  document.getElementById('teacherDeleteSave').onclick=function(){ deleteStudentFromSupabase(); };
+  if(deleteOverlay){ deleteOverlay.addEventListener('click',function(e){ if(e.target===deleteOverlay) closeDeleteModal(); }); }
+  function setStudentGroup(alumno, groupName){
+    const assignments=loadAssignments();
+    const key=slug(alumno);
+    if(groupName) assignments[key]=groupName; else delete assignments[key];
+    saveAssignments(assignments);
+    render();
+    remoteSetStudentGroup(alumno,groupName);
+  }
+  function isEnrollmentRow(r){ return slug(val(r,['tipo_actividad'],'')).replace(/\s+/g,'_')==='alta_alumno'; }
+  function openCreateStudentModal(){
+    createStudentName.value=''; createStudentSurname.value='';
+    createStudentGroup.innerHTML=groupOptionsHtml('');
+    createStudentOverlay.style.display='flex'; createStudentOverlay.setAttribute('aria-hidden','false');
+    setTimeout(()=>createStudentName.focus(),50);
+  }
+  function closeCreateStudentModal(){
+    createStudentOverlay.style.display='none'; createStudentOverlay.setAttribute('aria-hidden','true');
+  }
+  async function createStudentBeforePlaying(){
+    const nombre=(createStudentName.value||'').trim(), apellidos=(createStudentSurname.value||'').trim();
+    const alumno=(nombre+' '+apellidos).trim().replace(/\s+/g,' '), groupName=createStudentGroup.value||'';
+    if(!nombre || !apellidos){ alert('Escribe el nombre y los apellidos.'); return; }
+    const key=slug(alumno);
+    let existing=rows.find(r=>slug(val(r,['alumno','nombre','student'],''))===key);
+    if(!existing){
+      const lookup=await sb(`${TABLE}?select=alumno&limit=3000`);
+      if(lookup.ok){ const remoteRows=await lookup.json(); existing=remoteRows.find(r=>slug(val(r,['alumno','nombre','student'],''))===key); }
+    }
+    if(existing){
+      const canonical=String(val(existing,['alumno','nombre','student'],alumno)).trim()||alumno;
+      if(groupName) await remoteSetStudentGroup(canonical,groupName);
+      const assignments=loadAssignments(); if(groupName) assignments[key]=groupName; saveAssignments(assignments);
+      status.textContent='ℹ️ El alumno ya existía. Se ha reutilizado su registro y su código familiar.';
+      closeCreateStudentModal(); render(); return;
+    }
+    const row={alumno:alumno,nivel:0,tipo_actividad:'alta_alumno',numero_actividad:0,nota:0,aciertos:0,errores:0,total_preguntas:0,intento:0,fecha:new Date().toISOString(),motivo:'alta_manual_profesor',verbos_completados_total:0,pagos_realizados:0,tiempo_segundo:0,nota_examen:0,sesiones:0};
+    status.textContent='Creando alumno en Supabase...';
+    try{
+      const res=await sb(TABLE,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(row)});
+      if(!res.ok) throw new Error('Supabase respondió '+res.status+' '+await res.text());
+      const saved=await res.json(); rows.unshift((saved&&saved[0])||row);
+      const assignments=loadAssignments(); if(groupName) assignments[key]=groupName; saveAssignments(assignments);
+      await remoteSetStudentGroup(alumno,groupName);
+      const familyCode=familyCodeForName(alumno);
+      status.textContent='✅ Alumno creado sin actividad. Código familiar: '+familyCode;
+      closeCreateStudentModal(); render();
+    }catch(e){ alert('No se pudo crear el alumno: '+e.message); status.textContent='No se creó ningún registro.'; }
+  }
+  function openAssignModal(alumno){
+    assigningStudent=alumno||'';
+    const groups=loadGroups();
+    const assignments=loadAssignments();
+    const current=assignments[slug(assigningStudent)]||'';
+    assignStudentLabel.textContent='Alumno: '+assigningStudent;
+    const opts=[{value:'',label:'Sin grupo'}].concat(groups.map(g=>({value:g,label:g})));
+    assignOptions.innerHTML=opts.map(o=>`<label class="teacher-assign-option"><input type="radio" name="teacherAssignGroup" value="${escapeAttr(o.value)}" ${o.value===current?'checked':''}> <span>${escapeHtml(o.label)}</span></label>`).join('');
+    if(assignOverlay){ assignOverlay.style.display='flex'; assignOverlay.setAttribute('aria-hidden','false'); }
+  }
+  function closeAssignModal(){
+    assigningStudent='';
+    if(assignOverlay){ assignOverlay.style.display='none'; assignOverlay.setAttribute('aria-hidden','true'); }
+  }
+  function groupOptionsHtml(current){
+    const groups=loadGroups();
+    return '<option value="">Sin grupo</option>'+groups.map(g=>`<option value="${escapeAttr(g)}" ${g===current?'selected':''}>${escapeHtml(g)}</option>`).join('');
+  }
+  function openEditModal(alumno){
+    editingStudent=alumno||'';
+    const assignments=loadAssignments();
+    editStudentLabel.textContent='Alumno actual: '+editingStudent;
+    editNameInput.value=editingStudent;
+    editGroupSelect.innerHTML=groupOptionsHtml(assignments[slug(editingStudent)]||'');
+    if(editOverlay){ editOverlay.style.display='flex'; editOverlay.setAttribute('aria-hidden','false'); }
+    setTimeout(()=>editNameInput.focus(),50);
+  }
+  function closeEditModal(){
+    editingStudent='';
+    if(editOverlay){ editOverlay.style.display='none'; editOverlay.setAttribute('aria-hidden','true'); }
+  }
+  async function saveEditStudent(){
+    const oldName=editingStudent;
+    const newName=(editNameInput.value||'').trim();
+    const newGroup=editGroupSelect.value||'';
+    if(!oldName) return closeEditModal();
+    if(!newName){ alert('El nombre no puede quedar vacío.'); return; }
+    try{
+      if(slug(oldName)!==slug(newName)){
+        const res=await fetch(`${URL}/rest/v1/${TABLE}?alumno=eq.${encodeURIComponent(oldName)}`,{
+          method:'PATCH',
+          headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+          body:JSON.stringify({alumno:newName})
+        });
+        if(!res.ok) throw new Error('Supabase respondió '+res.status);
+        rows.forEach(r=>{ if(String(val(r,['alumno'],'')).trim()===oldName) r.alumno=newName; });
+      }
+      const assignments=loadAssignments();
+      const oldKey=slug(oldName), newKey=slug(newName);
+      delete assignments[oldKey];
+      if(newGroup) assignments[newKey]=newGroup;
+      saveAssignments(assignments);
+      remoteSetStudentGroup(newName,newGroup);
+      const notes=loadNotes();
+      const oldNoteKey=noteKeyForName(oldName), newNoteKey=noteKeyForName(newName);
+      if(notes[oldNoteKey] && oldNoteKey!==newNoteKey){ notes[newNoteKey]=notes[oldNoteKey]; delete notes[oldNoteKey]; }
+      if(notes[slug(oldName)] && !notes[newNoteKey]){ notes[newNoteKey]=notes[slug(oldName)]; delete notes[slug(oldName)]; }
+      saveNotes(notes);
+      if(slug(oldName)!==slug(newName)) remoteDeleteStudentAdmin(oldName);
+      if(notes[newNoteKey]) remoteSaveTeacherMessage(newName,notes[newNoteKey]);
+      status.textContent='✅ Alumno actualizado correctamente.';
+      closeEditModal();
+      render();
+    }catch(e){ alert('No se pudo editar el alumno: '+e.message); }
+  }
+  function openMessageModal(alumno){
+    messagingStudent=alumno||'';
+    messageStudentLabel.textContent='Alumno: '+messagingStudent;
+    messageText.value=teacherNoteFor(messagingStudent);
+    if(messageOverlay){ messageOverlay.style.display='flex'; messageOverlay.setAttribute('aria-hidden','false'); }
+    setTimeout(()=>messageText.focus(),50);
+  }
+  function closeMessageModal(){
+    messagingStudent='';
+    if(messageOverlay){ messageOverlay.style.display='none'; messageOverlay.setAttribute('aria-hidden','true'); }
+  }
+  function saveTeacherMessage(){
+    if(!messagingStudent) return closeMessageModal();
+    const notes=loadNotes();
+    const key=noteKeyForName(messagingStudent);
+    const txt=(messageText.value||'').trim();
+    if(txt) notes[key]=txt; else delete notes[key];
+    delete notes[slug(messagingStudent)];
+    saveNotes(notes);
+    remoteSaveTeacherMessage(messagingStudent,txt);
+    status.textContent=txt?'✅ Mensaje para la familia guardado.':'✅ Mensaje para la familia vacío.';
+    closeMessageModal();
+    render();
+  }
+  function clearTeacherMessage(){
+    if(!messagingStudent) return closeMessageModal();
+    if(!confirm('¿Borrar el mensaje familiar de '+messagingStudent+'?')) return;
+    const notes=loadNotes();
+    delete notes[noteKeyForName(messagingStudent)];
+    delete notes[slug(messagingStudent)];
+    saveNotes(notes);
+    remoteSaveTeacherMessage(messagingStudent,'');
+    status.textContent='✅ Mensaje para la familia borrado.';
+    closeMessageModal();
+    render();
+  }
+  function openDeleteModal(alumno){
+    deletingStudent=alumno||'';
+    deleteStudentLabel.textContent='Alumno: '+deletingStudent;
+    deleteConfirmInput.value='';
+    if(deleteOverlay){ deleteOverlay.style.display='flex'; deleteOverlay.setAttribute('aria-hidden','false'); }
+    setTimeout(()=>deleteConfirmInput.focus(),50);
+  }
+  function closeDeleteModal(){
+    deletingStudent='';
+    if(deleteOverlay){ deleteOverlay.style.display='none'; deleteOverlay.setAttribute('aria-hidden','true'); }
+  }
+  async function deleteStudentFromSupabase(){
+    const alumno=deletingStudent;
+    if(!alumno) return closeDeleteModal();
+    if((deleteConfirmInput.value||'').trim().toUpperCase()!=='ELIMINAR'){
+      alert('Para borrar definitivamente, escribe ELIMINAR.');
+      return;
+    }
+    try{
+      const res=await fetch(`${URL}/rest/v1/${TABLE}?alumno=eq.${encodeURIComponent(alumno)}`,{
+        method:'DELETE',
+        headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Prefer':'return=minimal'}
+      });
+      if(!res.ok) throw new Error('Supabase respondió '+res.status);
+      rows=rows.filter(r=>String(val(r,['alumno'],'')).trim()!==alumno);
+      const assignments=loadAssignments();
+      delete assignments[slug(alumno)];
+      saveAssignments(assignments);
+      const notes=loadNotes();
+      delete notes[noteKeyForName(alumno)];
+      delete notes[slug(alumno)];
+      saveNotes(notes);
+      remoteDeleteStudentAdmin(alumno);
+      status.textContent='✅ Alumno eliminado correctamente.';
+      closeDeleteModal();
+      render();
+    }catch(e){ alert('No se pudo eliminar el alumno: '+e.message); }
+  }
+  function val(r,names,def=''){ for(const n of names){ if(r[n]!==undefined && r[n]!==null && r[n]!=='' ) return r[n]; } return def; }
+  function parseScoreValue(v){
+    if(v===undefined||v===null||v==='') return '';
+    if(typeof v==='number') return Number.isFinite(v)?v:'';
+    let t=String(v).trim().replace(',', '.');
+    const m=t.match(/-?\d+(?:\.\d+)?/);
+    if(!m) return '';
+    const n=Number(m[0]);
+    return Number.isFinite(n)?n:'';
+  }
+  function normalizeLevelValue(v){
+    const t=String(v||'').trim().toLowerCase();
+    const m=t.match(/[123]/);
+    return m?m[0]:'';
+  }
+  function note(r){
+    const raw=val(r,['nota','nota_examen','score','puntuacion','calificacion','grade','resultado'], '');
+    return parseScoreValue(raw);
+  }
+  function fecha(s){ try{return new Date(s).toLocaleString('es-ES',{timeZone:'Atlantic/Canary',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return s||'';} }
+  async function loadData(){
+    status.textContent='Cargando datos de Supabase...'; results.innerHTML='';
+    try{
+      const res=await fetch(`${URL}/rest/v1/${TABLE}?select=*&order=created_at.desc&limit=700`,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(!res.ok) throw new Error('Supabase respondió '+res.status);
+      rows=await res.json();
+      await loadAdminData();
+      render();
+    }catch(e){ status.textContent='No se pudieron cargar los datos: '+e.message; }
+  }
+  function render(){
+    const q=(document.getElementById('teacherSearch').value||'').trim().toLowerCase();
+    const lev=document.getElementById('teacherLevelFilter').value;
+    let data=rows.filter(r=>{
+      const alumno=String(val(r,['alumno','nombre','student'],'')).toLowerCase();
+      const nivel=String(val(r,['nivel'],''));
+      return (!q||alumno.includes(q)) && (!lev||nivel===lev);
+    });
+    const alumnos=[...new Set(data.map(r=>slug(val(r,['alumno'],'SIN NOMBRE'))))].filter(Boolean);
+    const isExam=r=>String(val(r,['tipo_actividad'],'')).toLowerCase().includes('examen');
+    const activityData=data.filter(r=>!isEnrollmentRow(r));
+    const puestoNotes=activityData.filter(r=>!isExam(r)).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
+    const examNotes=activityData.filter(isExam).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
+    document.getElementById('statStudents').textContent=alumnos.length;
+    document.getElementById('statRows').textContent=data.length;
+    document.getElementById('statAvgPuestos').textContent=puestoNotes.length?(puestoNotes.reduce((a,b)=>a+b,0)/puestoNotes.length).toFixed(1):'-';
+    document.getElementById('statAvgExams').textContent=examNotes.length?(examNotes.reduce((a,b)=>a+b,0)/examNotes.length).toFixed(1):'-';
+    const by={}; data.forEach(r=>{const a=String(val(r,['alumno'],'SIN NOMBRE')).trim()||'SIN NOMBRE', key=slug(a); if(!by[key]) by[key]={name:a,rows:[]}; by[key].rows.push(r);});
+    const studentEntries=Object.values(by);
+    renderGroupControls(studentEntries.map(x=>x.name));
+    const groupFilter=document.getElementById('teacherGroupFilter').value;
+    const assignments=loadAssignments();
+    const visibleEntries=studentEntries.sort((a,b)=>a.name.localeCompare(b.name,'es')).filter(entry=>{
+      const g=assignments[slug(entry.name)]||'';
+      if(!groupFilter) return true;
+      if(groupFilter==='__unassigned__') return !g;
+      return g===groupFilter;
+    });
+    status.textContent=visibleEntries.length?`Mostrando ${visibleEntries.length} alumnos (${activityData.length} registros de actividad). Gestión profesor: ${adminRemoteInfo}.`:`No hay alumnos con ese filtro. Gestión profesor: ${adminRemoteInfo}.`;
+    results.innerHTML=visibleEntries.map(entry=>studentBlock(entry.name,entry.rows)).join('');
+  }
+  function renderGroupControls(studentNames){
+    const groups=loadGroups();
+    const assignments=loadAssignments();
+    const current=document.getElementById('teacherGroupFilter').value;
+    const filter=document.getElementById('teacherGroupFilter');
+    filter.innerHTML='<option value="">Todos los grupos</option><option value="__unassigned__">Sin grupo</option>'+groups.map(g=>`<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join('');
+    if([...filter.options].some(o=>o.value===current)) filter.value=current;
+    const grid=document.getElementById('teacherGroupsGrid');
+    const cards=groups.map(g=>{
+      const count=studentNames.filter(a=>(assignments[slug(a)]||'')===g).length;
+      return `<div class="teacher-group-card"><strong>${escapeHtml(g)}</strong><span>${count} alumno${count===1?'':'s'}</span><button type="button" data-group-filter="${escapeAttr(g)}">Ver grupo</button></div>`;
+    });
+    const unassigned=studentNames.filter(a=>!(assignments[slug(a)]||'')).length;
+    cards.push(`<div class="teacher-group-card"><strong>Sin grupo</strong><span>${unassigned} alumno${unassigned===1?'':'s'}</span><button type="button" data-group-filter="__unassigned__">Ver</button></div>`);
+    grid.innerHTML=cards.join('');
+    grid.querySelectorAll('button[data-group-filter]').forEach(btn=>btn.onclick=function(){ filter.value=this.getAttribute('data-group-filter'); render(); });
+  }
+  function escapeHtml(x){ return String(x||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+  function escapeAttr(x){ return escapeHtml(x).replace(/'/g,'&#39;'); }
+  function isExamTipo(t){ return String(t||'').toLowerCase().includes('examen'); }
+  function badgeTipo(t){
+    const exam=isExamTipo(t);
+    const label=exam?'🎓 Examen general':'📚 Puesto';
+    return `<span class="badge ${exam?'bexam':'bpuesto'}">${label}</span>`;
+  }
+  function referencia(r){
+    const t=val(r,['tipo_actividad'],'puesto');
+    if(isExamTipo(t)) return `Nivel ${val(r,['nivel'],'-')}`;
+    return val(r,['numero_actividad','puesto'],'');
+  }
+  function badgeNivel(n){ return `<span class="badge b${n}">Nivel ${n||'-'}</span>`; }
+  function studentBlock(a,rs){
+    const activityRows=rs.filter(r=>!isEnrollmentRow(r));
+    const isExam=r=>String(val(r,['tipo_actividad'],'')).toLowerCase().includes('examen');
+    const puestoVals=activityRows.filter(r=>!isExam(r)).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
+    const examVals=activityRows.filter(isExam).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
+    const avgP=puestoVals.length?(puestoVals.reduce((x,y)=>x+y,0)/puestoVals.length).toFixed(1):'-';
+    const bestExam=examVals.length?Math.max(...examVals).toFixed(1):'-';
+    const levelGrades={};
+    const levelCompleted={};
+    ['1','2','3'].forEach(function(lv){
+      const lvRows=activityRows.filter(function(r){return normalizeLevelValue(val(r,['nivel','level'],''))===lv;});
+      const examValsLv=lvRows.filter(isExam).map(note).filter(function(n){return n!==''&&!Number.isNaN(Number(n));}).map(Number);
+      const bestExamLv=examValsLv.length?Math.max.apply(null,examValsLv):NaN;
+      levelGrades[lv]=Number.isFinite(bestExamLv)?bestExamLv.toFixed(1):'';
+      levelCompleted[lv]=examValsLv.length>0;
+    });
+    const allVals=activityRows.map(note).filter(function(n){return n!==''&&!Number.isNaN(Number(n));}).map(Number);
+    levelGrades.final=allVals.length?(allVals.reduce(function(x,y){return x+y;},0)/allVals.length).toFixed(1):'';
+    levelGrades.completed=levelCompleted;
+    const last=activityRows[0]?fecha(activityRows[0].created_at):'Sin actividad';
+    const familyCode = (typeof window.mvMakeFamilyCode==='function') ? window.mvMakeFamilyCode(a) : '';
+    const groups=loadGroups();
+    const assignments=loadAssignments();
+    const currentGroup=assignments[slug(a)]||'';
+    const groupPill=currentGroup?`<span class="teacher-group-pill">📚 ${escapeHtml(currentGroup)}</span>`:`<span class="teacher-group-pill" style="background:#fff3cd;color:#664d03;border-color:#f7b733">Sin grupo</span>`;
+    const safe=escapeAttr(a);
+    const assignBtn=`<button type="button" class="teacher-assign-btn" data-student="${safe}">Asignar grupo</button>`;
+    const editBtn=`<button type="button" class="teacher-edit-btn" data-student="${safe}">Editar</button>`;
+    const removeBtn=currentGroup?`<button type="button" class="teacher-remove-group-btn" data-student="${safe}">Quitar de grupo</button>`:'';
+    const hasNote=!!teacherNoteFor(a);
+    const messageBtn=`<button type="button" class="teacher-message-btn" data-student="${safe}">💬 Mensaje${hasNote?' ✓':''}</button>`;
+    const qrBtn=`<button type="button" class="teacher-qr-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}">QR</button>`;
+    const cardBtn=`<button type="button" class="teacher-card-family-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}">Tarjeta familiar</button>`;
+    const diplomaBtn=`<button type="button" class="teacher-diploma-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}" data-grades='${escapeAttr(JSON.stringify(levelGrades))}'>Diploma</button>`;
+    const deleteBtn=`<button type="button" class="teacher-delete-btn" data-student="${safe}">Eliminar</button>`;
+    const history=activityRows.length?activityRows.map(row).join(''):'<tr><td colspan="8"><b>Todavía no hay actividad registrada.</b></td></tr>';
+    return `<article class="student-card"><div class="student-title"><span>👤 ${escapeHtml(a)} ${groupPill}</span><span class="teacher-student-actions">${assignBtn}${editBtn}${messageBtn}${qrBtn}${cardBtn}${diplomaBtn}${removeBtn}${deleteBtn}<span>🔑 Código familia: <b>${familyCode}</b> · Media puestos: ${avgP} · Mejor examen: ${bestExam} · Último: ${last}</span></span></div><div class="student-body"><table class="teacher-table"><thead><tr><th>Fecha</th><th>Nivel</th><th>Actividad</th><th>Referencia</th><th>Nota</th><th>Aciertos</th><th>Errores</th><th>Intento</th></tr></thead><tbody>${history}</tbody></table></div></article>`;
+  }
+  function row(r){
+    const nivel=val(r,['nivel'],'');
+    return `<tr><td>${fecha(r.created_at)}</td><td>${badgeNivel(nivel)}</td><td>${badgeTipo(val(r,['tipo_actividad'],'puesto'))}</td><td>${referencia(r)}</td><td><b>${note(r)}</b></td><td>${val(r,['aciertos'],'')}</td><td>${val(r,['errores'],'')}</td><td>${val(r,['intento'],'')}</td></tr>`;
+  }
+})();
+</script>
+
+<script id="mv-gold-qr-tarjeta-diploma">
+(function(){
+  if(window.__mvGoldToolsInstalled) return;
+  window.__mvGoldToolsInstalled=true;
+  function esc(x){return String(x||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
+  const TEACHER_NAME_KEY='mv_teacher_full_name_v1';
+  const VERB_MASTER_SCORE=8.5;
+  const FAMILY_PUBLIC_BASE='https://viviancubamaja-cyber.github.io/Mercado-de-los-verbos-/';
+  function currentTeacherName(){ return (localStorage.getItem(TEACHER_NAME_KEY)||'').trim(); }
+  function familyUrl(code,level){
+    const url=new URL(FAMILY_PUBLIC_BASE);
+    url.searchParams.set('familia',String(code||'').trim());
+    if(level) url.searchParams.set('celebration',String(level));
+    return url.toString();
+  }
+  function qrUrl(code,size,level){
+    return 'https://api.qrserver.com/v1/create-qr-code/?size='+(size||260)+'x'+(size||260)+'&data='+encodeURIComponent(familyUrl(code,level));
+  }
+  function openGold(title,student,html){
+    const ov=document.getElementById('teacherGoldOverlay');
+    const t=document.getElementById('teacherGoldTitle');
+    const st=document.getElementById('teacherGoldStudent');
+    const ct=document.getElementById('teacherGoldContent');
+    if(!ov||!t||!st||!ct) return;
+    t.textContent=title; st.textContent='Alumno: '+student; ct.innerHTML=html;
+    ov.style.display='flex'; ov.setAttribute('aria-hidden','false');
+  }
+  function diplomaInfo(level){
+    level=String(level||'3');
+    if(level==='1') return {level:'1', stars:'⭐', rank:'VERB EXPLORER', phrase:'Every great journey begins with a single step.', text:'For successfully completing Level 1 and taking the first steps in English verbs.'};
+    if(level==='2') return {level:'2', stars:'⭐⭐', rank:'VERB ADVENTURER', phrase:'Confidence comes from practice. Keep going!', text:'For successfully completing Level 2 and continuing to grow in English.'};
+    return {level:'3', stars:'⭐⭐⭐', rank:'VERB MASTER', phrase:'Learning is the greatest adventure of all.', text:'For successfully completing all three levels and becoming a true Verb Master.'};
+  }
+  function certText(student,level){
+    const d=diplomaInfo(level);
+    return 'Hello '+(student||'student')+'. Today is a very special day. Congratulations! This certificate is proudly awarded to '+(student||'this student')+'. '+d.text+' '+d.rank+'. '+d.phrase;
+  }
+  function speak(text){
+    try{
+      if(!('speechSynthesis' in window)){ alert('Este navegador no permite reproducir voz automática.'); return; }
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text||'Congratulations!');
+      u.lang='en-GB'; u.rate=0.86; u.pitch=1.05;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  function diplomaHtml(student,level){
+    const date=new Date().toLocaleDateString('en-GB');
+    const d=diplomaInfo(level);
+    const accent=d.level==='1'?'#198754':(d.level==='2'?'#0d6efd':'#7b2d13');
+    return '<div class="diploma level-'+d.level+'" style="--accent:'+accent+'"><div class="brand">From Class to Book · The Verb Market</div><div class="scene"><div class="alex">🙌</div></div><h1>CERTIFICATE OF ACHIEVEMENT</h1><div class="level">LEVEL '+d.level+' &nbsp; '+d.stars+'</div><div class="txt">This certificate is proudly awarded to</div><div class="name">'+esc(student)+'</div><div class="txt">'+esc(d.text)+'</div><div class="rank">'+esc(d.rank)+'</div><div class="phrase">“'+esc(d.phrase)+'”</div><div class="sign"><div>____________________<br>Teacher</div><div>'+esc(date)+'<br>Date</div></div></div>';
+  }
+  function printHtml(title,html){
+    const w=window.open('','_blank','width=1000,height=760');
+    if(!w){ alert('El navegador bloqueó la ventana de impresión.'); return; }
+    w.document.open();
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>body{font-family:system-ui,Segoe UI,Arial,sans-serif;background:#fff7df;margin:0;padding:18px;color:#3b220c}.family-card{width:980px;max-width:94vw;margin:30px auto;background:linear-gradient(135deg,#fffaf0,#ffe08a);border:6px solid #7b4b20;border-radius:34px;display:grid;grid-template-columns:42% 58%;gap:20px;align-items:center;padding:28px;box-shadow:0 12px 28px rgba(0,0,0,.18)}.alex-card{font-size:110px;text-align:center}.card-title{font-size:36px;font-weight:1000;color:#7b2d13;margin:0}.student{font-size:30px;font-weight:1000;margin:8px 0}.code{font-size:34px;font-weight:1000;background:white;border:3px dashed #7b4b20;border-radius:18px;padding:10px;text-align:center;margin:12px 0}.qr{width:210px;height:210px;background:white;padding:10px;border-radius:18px}.small{font-size:18px;font-weight:800;line-height:1.35}.diploma{width:1050px;max-width:96vw;min-height:700px;margin:10px auto;background:linear-gradient(135deg,#fffaf0,#fff0c7);border:12px double var(--accent,#7b4b20);border-radius:32px;text-align:center;padding:32px 54px;box-sizing:border-box;position:relative;overflow:hidden}.diploma:before{content:"";position:absolute;inset:18px;border:2px solid rgba(123,75,32,.25);border-radius:22px;pointer-events:none}.brand{position:absolute;right:34px;bottom:20px;font-size:13px;font-weight:900;color:#7b4b20;opacity:.75}.scene{display:flex;justify-content:center;align-items:center;gap:18px;margin:0 auto 6px}.scene .alex{font-size:70px}.scene .stand{background:#7b2d13;color:white;border-radius:14px;padding:10px 16px;font-weight:1000;box-shadow:0 4px 0 #3b1709}.diploma h1{font-size:48px;color:#7b2d13;margin:6px 0 2px}.diploma .level{font-size:24px;font-weight:1000;color:var(--accent,#7b2d13);margin-bottom:16px}.diploma .name{font-size:46px;font-weight:1000;margin:18px 0;color:#3b220c}.diploma .txt{font-size:22px;font-weight:850;line-height:1.35;max-width:760px;margin:0 auto}.diploma .rank{font-size:36px;font-weight:1000;color:var(--accent,#7b2d13);margin:18px 0 8px}.diploma .phrase{font-size:22px;font-weight:900;color:#5a3b1f;margin-top:8px}.sign{display:flex;justify-content:space-around;margin-top:46px;font-size:18px;font-weight:900}@media print{body{background:white;padding:0}.no-print{display:none}.family-card,.diploma{box-shadow:none;page-break-inside:avoid}}</style></head><body>'+html+'<div class="no-print" style="text-align:center;margin:20px"><button onclick="window.print()" style="font-size:20px;padding:12px 18px;border-radius:12px;font-weight:900">Imprimir / Guardar PDF</button></div></body></html>');
+    w.document.close();
+  }
+  function cardHtml(student,code){
+    const q=qrUrl(code,260);
+    return '<div class="family-card"><div><div class="alex-card">👦🛒</div></div><div><h1 class="card-title">Tarjeta Familiar de Acceso</h1><div class="student">'+esc(student)+'</div><div class="small">Código familiar:</div><div class="code">'+esc(code)+'</div><img class="qr" src="'+q+'" alt="QR"><div class="small">Escanea para acceder al Panel Familia.<br>También puedes acceder con el Código Familiar.<br><b>Conserve esta tarjeta durante todo el curso escolar.</b></div></div></div>';
+  }
+  function diplomaPreview(student,level){
+    const d=diplomaInfo(level);
+    return '<div class="gold-diploma-preview"><div style="font-size:46px">🏆 '+d.stars+'</div><div class="big">CERTIFICATE OF ACHIEVEMENT</div><div class="small">LEVEL '+d.level+'</div><div class="name">'+esc(student)+'</div><div class="small">'+esc(d.text)+'</div><div class="rank">'+esc(d.rank)+'</div><div class="small">“'+esc(d.phrase)+'”</div></div>';
+  }
+  function levelChooser(student,code,grades){
+    grades=grades||{};
+    const completed=grades.completed||{};
+    function gradeFor(lv){ return grades[lv] || ''; }
+    function numericGrade(lv){ const n=Number(String(gradeFor(lv)).replace(',','.')); return Number.isFinite(n)?n:NaN; }
+    function hasExam(lv){ return completed[lv]===true || completed[lv]==='true'; }
+    function isMaster(lv){ const n=numericGrade(lv); return hasExam(lv) && Number.isFinite(n) && n>=VERB_MASTER_SCORE; }
+    function gradeAttr(lv){ const g=gradeFor(lv); return g ? ' data-grade="'+esc(g)+'"' : ''; }
+    function readyAttr(lv){ return isMaster(lv) ? ' data-ready="1"' : ' data-ready="0" disabled aria-disabled="true" style="opacity:.55;filter:grayscale(.35);cursor:not-allowed"'; }
+    function gradeText(lv){
+      const g=gradeFor(lv);
+      if(!hasExam(lv)) return '<br><small>🔒 Pendiente: falta examen del nivel</small>';
+      if(isMaster(lv)) return '<br><small>🏆 VERB MASTER · '+esc(g)+'/10</small>';
+      return '<br><small>🟡 Average: '+esc(g)+'/10<br>Sigue practicando · aún no es Verb Master</small>';
+    }
+    return '<div style="font-weight:1000;color:#7b2d13;font-size:20px">Elige el diploma que quieres preparar:</div><div style="font-weight:900;color:#664d03;margin:8px 0">El diploma solo se activa cuando el alumno alcanza <b>Verb Master</b> en ese nivel (nota mínima '+VERB_MASTER_SCORE.toFixed(1)+'/10 en el examen general).</div><div class="gold-actions"><button class="gold-level-btn" type="button" data-gold-level="1" data-student="'+esc(student)+'" data-code="'+esc(code)+'"'+gradeAttr('1')+readyAttr('1')+'>⭐ Level 1<br>Verb Explorer Master'+gradeText('1')+'</button><button class="gold-level-btn" type="button" data-gold-level="2" data-student="'+esc(student)+'" data-code="'+esc(code)+'"'+gradeAttr('2')+readyAttr('2')+'>⭐⭐ Level 2<br>Verb Adventurer Master'+gradeText('2')+'</button><button class="gold-level-btn" type="button" data-gold-level="3" data-student="'+esc(student)+'" data-code="'+esc(code)+'"'+gradeAttr('3')+readyAttr('3')+'>⭐⭐⭐ Level 3<br>Verb Master'+gradeText('3')+'</button></div><div style="margin-top:12px;font-weight:900;color:#5a3b1f">Mientras tanto, el alumno recibe mensajes de ánimo y puede seguir practicando hasta convertirse en Master de su nivel.</div>';
+  }
+  function ceremonyHtml(student,code,level,grade){
+    const text=certText(student,level);
+    const url=familyUrl(code,level);
+    const gradeLine=grade ? '<div style="font-weight:1000;color:#7b2d13;margin-top:8px">Average grade: '+esc(grade)+'/10</div>' : '';
+    return diplomaPreview(student,level)+gradeLine+'<div class="gold-actions"><button class="gold-play-btn" type="button" data-say="'+esc(text)+'">🔊 Play Certificate</button><button class="gold-print-btn" type="button" data-print-diploma="1" data-student="'+esc(student)+'" data-level="'+esc(level)+'" data-grade="'+esc(grade||'')+'">🖨 Print Diploma</button><button class="gold-share-btn" type="button" data-copy="'+esc(url)+'">📨 Share Celebration</button></div><div style="font-weight:900;color:#5a3b1f">Share Celebration copia el enlace familiar con el diploma y el audio de este nivel.</div>';
+  }
+  document.addEventListener('click',function(e){
+    const goldClose=e.target.closest && e.target.closest('#teacherGoldCancel');
+    if(goldClose){ const ov=document.getElementById('teacherGoldOverlay'); if(ov){ov.style.display='none';ov.setAttribute('aria-hidden','true');} return; }
+    const ov=document.getElementById('teacherGoldOverlay'); if(e.target===ov){ov.style.display='none';ov.setAttribute('aria-hidden','true'); return;}
+    const qr=e.target.closest && e.target.closest('.teacher-qr-btn');
+    if(qr){ const student=qr.getAttribute('data-student')||''; const code=qr.getAttribute('data-code')||''; const url=familyUrl(code); openGold('📱 QR familiar',student,'<div class="gold-code">'+esc(code)+'</div><img class="gold-qr-img" src="'+qrUrl(code,260)+'"><div style="font-weight:900">El QR abre el Panel Familia con el código cargado.</div><div class="gold-actions"><button class="gold-copy-btn" type="button" data-copy="'+esc(url)+'">Copiar enlace</button></div>'); return; }
+    const card=e.target.closest && e.target.closest('.teacher-card-family-btn');
+    if(card){ const student=card.getAttribute('data-student')||''; const code=card.getAttribute('data-code')||''; openGold('🎫 Tarjeta familiar',student,'<div class="gold-code">'+esc(code)+'</div><img class="gold-qr-img" src="'+qrUrl(code,260)+'"><div style="font-weight:900">Lista para imprimir o guardar como PDF.</div><div class="gold-actions"><button class="gold-print-btn" type="button" data-print-card="1" data-student="'+esc(student)+'" data-code="'+esc(code)+'">Imprimir / Guardar PDF</button></div>'); return; }
+    const diploma=e.target.closest && e.target.closest('.teacher-diploma-btn');
+    if(diploma){ const student=diploma.getAttribute('data-student')||''; const code=diploma.getAttribute('data-code')||''; let grades={}; try{ grades=JSON.parse(diploma.getAttribute('data-grades')||'{}'); }catch(e){} openGold('🏆 Graduation Ceremony',student,levelChooser(student,code,grades)); return; }
+    const lvl=e.target.closest && e.target.closest('[data-gold-level]');
+    if(lvl){ if(lvl.getAttribute('data-ready')!=='1'){ alert('Todavía no se puede imprimir este diploma. Debe existir el examen general y la nota debe alcanzar Verb Master ('+VERB_MASTER_SCORE.toFixed(1)+'/10). Mientras tanto, sigue practicando.'); return; } const student=lvl.getAttribute('data-student')||''; const code=lvl.getAttribute('data-code')||''; const level=lvl.getAttribute('data-gold-level')||'3'; const grade=lvl.getAttribute('data-grade')||''; openGold('🏆 Level '+level+' Graduation',student,ceremonyHtml(student,code,level,grade)); return; }
+    const pc=e.target.closest && e.target.closest('[data-print-card]');
+    if(pc){ printHtml('Tarjeta Familiar - '+(pc.getAttribute('data-student')||''), cardHtml(pc.getAttribute('data-student')||'', pc.getAttribute('data-code')||'')); return; }
+    const pd=e.target.closest && e.target.closest('[data-print-diploma]');
+    if(pd){
+      const level=(pd.getAttribute('data-level')||'3');
+      const student=(pd.getAttribute('data-student')||'');
+      const date=new Date().toLocaleDateString('en-GB');
+      const grade=(pd.getAttribute('data-grade')||'');
+      const teacher=currentTeacherName();
+      const url='diploma_level'+encodeURIComponent(level)+'.html?student='+encodeURIComponent(student)+'&date='+encodeURIComponent(date)+(grade?'&grade='+encodeURIComponent(grade):'')+(teacher?'&teacher='+encodeURIComponent(teacher):'')+'&v=gold-fix12-verb-master-graduation';
+      window.open(url,'_blank');
+      return;
+    }
+    const say=e.target.closest && e.target.closest('[data-say]');
+    if(say){ speak(say.getAttribute('data-say')||'Congratulations!'); return; }
+    const cp=e.target.closest && e.target.closest('[data-copy]');
+    if(cp){ const value=cp.getAttribute('data-copy')||''; if(navigator.share){ navigator.share({title:'Graduation Celebration',url:value}).catch(function(){ navigator.clipboard&&navigator.clipboard.writeText(value); }); } else { navigator.clipboard&&navigator.clipboard.writeText(value); } cp.textContent='Enlace copiado'; return; }
+  });
+  window.addEventListener('load',function(){
+    const params=new URLSearchParams(location.search);
+    const code=params.get('familia')||params.get('codigo');
+    const celebration=params.get('celebration')||params.get('level');
+    if(code){
+      const btn=document.getElementById('openFamilyPanel');
+      const inp=document.getElementById('familyStudentName');
+      if(btn) btn.click();
+      if(inp) inp.value=code;
+      if(celebration) window.__mvRequestedCelebration=String(celebration);
+      setTimeout(function(){ const v=document.getElementById('familyViewProgress'); if(v) v.click(); },250);
+    }
+  });
+  window.mvGoldCertificateText=certText;
+  window.mvGoldDiplomaInfo=diplomaInfo;
+  window.mvGoldSpeak=speak;
+})();
+</script>
+
+<!-- MV FASE 4.5O · Limpieza visual: ocultar botones laterales y reforzar botones grandes -->
+<style id="mv-fase45O-limpieza-botones">
+/* Ocultamos los botones duplicados del panel lateral izquierdo sin tocar el motor ni sus funciones. */
+main.screen > section.seller.panel > .actions{
+  display:none !important;
+}
+
+/* Los botones grandes del cartel central quedan como único camino visible. */
+#aula2GuideBanner.aula2-guide-banner{
+  position:relative !important;
+  z-index:90 !important;
+  pointer-events:auto !important;
+}
+#aula2GuideBanner .aula2-guide-inner{
+  pointer-events:auto !important;
+}
+#aula2GuideBanner button.aula2-guide-action{
+  min-width:230px !important;
+  min-height:76px !important;
+  padding:18px 30px !important;
+  border-radius:24px !important;
+  font-size:clamp(22px,2.25vw,38px) !important;
+  line-height:1.05 !important;
+  position:relative !important;
+  z-index:95 !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+#aula2GuideBanner button.aula2-guide-action::after{
+  content:"";
+  position:absolute;
+  left:-18px; right:-18px; top:-16px; bottom:-16px;
+  border-radius:30px;
+  background:transparent;
+}
+#aula2GuideBanner .aula2-guide-text{
+  pointer-events:none !important;
+}
+</style>
+<script id="mv-fase45O-click-grande-botones">
+(function(){
+  if(window.__mvFase45OClicGrande) return;
+  window.__mvFase45OClicGrande = true;
+
+  function safeCall(fn){
+    try{ if(typeof window[fn] === 'function') window[fn](); }catch(e){ console.warn('[MV 4.5O]', fn, e); }
+  }
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest ? ev.target.closest('#aula2GuideBanner button.aula2-guide-action') : null;
+    if(!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(btn.classList.contains('check')) return safeCall('confirmEnglishVerb');
+    if(btn.classList.contains('buy')) return safeCall('buySelectedLetters');
+    if(btn.classList.contains('pay')) return safeCall('applySelectedPayment');
+    if(btn.classList.contains('gift')) return safeCall('aula2GiftAndPay');
+  }, true);
+
+  document.addEventListener('pointerdown', function(ev){
+    var btn = ev.target && ev.target.closest ? ev.target.closest('#aula2GuideBanner button.aula2-guide-action') : null;
+    if(!btn) return;
+    btn.setAttribute('data-mv-pressed','1');
+  }, true);
+})();
+</script>
+
 </body>
 </html>
