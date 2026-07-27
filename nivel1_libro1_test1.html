@@ -2351,8 +2351,9 @@ button.pay{
 })();
 </script>
 
+<link rel="stylesheet" href="mobile-responsive.css">
 </head>
-<body>
+<body class="legacy-market-page">
 <main class="screen">
   <div class="title" id="mainTitle"><span class="stand-main">STAND 1 · LEVEL 1</span><span class="stand-range">VERBS 1–10</span></div>
   <section class="panel seller">
@@ -2995,6 +2996,29 @@ function getSpokenWordForAudio(word, kind='base'){
   if(w==='read') return kind==='base' ? 'reed' : 'red';
   return word;
 }
+function mvClearBritishVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
+  const british=voices.filter(v=>String(v.lang||'').toLowerCase().replace('_','-').startsWith('en-gb'));
+  const preferred=[
+    /\bSusan\b/i,
+    /^Google UK English Female$/i,
+    /Microsoft Sonia.*English.*United Kingdom/i,
+    /Microsoft Libby.*English.*United Kingdom/i,
+    /^Serena/i,
+    /^Kate/i,
+    /^Martha/i,
+    /^Hazel/i,
+    /^Fiona/i,
+    /^Susan/i
+  ];
+  for(const pattern of preferred){
+    const voice=british.find(v=>pattern.test(v.name||''));
+    if(voice) return voice;
+  }
+  const unclear=/(male|daniel|george|arthur|oliver|ryan|david|mark|alex)/i;
+  return british.find(v=>!unclear.test(v.name||'')) || null;
+}
 function speakWord(kind='base'){
   if(!current||!('speechSynthesis' in window))return;
   const writtenWord=kind==='past'?current.past:(kind==='part'?current.part:current.en);
@@ -3002,14 +3026,12 @@ function speakWord(kind='base'){
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(spokenWord);
   u.lang='en-GB';
-  u.rate=.82;
-  // Preferimos una voz masculina inglesa si el navegador la tiene disponible.
-  const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
-  const male=voices.find(v=>/en[-_]GB/i.test(v.lang)&&/(male|daniel|george|arthur|oliver|ryan)/i.test(v.name))
-          || voices.find(v=>/^en/i.test(v.lang)&&/(male|daniel|george|arthur|oliver|ryan|david|mark|alex)/i.test(v.name));
-  if(male)u.voice=male;
+  u.rate=.75;
+  u.pitch=1;
+  const clearBritish=mvClearBritishVoice();
+  if(clearBritish)u.voice=clearBritish;
   window.speechSynthesis.speak(u);
-} 
+}
 function renderVerbButtons(){verbsDiv.innerHTML='';verbData.forEach(item=>{const b=document.createElement('button');b.textContent=item.es;if(completed.has(item.id)){b.classList.add('completed');b.disabled=true}else b.onclick=()=>chooseVerb(item.id);verbsDiv.appendChild(b)})}
 function chooseVerb(id){if(completed.has(id))return;current=verbData.find(v=>v.id===id);if(current&&current.en)current.en=current.en.trim();startTimerIfNeeded();stage='write';selected.clear();selectedPayment=null;originalLetters=[];workingLetters=[];clearCells();resetColumnStatus();resultDiv.textContent='';resultDiv.className='result';document.querySelectorAll('.verb-buttons button').forEach(b=>b.classList.toggle('selected',b.textContent===current.es));buyerChoice.textContent=current.es.toUpperCase();speech.textContent='Write the product in English.';stepText.textContent='Spell it: write the product in English inside Product.';hint.textContent='Then press Check verb.';const esBtn=document.getElementById('audioBuyerEsBtn'); if(esBtn) esBtn.classList.remove('hidden'); speakSelectedVerbEs();;renderBlanks((current.en||'').trim().length)}
 function clearCells(){productCell.innerHTML='';payCell.innerHTML='';newProductCell.innerHTML=''}
@@ -3698,6 +3720,7 @@ function speakText(text, lang='en-GB', rate=0.86){
   const u=new SpeechSynthesisUtterance(text);
   u.lang=lang;
   u.rate=rate;
+  if(/^en/i.test(lang)){const susan=mvClearBritishVoice();if(susan)u.voice=susan;}
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
@@ -5453,8 +5476,12 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang || "es-ES";
-      u.rate = lang && lang.startsWith("en") ? 0.82 : 0.72;
-      u.pitch = 1.05;
+      u.rate = lang && lang.startsWith("en") ? 0.75 : 0.72;
+      u.pitch = 1;
+      if(lang && lang.startsWith("en")){
+        const clearBritish=mvClearBritishVoice();
+        if(clearBritish) u.voice=clearBritish;
+      }
       window.speechSynthesis.speak(u);
     }catch(e){}
   }
@@ -7761,12 +7788,11 @@ loadGameState();loadStand(currentStand);updateScoreboard();
   function spellingForSpeechEn(word){ return String(word||'').toUpperCase().split('').join(', '); }
   function speakBookText(text, lang){
     try{
+      if(typeof window.mvSpeakPreferred==='function') return window.mvSpeakPreferred(text, lang || 'en-GB', (lang==='es-ES')?0.78:0.84);
       if(!text || !('speechSynthesis' in window)) return;
       var u=new SpeechSynthesisUtterance(String(text).replace(/,/g, ', '));
-      u.lang=lang || 'en-GB';
-      u.rate=(lang==='es-ES')?0.82:0.86;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
+      u.lang=lang || 'en-GB'; u.rate=(lang==='es-ES')?0.78:0.84; u.pitch=(u.lang==='en-GB')?1.08:1;
+      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
     }catch(e){}
   }
   function listVerbs(){ try{return (typeof window.allVerbs==='function')?window.allVerbs():[];}catch(e){return [];} }
@@ -7804,8 +7830,8 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       </div>';
     document.body.appendChild(modal);
     byId('l1CloseBookFinal').onclick=function(){ modal.classList.remove('show'); };
-    byId('l1PrevBookFinal').onclick=function(){ var list=listVerbs(); if(!list.length) return; window.bookIndex=(currentIndex()-1+list.length)%list.length; renderModal(); };
-    byId('l1NextBookFinal').onclick=function(){ var list=listVerbs(); if(!list.length) return; window.bookIndex=(currentIndex()+1)%list.length; renderModal(); };
+    byId('l1PrevBookFinal').onclick=function(e){ if(e){e.preventDefault();e.stopPropagation();} var list=listVerbs(); if(!list.length) return; window.bookIndex=(currentIndex()-1+list.length)%list.length; renderModal(); };
+    byId('l1NextBookFinal').onclick=function(e){ if(e){e.preventDefault();e.stopPropagation();} var list=listVerbs(); if(!list.length) return; window.bookIndex=(currentIndex()+1)%list.length; renderModal(); };
     byId('l1BookAudioEsFinal').onclick=function(e){ e.stopPropagation(); var v=currentVerb(); speakBookText(v.es||'', 'es-ES'); };
     byId('l1BookAudioEnFinal').onclick=function(e){ e.stopPropagation(); var v=currentVerb(); speakBookText(v.en||'', 'en-GB'); };
     byId('l1BookSpellEnAudioFinal').onclick=function(e){ e.stopPropagation(); var v=currentVerb(); speakBookText(spellingForSpeechEn(v.en||''), 'en-GB'); };
@@ -11914,8 +11940,132 @@ main.screen > section.seller.panel > .actions{
 #mvExamNameOverlay .mv-exam-name-actions button{padding:12px 20px!important;font-size:24px!important;border-radius:16px!important;}
 </style>
 
+
+<script id="mv-libro-audio-nav-fix-v1">
+(function(){
+  function pickVoice(lang, female){
+    var voices=[];
+    try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){}
+    var exact=voices.filter(function(v){return String(v.lang||'').toLowerCase().replace('_','-').indexOf(lang.toLowerCase())===0;});
+    var names = female
+      ? /(female|serena|sonia|kate|fiona|samantha|martha|hazel|susan|libby|victoria|moira|tessa|karen|monica|mónica|helena|paulina|marisol|luciana|google uk english female|google español)/i
+      : /.*/;
+    return exact.find(function(v){return names.test(v.name||'');}) || exact[0] || voices.find(function(v){return String(v.lang||'').toLowerCase().indexOf(lang.slice(0,2).toLowerCase())===0 && names.test(v.name||'');}) || null;
+  }
+  window.mvSpeakPreferred=function(text,lang,rate){
+    if(!text || !('speechSynthesis' in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(String(text).replace(/\s*,\s*/g,', '));
+      u.lang=lang||'en-GB';
+      u.rate=rate || ((u.lang==='es-ES')?0.78:0.84);
+      u.pitch=(u.lang==='en-GB')?1.08:1.0;
+      var v=pickVoice(u.lang,true); if(v) u.voice=v;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  };
+  try{ window.speechSynthesis.getVoices(); }catch(e){}
+})();
+</script>
+
+<script src="constructor_wallet.js"></script><script src="market_wallet_bridge.js"></script>
 </body>
 </html>
+
+<!-- MV V1.2.1 · Microcirugía Libro Nivel 1: restaurar NEXT real -->
+<script id="mv-v121-libro-n1-next-real">
+(function(){
+  if(window.__mvV121LibroN1NextReal) return;
+  window.__mvV121LibroN1NextReal=true;
+
+  function verbList(){
+    try{ return typeof window.allVerbs==='function' ? window.allVerbs() : []; }
+    catch(_e){ return []; }
+  }
+
+  function visibleIndex(list){
+    if(typeof window.bookIndex==='number' && list[window.bookIndex]) return window.bookIndex;
+    var count=document.getElementById('l1BookCountFinal');
+    var match=count && String(count.textContent||'').match(/Verbo\s+(\d+)/i);
+    return match ? Math.max(0,Number(match[1])-1) : 0;
+  }
+
+  document.addEventListener('click',function(e){
+    var button=e.target && e.target.closest ? e.target.closest('#l1NextBookFinal') : null;
+    if(!button) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    var list=verbList();
+    if(!list.length) return;
+    window.bookIndex=(visibleIndex(list)+1)%list.length;
+    if(typeof window.openNotebookNivel1Real==='function') window.openNotebookNivel1Real();
+  },true);
+
+  function installBookVoice(){
+    var female=/(female|martha|serena|sonia|samantha|karen|moira|tessa|fiona|kate|libby|hazel|susan|victoria|ava|allison|zira|sandy|shelly|flo|m[oó]nica|helena|paulina|marisol|luciana|sabina|google.*female|google.*español|siri.*female)/i;
+    var male=/(male|daniel|george|arthur|oliver|ryan|david|mark|alex|jorge|diego|carlos)/i;
+    function voices(){ try{return window.speechSynthesis.getVoices()||[];}catch(_e){return [];} }
+    function pick(lang){
+      var all=voices(), wanted=String(lang||'en-GB').toLowerCase().replace('_','-'), base=wanted.slice(0,2);
+      var exact=all.filter(function(v){return String(v.lang||'').toLowerCase().replace('_','-').indexOf(wanted)===0;});
+      var same=all.filter(function(v){return String(v.lang||'').toLowerCase().slice(0,2)===base;});
+      return exact.find(function(v){return female.test(v.name||'');})
+        || same.find(function(v){return female.test(v.name||'');})
+        || exact.find(function(v){return !male.test(v.name||'');})
+        || same.find(function(v){return !male.test(v.name||'');})
+        || exact[0] || same[0] || null;
+    }
+    window.mvSpeakPreferred=function(text,lang,rate){
+      if(!text || !('speechSynthesis' in window)) return;
+      var clean=String(text).replace(/\s*,\s*/g,', '), wanted=lang||'en-GB';
+      if(String(wanted).toLowerCase().indexOf('en')===0 && clean.indexOf(',')<0) clean=clean.toLowerCase();
+      try{
+        var u=new SpeechSynthesisUtterance(clean);
+        u.lang=wanted;
+        u.rate=String(wanted).toLowerCase().indexOf('en')===0 ? 0.75 : (rate||0.82);
+        u.pitch=1;
+        if(String(wanted).toLowerCase().indexOf('en')===0){
+          var clearBritish=mvClearBritishVoice();
+          if(clearBritish)u.voice=clearBritish;
+        }
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      }catch(_e){}
+    };
+  }
+  installBookVoice();
+
+  var letterNames={A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'uve doble',X:'equis',Y:'i griega',Z:'zeta'};
+  window.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('#l1BookAudioEsFinal,#l1BookAudioEnFinal,#l1BookSpellEnAudioFinal,#l1BookSpellEsAudioFinal'):null;
+    if(!b) return;
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    var en=String((document.getElementById('l1BookEnFinal')||{}).textContent||'').trim();
+    var es=String((document.getElementById('l1BookEsFinal')||{}).textContent||'').trim();
+    if(b.id==='l1BookAudioEsFinal') return window.mvSpeakPreferred(es,'es-ES',0.80);
+    if(b.id==='l1BookAudioEnFinal') return window.mvSpeakPreferred(en,'en-GB',0.86);
+    if(b.id==='l1BookSpellEnAudioFinal') return window.mvSpeakPreferred(en.split('').join(', '),'en-GB',0.86);
+    window.mvSpeakPreferred(en.toUpperCase().split('').map(function(ch){return letterNames[ch]||ch;}).join(', '),'es-ES',0.80);
+  },true);
+
+  var lastBookClose=0;
+  function closeLevel1Book(e){
+    var close=e.target&&e.target.closest?e.target.closest('#l1CloseBookFinal'):null;
+    if(!close){
+      if(Date.now()-lastBookClose<700){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      return;
+    }
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    lastBookClose=Date.now();
+    var modal=document.getElementById('l1BookModalFinal');
+    if(modal){modal.classList.remove('show');modal.style.removeProperty('display');modal.style.removeProperty('visibility');}
+    return false;
+  }
+  ['pointerdown','pointerup','touchstart','touchend','click'].forEach(function(eventName){window.addEventListener(eventName,closeLevel1Book,true);});
+})();
+</script>
 
 <!-- MV FASE4.5T · NIVEL 1: salida limpia de TEST + nombre obligatorio real -->
 <style id="mv-fase4-5T-n1-css">
