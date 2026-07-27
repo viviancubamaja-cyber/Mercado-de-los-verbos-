@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercado de los Verbos · Constructor de Frases</title>
+<style>
+:root{--brown:#75451f;--ink:#2f2922;--paper:#fffaf0;--green:#49a66f;--blue:#4f83cc;--violet:#7957b8;--gold:#e4ad2e;--shadow:0 14px 32px #2a23182d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Trebuchet MS,Arial,sans-serif;color:var(--ink);background:linear-gradient(rgba(255,247,223,.18),rgba(255,247,223,.28)),url("verb-market-background.jpeg") center/cover fixed no-repeat;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:repeating-linear-gradient(0deg,transparent 0 29px,#7c5127 30px)}
+.app{width:min(1180px,95vw);margin:20px auto 40px;position:relative}
+.topbar,.panel{background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #87592e;box-shadow:var(--shadow)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;border-radius:24px;padding:13px 18px}
+.brand{display:flex;align-items:center;gap:13px}.logo{font-size:40px}.brand strong{display:block;color:var(--brown);font-size:clamp(21px,3vw,34px)}.brand small{font-weight:900;color:#6b5845}
+.market{display:inline-block;text-decoration:none;background:#f7e4ad;color:#5f441d;border-radius:14px;padding:12px 17px;font-weight:900;box-shadow:0 5px 0 #7a552d55}
+.panel{margin-top:20px;border-radius:30px;padding:clamp(22px,4vw,42px)}
+.hero{text-align:center}.hero .trophy{font-size:72px}.hero h1{margin:4px 0 8px;color:var(--brown);font-size:clamp(35px,6vw,64px)}.hero p{margin:0 auto 28px;max-width:830px;font-size:clamp(17px,2.3vw,23px);line-height:1.45;font-weight:800}
+.route{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 auto 28px;font-weight:900;color:#785228}.route span,.route a{background:#fff3c9;border:2px solid #d4a958;border-radius:999px;padding:8px 12px}.route a{color:#68461e;text-decoration:none;box-shadow:0 4px 0 #9a713d33}.route a:hover{transform:translateY(-2px)}.route b{font-size:24px;color:#9a713d}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.level{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:295px;text-align:center;text-decoration:none;color:var(--ink);border:4px solid;border-radius:25px;padding:24px 18px;box-shadow:0 8px 0 #0000001c;transition:.15s transform,.15s box-shadow}
+.level:hover{transform:translateY(-5px);box-shadow:0 13px 0 #0000001c}.level .icon{font-size:64px}.level h2{font-size:31px;margin:8px 0 2px}.level .market-name{font-size:21px;font-weight:1000;margin:0 0 10px;color:var(--brown)}.level p{font-size:17px;line-height:1.4;font-weight:800;margin:0}.level .count{margin-top:auto;padding-top:16px;font-weight:900}
+.n1{background:#edf8ef;border-color:var(--green)}.n2{background:#eaf4ff;border-color:var(--blue)}.n3{background:#f1eafe;border-color:var(--violet)}
+.future{display:block;margin:24px auto 0;max-width:760px;border:3px dashed #c79731;border-radius:20px;background:#fff2c5;padding:16px 20px;text-align:center;color:#73501b;font-weight:900;font-size:18px;text-decoration:none;box-shadow:0 6px 0 #9a713d33;transition:.15s transform}.future:hover{transform:translateY(-4px)}.future span{font-size:28px;vertical-align:middle}
+.future-market{border-style:solid;border-color:#318aa0;background:linear-gradient(135deg,#e6f8ff,#fff2c5);color:#176f82}
+.note{text-align:center;margin:22px 0 0;color:#715d48;font-weight:800}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.level{min-height:0}.topbar{align-items:flex-start}.route b{display:none}}
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">🏪</div><div><strong>Mercado de los Verbos</strong><small>CONSTRUCTOR DE FRASES</small></div></div>
+    <a class="market" href="index.html">🏪 MERCADO</a>
+  </header>
+  <section class="panel">
+    <div class="hero">
+      <div class="trophy">🏆</div>
+      <h1>Constructor de Frases</h1>
+      <p>Ya conoces los productos del Mercado. Ahora utilízalos para construir frases afirmativas, negativas y preguntas.</p>
+    </div>
+    <div class="route" aria-label="Recorrido del aprendizaje"><span>Mercado del Presente</span><b>→</b><span>Mercado del Pasado</span><b>→</b><span>Mercado Perfecto</span><b>→</b><a href="constructor_frases_mezcla.html">Gran mezcla</a></div>
+    <div class="grid">
+      <a class="level n1" href="constructor_frases_nivel1.html">
+        <div class="icon">🧩</div><h2>Nivel 1</h2>
+        <div class="market-name">Mercado del Presente</div>
+        <p>Los <strong>Solitarios</strong>, los ayudantes <strong>do/does</strong> y los disfraces <strong>am/is/are</strong> del Rey BE.</p>
+        <div class="count">108 frases</div>
+      </a>
+      <a class="level n2" href="constructor_frases_nivel2.html">
+        <div class="icon">⏳</div><h2>Nivel 2</h2>
+        <div class="market-name">Mercado del Pasado</div>
+        <p>Los <strong>Solitarios</strong> en el Mercado del Pasado, el Ayudante <strong>DID</strong> y los disfraces <strong>was/were</strong> del Rey BE.</p>
+        <div class="count">108 frases</div>
+      </a>
+      <a class="level n3" href="constructor_frases_nivel3.html">
+        <div class="icon">👸</div><h2>Nivel 3</h2>
+        <div class="market-name">Mercado Perfecto</div>
+        <p>La <strong>Reina HAVE</strong>, sus disfraces <strong>has/had</strong> y su recorrido por el Mercado Perfecto.</p>
+        <div class="count">108 frases</div>
+      </a>
+    </div>
+    <a class="future" href="constructor_frases_yo_solo_8_tiempos.html"><span>🌟</span> YO SOLO · Recorrido anual de 27 rondas por los ocho mercados.</a>
+    <a class="future" href="constructor_frases_mezcla.html"><span>🧭</span> Gran mezcla: el verbo viaja por todos los niveles.</a>
+    <a class="future future-market future-market-link" href="https://mercado-del-futuro.viviancubamaja.chatgpt.site"><span>🚀</span> Mercado del Futuro: ocho caminos, Yo solo, Gran mezcla y CAN.</a>
+    <p class="note">El Constructor es la evolución natural del Mercado, no un juego independiente.</p>
+  </section>
+</main>
+<script>
+(function(){
+  var link=document.querySelector('.future-market-link');
+  if(!link)return;
+  link.addEventListener('click',function(){
+    var url=new URL(link.href);
+    var student=(localStorage.getItem('mv_current_student')||'').trim();
+    if(student)url.searchParams.set('student',student);
+    url.searchParams.set('return',location.href);
+    link.href=url.toString();
+  });
+})();
+</script>
+</body>
+</html>

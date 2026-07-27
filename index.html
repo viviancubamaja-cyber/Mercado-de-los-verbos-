@@ -6,14 +6,20 @@
 <title>Mercado de Verbos - VERSION 1.0 GOLD</title>
 <style>
   :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#2b241b;background:#fff7df;}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(#fff3bf,#f7d58a);}
-  .card{width:min(920px,94vw);background:#fffaf0;border:4px solid #7b4b20;border-radius:28px;box-shadow:0 18px 45px rgba(0,0,0,.22);padding:30px;text-align:center;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(rgba(255,247,223,.18),rgba(255,247,223,.28)),url("verb-market-background.jpeg") center/cover fixed no-repeat;}
+  .card{width:min(920px,94vw);background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #7b4b20;border-radius:28px;box-shadow:0 18px 45px rgba(0,0,0,.22);padding:30px;text-align:center;}
   h1{margin:0 0 8px;font-size:clamp(32px,5vw,58px);color:#7b2d13;}
   .subtitle{font-size:clamp(18px,2.4vw,26px);margin:0 0 28px;color:#4a3422;font-weight:700;}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0 10px;}
+  .constructor-wrap{margin:24px 0 8px}.constructor{display:block;text-decoration:none;color:#23180e;background:linear-gradient(135deg,#fff0a8,#dff4e7);border:4px solid #7b4b20;border-radius:24px;padding:20px;box-shadow:0 8px 0 #7b4b20;font-weight:900}.constructor:hover{transform:translateY(-3px);box-shadow:0 11px 0 #7b4b20}.constructor .big{color:#7b2d13}
+  .future-market{display:block;margin-top:22px;text-decoration:none;color:#23180e;background:linear-gradient(135deg,#dff5ff,#fff0bd);border:4px solid #7b4b20;border-radius:24px;padding:20px;box-shadow:0 8px 0 #7b4b20;font-weight:900;transition:.15s transform,.15s box-shadow}
+  .future-market:hover{transform:translateY(-3px);box-shadow:0 11px 0 #7b4b20}.future-market .big{color:#176f82}.future-market .small+.small{margin-top:8px}
   a.level{display:block;text-decoration:none;color:#23180e;background:#ffe08a;border:3px solid #8b541f;border-radius:22px;padding:22px 14px;transition:.15s transform,.15s box-shadow;box-shadow:0 8px 0 #8b541f;font-weight:900;}
   a.level:hover{transform:translateY(-3px);box-shadow:0 11px 0 #8b541f;}
   a.level:active{transform:translateY(5px);box-shadow:0 3px 0 #8b541f;}
+  a.level .level-icon{display:block;font-size:clamp(38px,4.6vw,54px);line-height:1;margin-bottom:7px;}
+  a.level .big{font-size:clamp(26px,3.8vw,42px);line-height:1.08;}
+  a.level .market-name{display:block;color:#7b2d13;font-size:clamp(17px,2.1vw,23px);font-weight:1000;line-height:1.15;margin:4px 0 9px;}
   .big{display:block;font-size:clamp(26px,3.8vw,42px);margin-bottom:6px;}
   .small{display:block;font-size:clamp(15px,2vw,20px);font-weight:800;}
   .note{margin-top:24px;font-size:16px;color:#5a4533;line-height:1.45;}
@@ -50,7 +56,21 @@
   .teacher-remove-group-btn{background:#6c757d;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #343a40;}
   .teacher-delete-btn{background:#dc3545;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #842029;}
   .teacher-message-btn{background:#6f42c1;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #432874;}
-  .teacher-assign-btn:hover,.teacher-edit-btn:hover,.teacher-remove-group-btn:hover,.teacher-delete-btn:hover,.teacher-message-btn:hover{filter:brightness(1.08)}
+  .teacher-wallet-btn{background:#198754;color:white;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #0f5132;}
+  .teacher-wallet-btn:hover,.teacher-assign-btn:hover,.teacher-edit-btn:hover,.teacher-remove-group-btn:hover,.teacher-delete-btn:hover,.teacher-message-btn:hover{filter:brightness(1.08)}
+  .teacher-wallet-summary{display:inline-block;background:#e9f7ef;color:#0f5132;border:2px solid #198754;border-radius:12px;padding:6px 9px;font-weight:1000;}
+  .teacher-wallet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0;}
+  .teacher-wallet-stat{background:#fff0c7;border:2px solid #b98233;border-radius:14px;padding:10px;text-align:center;font-weight:900;}
+  .teacher-wallet-stat strong{display:block;color:#7b2d13;font-size:25px;}
+  .teacher-wallet-history{max-height:250px;overflow:auto;display:grid;gap:7px;margin:12px 0;}
+  .teacher-wallet-history-row{background:white;border:2px solid #d6a85c;border-radius:12px;padding:9px 11px;font-weight:800;}
+  .teacher-wallet-empty{background:#fff3cd;border-radius:12px;padding:12px;text-align:center;font-weight:900;color:#664d03;}
+  .teacher-wallet-payment{margin:12px 0;padding:12px;background:#fffaf0;border:2px solid #d6a85c;border-radius:14px;}
+  .teacher-wallet-payment label{display:block;color:#7b2d13;font-weight:1000;margin-bottom:7px;}
+  .teacher-wallet-payment-row{display:flex;align-items:center;gap:8px;}
+  .teacher-wallet-payment-row input{width:150px;max-width:70%;font-size:22px;font-weight:1000;padding:9px 11px;border:2px solid #b98233;border-radius:10px;background:white;color:#7b2d13;}
+  .teacher-wallet-payment-row span{font-size:23px;font-weight:1000;color:#7b2d13;}
+  .teacher-wallet-payment small{display:block;margin-top:7px;font-weight:800;color:#664d03;}
   /* VERSION 1.0 GOLD - QR, tarjeta familiar y diploma premium */
   .teacher-qr-btn{background:#20c997;color:#063b2f;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #0f7660;}
   .teacher-card-family-btn{background:#0dcaf0;color:#04313b;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #087990;}
@@ -102,7 +122,7 @@
   .family-teacher-note strong{display:block;font-size:20px;margin-bottom:8px;color:#3d246b;}
   .family-teacher-note .teacher-note-body{font-size:17px;line-height:1.45;font-weight:800;white-space:pre-wrap;}
   @media(max-width:900px){.teacher-groups-grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:620px){.teacher-groups-grid{grid-template-columns:1fr}.teacher-student-actions{justify-content:flex-start}}
+  @media(max-width:620px){.teacher-groups-grid{grid-template-columns:1fr}.teacher-student-actions{justify-content:flex-start}.teacher-wallet-grid{grid-template-columns:repeat(2,1fr)}}
   .student-card{background:white;border:2px solid #d6a85c;border-radius:16px;margin:10px 0;overflow:hidden;}
   .student-title{background:#fff0c7;padding:12px 14px;font-weight:900;color:#44260d;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
   .student-body{padding:12px;overflow:auto;}
@@ -172,30 +192,63 @@
   @media(max-width:720px){.family-toggle{margin-left:0}.family-cards{grid-template-columns:1fr}.family-box{padding:18px}.family-bar{height:26px}.family-stands-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.family-stand{padding:7px 3px}}
 
 </style>
+<link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
   <main class="card">
     <h1>🛒 Mercado de Verbos</h1>
-    <p class="subtitle">3 juegos independientes</p>
+    <p class="subtitle">Un único recorrido: aprende los verbos y construye frases</p>
     <section class="grid" aria-label="Elegir nivel">
       <a class="level" href="nivel1_libro1_test1.html">
+        <span class="level-icon">🧩</span>
         <span class="big">Nivel 1</span>
+        <span class="market-name">Mercado del Presente</span>
         <span class="small">Libro 1 / Test 1</span>
       </a>
       <a class="level" href="nivel2_libro2_test2.html">
+        <span class="level-icon">⏳</span>
         <span class="big">Nivel 2</span>
+        <span class="market-name">Mercado del Pasado</span>
         <span class="small">Libro 2 / Test 2</span>
       </a>
       <a class="level" href="nivel3_libro3_test3.html">
+        <span class="level-icon">👸</span>
         <span class="big">Nivel 3</span>
+        <span class="market-name">Mercado Perfecto</span>
         <span class="small">Libro 3 / Test 3</span>
       </a>
     </section>
-    <p class="note">Elige un nivel para empezar a jugar.</p>
+    <div class="constructor-wrap">
+      <a class="constructor" href="constructor_frases.html">
+        <span class="big">🏆 Constructor de Frases</span>
+        <span class="small">Nivel 1 · Nivel 2 · Nivel 3</span>
+        <span class="small" style="margin-top:8px">324 frases · Evolución del Mercado</span>
+      </a>
+    </div>
+    <a class="future-market future-market-link" href="https://mercado-del-futuro.viviancubamaja.chatgpt.site">
+      <span class="big">🧭 Mercado del Futuro</span>
+      <span class="small">WILL · WOULD · WILL HAVE · WOULD HAVE</span>
+      <span class="small">Futuros en movimiento · Yo solo · Gran mezcla · CAN</span>
+    </a>
+    <p class="note">Elige un nivel para aprender los verbos o entra al Constructor para utilizarlos en frases.</p>
     <button class="teacher-toggle" id="openTeacherPanel">👩‍🏫 Área del profesor</button>
     <button class="family-toggle" id="openFamilyPanel">👨‍👩‍👧 Familia</button>
 
   </main>
+
+<script>
+(function(){
+  var link=document.querySelector('.future-market-link');
+  if(!link)return;
+  link.addEventListener('click',function(){
+    var url=new URL(link.href);
+    var student=(localStorage.getItem('mv_current_student')||'').trim();
+    if(student)url.searchParams.set('student',student);
+    url.searchParams.set('return',location.href);
+    link.href=url.toString();
+  });
+})();
+</script>
 
 <script id="mv-fase3-2-auto-sync-save-exit">
 (function(){
@@ -869,7 +922,31 @@
     </div>
   </section>
 
+  <section class="teacher-assign-overlay" id="teacherWalletOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherWalletTitle" style="width:min(620px,94vw)">
+      <h3 id="teacherWalletTitle">💶 Monedero del alumno</h3>
+      <p id="teacherWalletStudent">Alumno</p>
+      <div class="teacher-wallet-grid" id="teacherWalletSummary"></div>
+      <h4>Historial de pagos</h4>
+      <div class="teacher-wallet-history" id="teacherWalletHistory"></div>
+      <div class="teacher-warning">Al confirmar, solo se pagan los euros pendientes. Las estrellas parciales y todo el historial se conservan.</div>
+      <div class="teacher-wallet-payment">
+        <label for="teacherWalletAmount">Cantidad que voy a pagar</label>
+        <div class="teacher-wallet-payment-row">
+          <input id="teacherWalletAmount" type="number" min="1" step="1" inputmode="numeric" aria-describedby="teacherWalletAmountHelp">
+          <span>€</span>
+        </div>
+        <small id="teacherWalletAmountHelp">Si pagas solo una parte, el resto seguirá apareciendo como pendiente.</small>
+      </div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherWalletCancel">Cerrar</button>
+        <button type="button" class="teacher-edit-btn" id="teacherWalletPayAll">💶 Pagar todo</button>
+        <button type="button" class="teacher-wallet-btn" id="teacherWalletPay">✅ Marcar pago</button>
+      </div>
+    </div>
+  </section>
 
+<script src="constructor_wallet.js"></script>
 <script id="mv-profesor-panel-v1">
 (function(){
   const URL="https://zpdcfbunxwhzqlrxrpaj.supabase.co";
@@ -880,7 +957,7 @@
   const login=document.getElementById('teacherLogin');
   const status=document.getElementById('teacherStatus');
   const results=document.getElementById('teacherResults');
-  let rows=[];
+  let rows=[],wallets={};
   const GROUPS_KEY='mv_teacher_groups_v1';
   const ASSIGN_KEY='mv_teacher_group_assignments_v1';
   const NOTE_KEY='mv_teacher_family_notes_v1';
@@ -914,6 +991,14 @@
   const createStudentName=document.getElementById('teacherCreateStudentName');
   const createStudentSurname=document.getElementById('teacherCreateStudentSurname');
   const createStudentGroup=document.getElementById('teacherCreateStudentGroup');
+  let walletStudent='';
+  const walletOverlay=document.getElementById('teacherWalletOverlay');
+  const walletStudentLabel=document.getElementById('teacherWalletStudent');
+  const walletSummary=document.getElementById('teacherWalletSummary');
+  const walletHistory=document.getElementById('teacherWalletHistory');
+  const walletAmount=document.getElementById('teacherWalletAmount');
+  const walletPayAll=document.getElementById('teacherWalletPayAll');
+  const walletPay=document.getElementById('teacherWalletPay');
   function readLocalJson(key,def){ try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(def));}catch(e){return def;} }
   function loadGroups(){ if(groupsCache===null) groupsCache=readLocalJson(GROUPS_KEY,[]); return groupsCache; }
   function saveGroups(groups){ groupsCache=groups; localStorage.setItem(GROUPS_KEY,JSON.stringify(groups)); }
@@ -924,6 +1009,71 @@
   async function sb(path,options={}){
     const headers=Object.assign({apikey:KEY,Authorization:'Bearer '+KEY},options.headers||{});
     return fetch(`${URL}/rest/v1/${path}`,Object.assign({},options,{headers}));
+  }
+  function walletFor(name){
+    return window.MV_WALLET?MV_WALLET.normalize(wallets[MV_WALLET.slug(name)]||MV_WALLET.blank()):{correctAnswers:0,euros:0,totalEarned:0,totalPaid:0,payments:[]};
+  }
+  function paymentDate(value){
+    try{return new Date(value).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return String(value||'');}
+  }
+  function selectedPaymentAmount(){
+    return Math.floor(Number(walletAmount&&walletAmount.value)||0);
+  }
+  function updateWalletPayButton(){
+    const wallet=walletFor(walletStudent),amount=selectedPaymentAmount();
+    const valid=wallet.euros>0&&amount>=1&&amount<=wallet.euros;
+    walletPay.disabled=!valid;
+    walletPay.textContent=wallet.euros<=0?'✅ No hay euros pendientes':valid?'✅ Marcar '+amount+' € como pagados':'✅ Escribe una cantidad válida';
+  }
+  function renderWalletModal(){
+    const wallet=walletFor(walletStudent),stars=wallet.correctAnswers%5;
+    const previous=selectedPaymentAmount();
+    walletStudentLabel.textContent='Alumno: '+walletStudent;
+    walletSummary.innerHTML=
+      `<div class="teacher-wallet-stat"><strong>${wallet.euros} €</strong>Pendientes</div>`+
+      `<div class="teacher-wallet-stat"><strong>${wallet.totalEarned} €</strong>Ganados</div>`+
+      `<div class="teacher-wallet-stat"><strong>${wallet.totalPaid} €</strong>Pagados</div>`+
+      `<div class="teacher-wallet-stat"><strong>${stars}/5 ⭐</strong>Próximo euro</div>`;
+    walletHistory.innerHTML=wallet.payments.length?wallet.payments.map(function(item){
+      return `<div class="teacher-wallet-history-row">✅ <strong>${item.amount} €</strong> · ${escapeHtml(paymentDate(item.paidAt))}${item.teacher?' · Pagado por '+escapeHtml(item.teacher):''}</div>`;
+    }).join(''):'<div class="teacher-wallet-empty">Todavía no hay pagos registrados.</div>';
+    walletAmount.max=String(wallet.euros);
+    walletAmount.disabled=wallet.euros<=0;
+    walletAmount.value=wallet.euros>0?String(previous>=1&&previous<=wallet.euros?previous:wallet.euros):'';
+    walletPayAll.disabled=wallet.euros<=0;
+    updateWalletPayButton();
+  }
+  function openWalletModal(name){
+    walletStudent=String(name||'').trim();if(!walletStudent||!walletOverlay)return;
+    renderWalletModal();walletOverlay.style.display='flex';walletOverlay.setAttribute('aria-hidden','false');
+  }
+  function closeWalletModal(){
+    walletStudent='';if(walletOverlay){walletOverlay.style.display='none';walletOverlay.setAttribute('aria-hidden','true');}
+  }
+  async function payCurrentWallet(amountOverride){
+    if(!walletStudent||!window.MV_WALLET)return;
+    const current=walletFor(walletStudent);
+    if(current.euros<=0)return renderWalletModal();
+    const amount=Math.floor(Number(amountOverride)||selectedPaymentAmount());
+    if(amount<1||amount>current.euros){
+      alert('Escribe una cantidad entre 1 € y '+current.euros+' €.');
+      if(walletAmount)walletAmount.focus();
+      return;
+    }
+    if(!confirm('¿Confirmas que ya has pagado '+amount+' € a '+walletStudent+'?'))return;
+    walletPay.disabled=true;walletPay.textContent='Guardando pago...';
+    walletPayAll.disabled=true;
+    const teacher=(localStorage.getItem('mv_teacher_full_name_v1')||'').trim();
+    const updated=await MV_WALLET.payStudent(walletStudent,teacher,amount);
+    if(updated.totalPaid<current.totalPaid+amount){
+      wallets[MV_WALLET.slug(walletStudent)]=current;
+      renderWalletModal();
+      status.textContent='No se pudo confirmar el pago en la base de datos. No se ha descontado ningún euro; inténtalo de nuevo con conexión.';
+      return;
+    }
+    wallets[MV_WALLET.slug(walletStudent)]=updated;
+    renderWalletModal();render();
+    status.textContent=(updated.euros>0?'Pago parcial registrado: ':'Pago registrado: ')+amount+' € pagados a '+walletStudent+'. '+(updated.euros>0?'Quedan '+updated.euros+' € pendientes.':'El saldo pendiente queda a 0 €.');
   }
   async function loadAdminData(){
     // Carga grupos, asignaciones y mensajes desde Supabase. Si las tablas no existen todavía, conserva datos locales.
@@ -1018,6 +1168,11 @@
   document.getElementById('teacherSearch').oninput=render;
   document.getElementById('teacherLevelFilter').onchange=render;
   document.getElementById('teacherGroupFilter').onchange=render;
+  if(document.getElementById('teacherWalletCancel'))document.getElementById('teacherWalletCancel').onclick=closeWalletModal;
+  if(walletAmount)walletAmount.addEventListener('input',updateWalletPayButton);
+  if(walletPayAll)walletPayAll.onclick=function(){const current=walletFor(walletStudent);if(current.euros>0)payCurrentWallet(current.euros);};
+  if(walletPay)walletPay.onclick=function(){payCurrentWallet();};
+  if(walletOverlay)walletOverlay.addEventListener('click',function(e){if(e.target===walletOverlay)closeWalletModal();});
 
   // FIX31 - Acceso rápido: tarjeta Alumnos = volver a todos los alumnos
   function showAllTeacherStudents(){
@@ -1061,6 +1216,8 @@
     if(edit){ openEditModal(edit.getAttribute('data-student')||''); return; }
     const msg=target.closest('.teacher-message-btn');
     if(msg){ openMessageModal(msg.getAttribute('data-student')||''); return; }
+    const wallet=target.closest('.teacher-wallet-btn');
+    if(wallet){ openWalletModal(wallet.getAttribute('data-student')||''); return; }
     const remove=target.closest('.teacher-remove-group-btn');
     if(remove){
       const alumno=remove.getAttribute('data-student')||'';
@@ -1304,10 +1461,11 @@
   async function loadData(){
     status.textContent='Cargando datos de Supabase...'; results.innerHTML='';
     try{
-      const res=await fetch(`${URL}/rest/v1/${TABLE}?select=*&order=created_at.desc&limit=700`,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      const res=await fetch(`${URL}/rest/v1/${TABLE}?select=*&tipo_actividad=neq.constructor_monedero&order=created_at.desc&limit=700`,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
       if(!res.ok) throw new Error('Supabase respondió '+res.status);
       rows=await res.json();
       await loadAdminData();
+      wallets=window.MV_WALLET?await MV_WALLET.loadAll():{};
       render();
     }catch(e){ status.textContent='No se pudieron cargar los datos: '+e.message; }
   }
@@ -1375,6 +1533,7 @@
   function badgeNivel(n){ return `<span class="badge b${n}">Nivel ${n||'-'}</span>`; }
   function studentBlock(a,rs){
     const activityRows=rs.filter(r=>!isEnrollmentRow(r));
+    const wallet=walletFor(a);
     const isExam=r=>String(val(r,['tipo_actividad'],'')).toLowerCase().includes('examen');
     const puestoVals=activityRows.filter(r=>!isExam(r)).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
     const examVals=activityRows.filter(isExam).map(note).filter(n=>n!==''&&!Number.isNaN(Number(n))).map(Number);
@@ -1404,12 +1563,14 @@
     const removeBtn=currentGroup?`<button type="button" class="teacher-remove-group-btn" data-student="${safe}">Quitar de grupo</button>`:'';
     const hasNote=!!teacherNoteFor(a);
     const messageBtn=`<button type="button" class="teacher-message-btn" data-student="${safe}">💬 Mensaje${hasNote?' ✓':''}</button>`;
+    const walletBtn=`<button type="button" class="teacher-wallet-btn" data-student="${safe}">💶 Monedero</button>`;
+    const walletInfo=`<span class="teacher-wallet-summary">💰 ${wallet.euros} € pendientes · ✅ ${wallet.totalPaid} € pagados · ⭐ ${wallet.correctAnswers%5}/5</span>`;
     const qrBtn=`<button type="button" class="teacher-qr-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}">QR</button>`;
     const cardBtn=`<button type="button" class="teacher-card-family-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}">Tarjeta familiar</button>`;
     const diplomaBtn=`<button type="button" class="teacher-diploma-btn" data-student="${safe}" data-code="${escapeAttr(familyCode)}" data-grades='${escapeAttr(JSON.stringify(levelGrades))}'>Diploma</button>`;
     const deleteBtn=`<button type="button" class="teacher-delete-btn" data-student="${safe}">Eliminar</button>`;
     const history=activityRows.length?activityRows.map(row).join(''):'<tr><td colspan="8"><b>Todavía no hay actividad registrada.</b></td></tr>';
-    return `<article class="student-card"><div class="student-title"><span>👤 ${escapeHtml(a)} ${groupPill}</span><span class="teacher-student-actions">${assignBtn}${editBtn}${messageBtn}${qrBtn}${cardBtn}${diplomaBtn}${removeBtn}${deleteBtn}<span>🔑 Código familia: <b>${familyCode}</b> · Media puestos: ${avgP} · Mejor examen: ${bestExam} · Último: ${last}</span></span></div><div class="student-body"><table class="teacher-table"><thead><tr><th>Fecha</th><th>Nivel</th><th>Actividad</th><th>Referencia</th><th>Nota</th><th>Aciertos</th><th>Errores</th><th>Intento</th></tr></thead><tbody>${history}</tbody></table></div></article>`;
+    return `<article class="student-card"><div class="student-title"><span>👤 ${escapeHtml(a)} ${groupPill}</span><span class="teacher-student-actions">${walletBtn}${assignBtn}${editBtn}${messageBtn}${qrBtn}${cardBtn}${diplomaBtn}${removeBtn}${deleteBtn}${walletInfo}<span>🔑 Código familia: <b>${familyCode}</b> · Media puestos: ${avgP} · Mejor examen: ${bestExam} · Último: ${last}</span></span></div><div class="student-body"><table class="teacher-table"><thead><tr><th>Fecha</th><th>Nivel</th><th>Actividad</th><th>Referencia</th><th>Nota</th><th>Aciertos</th><th>Errores</th><th>Intento</th></tr></thead><tbody>${history}</tbody></table></div></article>`;
   }
   function row(r){
     const nivel=val(r,['nivel'],'');

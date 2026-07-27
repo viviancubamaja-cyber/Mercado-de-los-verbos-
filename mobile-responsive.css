@@ -1,0 +1,53 @@
+/* Adaptación móvil compartida. No altera lógica, datos ni escritorio. */
+html{-webkit-text-size-adjust:100%}
+@media(max-width:900px){
+ body{overflow-x:hidden}
+ button,input,select,textarea{font-size:16px}
+ button,.btn,.small-btn{min-height:44px;touch-action:manipulation}
+ body.legacy-market-page{display:block!important;align-items:initial!important;overflow:auto!important;padding:0!important}
+ .legacy-market-page .screen{width:100%!important;max-width:none!important;min-height:100svh!important;padding:7px!important;gap:8px!important;display:flex!important;flex-direction:column!important;transform:none!important;zoom:1!important}
+ .legacy-market-page .title{order:0;width:100%;min-height:54px;padding:8px 10px!important;font-size:clamp(19px,5.4vw,27px)!important;line-height:1.05}
+ .legacy-market-page .work-area{order:1;padding:10px!important}
+ .legacy-market-page .seller{order:2}.legacy-market-page .buyer{order:3}
+ .legacy-market-page .panel{border-width:3px!important;border-radius:16px!important}
+ .legacy-market-page .seller,.legacy-market-page .buyer{padding:10px!important;display:grid!important;grid-template-columns:64px minmax(0,1fr)!important;align-items:start;gap:8px!important}
+ .legacy-market-page .seller .face,.legacy-market-page .buyer .face{width:58px!important;height:58px!important;font-size:31px!important}
+ .legacy-market-page .seller>:not(.face),.legacy-market-page .buyer>:not(.face){min-width:0}
+ .legacy-market-page .seller .actions,.legacy-market-page .seller .utility-row,.legacy-market-page .seller .save,.legacy-market-page .seller>section,.legacy-market-page .buyer>section{grid-column:1/-1}
+ .legacy-market-page .seller .actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .legacy-market-page .seller .actions button,.legacy-market-page .utility-row button,.legacy-market-page .save{width:100%!important}
+ .legacy-market-page .stand-buttons{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+ .legacy-market-page .verb-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ .legacy-market-page .market-table{display:grid!important;grid-template-columns:repeat(3,minmax(215px,1fr))!important;gap:8px!important;overflow-x:auto!important;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:3px 2px 10px!important}
+ .legacy-market-page .market-table .col{scroll-snap-align:start;min-height:155px!important;padding:8px!important}
+ .legacy-market-page .letters{overflow-x:auto;flex-wrap:nowrap!important;padding-bottom:4px}
+ .legacy-market-page .tile{width:38px!important;min-width:38px!important;height:42px!important;font-size:22px!important}
+ .legacy-market-page .coin-row{grid-template-columns:repeat(3,minmax(58px,1fr))!important;gap:5px!important}
+ .legacy-market-page .rule-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .legacy-market-page .book-card{width:96vw!important;max-height:92svh;overflow:auto;padding:12px!important}
+ .legacy-market-page .book-pages{grid-template-columns:1fr!important}
+ .legacy-market-page .book-nav{flex-wrap:wrap}.legacy-market-page .exit-card{overflow:auto!important}
+ .app{width:100%!important;max-width:none!important;margin:0!important;zoom:1!important;transform:none!important}
+ .topbar,.top{gap:7px!important;padding:8px!important;flex-wrap:wrap!important}
+ .actions{display:flex!important;flex-wrap:wrap!important;justify-content:center;gap:6px!important}
+ .actions button{flex:1 1 110px}
+ .panel,.card,.game-card{padding:10px!important}
+ .mission{padding:12px!important}
+ textarea,input[type=text]{max-width:100%}textarea{min-height:88px;line-height:1.3}
+ .buttons,.bottom-actions,.controls{flex-wrap:wrap!important;gap:7px!important}
+ .buttons button,.bottom-actions button,.controls button{flex:1 1 125px}
+ .teacher-assign-overlay{padding:7px!important;align-items:center!important}
+ .teacher-assign-box{width:calc(100vw - 14px)!important;max-height:94svh;overflow:auto;padding:14px!important;border-width:3px!important}
+ .teacher-wallet-grid,.teacher-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .teacher-wallet-payment-row{flex-wrap:wrap}.teacher-wallet-payment-row input{width:100%!important;max-width:none!important}
+ .student-body{overflow-x:auto}.teacher-table{min-width:720px}
+}
+@media(max-width:430px){
+ .legacy-market-page .market-table{grid-template-columns:repeat(3,minmax(82vw,1fr))!important}
+ .legacy-market-page .rule-grid{grid-template-columns:1fr!important}
+ .teacher-wallet-grid,.teacher-stats{gap:6px!important}.teacher-wallet-stat{padding:7px!important}
+}
+@media(orientation:landscape) and (max-height:500px){
+ .legacy-market-page .screen{padding:4px!important;gap:5px!important}.legacy-market-page .title{min-height:44px}
+ .legacy-market-page .seller,.legacy-market-page .buyer{padding:7px!important}
+}

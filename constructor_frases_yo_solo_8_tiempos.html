@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yo solo · Ocho mercados</title>
+<style>
+:root{--ink:#29323a;--paper:#fffaf0;--brown:#7a4b25;--green:#49a66f;--blue:#4f83cc;--violet:#7957b8;--red:#d85c54;--gold:#e4ad2e;--shadow:0 13px 30px #2a23182b}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Trebuchet MS,Arial,sans-serif;color:var(--ink);background:linear-gradient(rgba(255,247,223,.18),rgba(255,247,223,.28)),url("verb-market-background.jpeg") center/cover fixed no-repeat;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:repeating-linear-gradient(0deg,transparent 0 29px,#7c5127 30px)}
+.app{width:min(1240px,98vw);margin:7px auto 14px;position:relative}
+.topbar,.panel{background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #87592e;box-shadow:var(--shadow)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:18px;padding:5px 11px}
+.brand{display:flex;align-items:center;gap:8px}.logo{font-size:27px}.title{font-size:clamp(19px,2.2vw,27px);font-weight:900;color:var(--brown)}.subtitle{font-size:11px;color:#6a5b49;font-weight:800}
+.actions,.namebox,.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.actions{justify-content:flex-end}
+button,.back{font:inherit;font-weight:900;border:0;border-radius:11px;padding:8px 12px;cursor:pointer;box-shadow:0 4px 0 #0000002b;text-decoration:none}
+button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002b}.back{background:#f7e4ad;color:#5f441d}.reset{background:#ef877f;color:#fff}.audio{background:#7eb6ea;color:#fff}.start,.check{background:var(--green);color:#fff}.save{background:#efbd5b;color:#553c12}.next{background:#607fc7;color:#fff}
+.notebook-button{background:#8a72bd;color:#fff}
+.panel{margin-top:7px;border-radius:22px;padding:11px 16px 12px}.hidden{display:none!important}
+.hero{text-align:center;padding:24px 12px}.hero h1{font-size:clamp(32px,5vw,58px);margin:0;color:var(--brown)}.hero p{font-size:clamp(17px,2.2vw,22px);font-weight:800;max-width:820px;margin:12px auto 24px;line-height:1.45}
+.namebox input{min-width:min(440px,90vw);font:inherit;font-size:20px;padding:14px 18px;border-radius:15px;border:3px solid #b98a4d}
+.head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.head h1{font-size:clamp(24px,3vw,32px);line-height:1;margin:0;color:var(--brown)}
+.small{font-size:14px;color:#796c5b;font-weight:800}.badge{padding:8px 13px;border-radius:999px;background:#fff0ba;font-weight:900;border:2px solid #d8a730}
+.head-badges{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.badge{padding:5px 10px}.wallet{background:#dff6d9;border-color:#53a86b;color:#216d3a}.wallet.coin-pop{animation:coinPop .7s ease}@keyframes coinPop{50%{transform:scale(1.22);background:#ffe69c}}
+.progress{height:12px;background:#eadfc9;border:2px solid #b69a72;border-radius:999px;overflow:hidden;margin:6px 0 8px}.progress div{height:100%;background:linear-gradient(90deg,var(--green),var(--blue),var(--violet));transition:.3s}
+.mission{background:#fff;border:3px dashed #b58a50;border-radius:18px;padding:9px 14px;text-align:center;margin-bottom:7px}.mission small{font-size:11px;font-weight:900;color:#8a6334;letter-spacing:.08em}.mission div{font-size:clamp(22px,2.7vw,31px);font-weight:900;margin-top:4px;line-height:1.18}.mission div.long{font-size:clamp(19px,2.25vw,26px)}.mission div.very-long{font-size:clamp(17px,1.9vw,22px)}
+.answer{text-align:center;padding:3px 4px 0}.answer label{display:block;font-size:17px;font-weight:900;margin-bottom:4px}.answer textarea{display:block;width:min(1120px,99%);min-height:72px;margin:auto;resize:none;font:inherit;font-size:clamp(20px,2.45vw,29px);line-height:1.15;font-weight:900;padding:10px 15px;border:3px solid #b69a72;border-radius:15px;background:#fff;color:var(--ink);outline:none;transition:.15s}.answer textarea.long{font-size:clamp(18px,2vw,24px)}.answer textarea.very-long{font-size:clamp(16px,1.75vw,21px)}.answer textarea:focus{box-shadow:0 0 0 4px #ffffffaa}.answer textarea.typing-good{color:#176a34;border-color:#49a66f;background:#f1fff5}.answer textarea.typing-bad{color:#a52e27;border-color:#d85c54;background:#fff1ef;box-shadow:0 0 0 4px #d85c5424}
+.unknown-tip{margin:0 auto 5px;padding:4px 6px 4px 11px;width:max-content;max-width:96%;border-radius:12px;background:#eee7fa;border:2px solid #8a72bd;color:#5d438e;font-size:14px;font-weight:900;display:flex;align-items:center;gap:7px}.instruction-audio{padding:4px 8px;border-radius:8px;background:#8a72bd;color:#fff;box-shadow:none;font-size:17px;line-height:1}.word-track{min-height:34px;margin:5px auto 0;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;max-width:1160px}.tracked-word{padding:4px 7px;border-radius:8px;background:#eee7db;border:2px solid #c8b99f;font-size:15px;font-weight:900}.tracked-word.ok{background:#daf4e1;border-color:#49a66f;color:#216d3a}.tracked-word.wrong{background:#ffe0dc;border-color:#d85c54;color:#9b332d}.tracked-word.revealed{background:#fff0ba;border-color:#d8a730;color:#75500f}.tracked-word.unknown{background:#eee7fa;border-color:#8a72bd;color:#5d438e}.tracked-word.notebook{background:#ffe6a8;border-color:#d38b18;color:#7b4b00}
+.feedback{min-height:42px;margin-top:6px;border-radius:13px;padding:7px 10px;text-align:center;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center}.neutral{background:#eee7db;color:#6b5d49}.good{background:#d9f3df;color:#216d3a}.bad{background:#ffe0dc;color:#9b332d}
+.other-ways{margin:6px auto 0;padding:7px 12px;width:min(900px,98%);border-radius:13px;border:2px solid #7e63b4;background:#f2ecff;text-align:center;color:#513785}.other-ways-title{font-size:13px;font-weight:900;letter-spacing:.04em}.other-ways-list{margin-top:4px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.other-way{padding:4px 8px;border-radius:9px;background:#fff;border:2px solid #a890d2;font-size:15px;font-weight:900;color:#3f2c68}
+.controls{margin-top:7px}.finish{text-align:center}.finish .trophy{font-size:90px}.score{font-size:30px;font-weight:900;color:#397b4e}.notebook-final{margin:22px auto;padding:18px;width:min(760px,100%);border-radius:20px;background:#fff0c9;border:3px solid #d38b18}.notebook-final h2{margin:0 0 10px;color:#7b4b00}.notebook-words{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.notebook-words span{padding:8px 12px;border-radius:12px;background:#fff;border:2px solid #d38b18;font-size:19px;font-weight:900;color:#7b4b00}
+.notebook-overlay{position:fixed;inset:0;z-index:20;padding:18px;background:#20190fb8;display:flex;align-items:center;justify-content:center}.notebook-card{width:min(900px,96vw);max-height:92vh;overflow:auto;padding:22px;border-radius:26px;border:4px solid #7957b8;background:var(--paper);box-shadow:var(--shadow)}.notebook-card h1{margin:0;color:#5d438e;font-size:clamp(27px,4vw,42px)}.notebook-owner{margin:7px 0 18px;font-size:18px;font-weight:900;color:#6a5b49}.notebook-close{float:right;background:#ef877f;color:#fff}.notebook-empty{padding:28px;border-radius:18px;background:#eee7fa;text-align:center;font-size:20px;font-weight:900;color:#5d438e}.notebook-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.vocab-card{padding:16px;border-radius:18px;border:3px solid #d38b18;background:#fff5d8}.vocab-word{font-size:25px;font-weight:900;color:#7b4b00;text-transform:uppercase}.vocab-meaning{margin:3px 0 12px;font-size:19px;font-weight:900;color:#5d438e}.vocab-example{margin:5px 0;line-height:1.35}.vocab-example.en{font-weight:900;color:#216d3a}.vocab-date{margin-top:10px;font-size:12px;font-weight:800;color:#796c5b}
+@media(min-width:721px){.app{width:min(1512px,119.5vw);zoom:.82}}
+@media(max-height:720px) and (min-width:721px){.app{margin-top:3px}.topbar{padding:3px 9px}.logo{font-size:22px}.title{font-size:21px}.subtitle{font-size:9px}.panel{margin-top:4px;padding-top:8px;padding-bottom:8px}.mission{padding:6px 12px}.answer textarea{min-height:64px}.word-track{min-height:30px}.feedback{min-height:36px}.controls{margin-top:4px}}
+@media(max-width:720px){.topbar{align-items:flex-start}.actions{display:none}.namebox input{min-width:100%}}
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">🌟</div><div><div class="title">YO SOLO</div><div class="subtitle">RECORRIDO ANUAL · OCHO MERCADOS</div></div></div>
+    <div class="actions"><a class="back" href="constructor_frases.html">← CONSTRUCTOR</a><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button><button class="reset" onclick="restartRound()">↻ REINICIAR</button></div>
+  </div>
+
+  <section id="start" class="panel hero">
+    <h1>Los ocho mercados</h1>
+    <p>27 rondas de 24 misiones. Avanza a tu ritmo, guarda cuando quieras y recorre los ocho mercados durante todo el curso.</p>
+    <div class="namebox"><input id="name" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startRound()">EMPEZAR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button></div>
+  </section>
+
+  <section id="round" class="panel hidden">
+    <div class="head"><div><h1>Construye la frase</h1><div id="player" class="small"></div></div><div class="head-badges"><div id="wallet" class="badge wallet">💰 0 € · ⭐ 0/5</div><div id="count" class="badge">1 / 24</div></div></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="mission"><small>TU MISIÓN</small><div id="mission"></div></div>
+    <div class="answer"><label for="answer">Escribe la frase completa en inglés</label><div class="unknown-tip"><span>📒 Si no conoces una palabra, escribe X y continúa.</span><button class="instruction-audio" onclick="speakInstruction()" title="Escuchar instrucción" aria-label="Escuchar instrucción">🔊</button></div><textarea id="answer" rows="2" autocomplete="off" spellcheck="false" placeholder="Escribe aquí..."></textarea><div id="wordTrack" class="word-track" aria-live="polite"></div></div>
+    <div id="feedback" class="feedback neutral">Escribe la frase completa.</div>
+    <div id="otherWays" class="other-ways hidden" aria-live="polite"></div>
+    <div class="controls"><button class="save" onclick="saveAndExit()">💾 GUARDAR Y SALIR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button><button class="check" onclick="checkAnswer()">✓ CHECK</button><button id="next" class="next hidden" onclick="nextMission()">SIGUIENTE ➜</button></div>
+  </section>
+
+  <section id="finish" class="panel finish hidden">
+    <div class="trophy">🏆</div><h1 id="finishTitle">¡Ronda completada!</h1><div id="final"></div>
+    <div id="notebookFinal" class="notebook-final hidden"></div>
+    <div class="controls"><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button><button id="continueRound" class="start" onclick="newRound()">SIGUIENTE RONDA</button><button class="save" onclick="location.href='constructor_frases.html'">VOLVER AL CONSTRUCTOR</button></div>
+  </section>
+</div>
+<div id="notebookOverlay" class="notebook-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="notebookTitle">
+  <div class="notebook-card">
+    <button class="notebook-close" onclick="closeNotebook()">✕ CERRAR</button>
+    <h1 id="notebookTitle">📒 Mi libreta personal</h1>
+    <div id="notebookOwner" class="notebook-owner"></div>
+    <div id="notebookList"></div>
+  </div>
+</div>
+<script src="constructor_yo_solo_bank.js"></script>
+<script src="constructor_wallet.js"></script>
+<script src="constructor_cloud_progress.js"></script>
+<script>
+const PILOT_MISSIONS=[
+ {id:'present-a',tense:'Presente',kind:'affirmative',es:'Ella guarda la llave en su bolso.',en:'She keeps the key in her bag.',alt:['She keeps the key in her handbag.','She keeps the key in her purse.']},
+ {id:'present-n',tense:'Presente',kind:'negative',es:'Ellos no construyen torres en el colegio.',en:"They don't build towers at school."},
+ {id:'present-q',tense:'Presente',kind:'question',es:'¿Él lee cuentos en casa?',en:'Does he read stories at home?'},
+
+ {id:'past-a',tense:'Pasado',kind:'affirmative',es:'Nosotros fuimos al parque ayer.',en:'We went to the park yesterday.'},
+ {id:'past-n',tense:'Pasado',kind:'negative',es:'Ella no compró un bolso nuevo ayer.',en:"She didn't buy a new bag yesterday.",alt:["She didn't buy a new handbag yesterday.","She didn't buy a new purse yesterday."]},
+ {id:'past-q',tense:'Pasado',kind:'question',es:'¿Ellos nadaron en la piscina ayer?',en:'Did they swim in the pool yesterday?'},
+
+ {id:'present-perfect-a',tense:'Presente perfecto',kind:'affirmative',es:'Yo he escrito una carta hoy.',en:'I have written a letter today.'},
+ {id:'present-perfect-n',tense:'Presente perfecto',kind:'negative',es:'Él no ha desayunado hoy.',en:"He hasn't eaten breakfast today."},
+ {id:'present-perfect-q',tense:'Presente perfecto',kind:'question',es:'¿Tú has visto la película?',en:'Have you seen the film?',alt:['Have you seen the movie?']},
+
+ {id:'past-perfect-a',tense:'Pasado perfecto',kind:'affirmative',es:'Ella había ido al parque antes del almuerzo.',en:'She had gone to the park before lunch.'},
+ {id:'past-perfect-n',tense:'Pasado perfecto',kind:'negative',es:'Nosotros no habíamos hecho nuestros deberes antes de cenar.',en:"We hadn't done our homework before dinner."},
+ {id:'past-perfect-q',tense:'Pasado perfecto',kind:'question',es:'¿Ellos se habían conocido antes de la fiesta?',en:'Had they met before the party?'},
+
+ {id:'present-continuous-a',tense:'Presente continuo',kind:'affirmative',es:'Él está corriendo en el parque ahora.',en:'He is running in the park now.'},
+ {id:'present-continuous-n',tense:'Presente continuo',kind:'negative',es:'Yo no llevo puesto un abrigo hoy.',en:"I am not wearing a coat today."},
+ {id:'present-continuous-q',tense:'Presente continuo',kind:'question',es:'¿Ellos están cantando una canción ahora?',en:'Are they singing a song now?'},
+
+ {id:'past-continuous-a',tense:'Pasado continuo',kind:'affirmative',es:'Nosotros estábamos comiendo a las ocho.',en:'We were eating at eight.'},
+ {id:'past-continuous-n',tense:'Pasado continuo',kind:'negative',es:'Ella no estaba durmiendo a las diez.',en:"She wasn't sleeping at ten."},
+ {id:'past-continuous-q',tense:'Pasado continuo',kind:'question',es:'¿Tú estabas conduciendo hacia casa a las seis?',en:'Were you driving home at six?'},
+
+ {id:'present-perfect-continuous-a',tense:'Presente perfecto continuo',kind:'affirmative',es:'Yo he estado leyendo hoy.',en:'I have been reading today.'},
+ {id:'present-perfect-continuous-n',tense:'Presente perfecto continuo',kind:'negative',es:'Él no ha estado nadando hoy.',en:"He hasn't been swimming today."},
+ {id:'present-perfect-continuous-q',tense:'Presente perfecto continuo',kind:'question',es:'¿Ellos han estado construyendo la torre hoy?',en:'Have they been building the tower today?'},
+
+ {id:'past-perfect-continuous-a',tense:'Pasado perfecto continuo',kind:'affirmative',es:'Ella había estado escribiendo antes de cenar.',en:'She had been writing before dinner.'},
+ {id:'past-perfect-continuous-n',tense:'Pasado perfecto continuo',kind:'negative',es:'Nosotros no habíamos estado durmiendo antes de que sonara la alarma.',en:"We hadn't been sleeping before the alarm rang."},
+ {id:'past-perfect-continuous-q',tense:'Pasado perfecto continuo',kind:'question',es:'¿Él había estado conduciendo antes del almuerzo?',en:'Had he been driving before lunch?'}
+];
+const ANNUAL_ROUNDS=window.YO_SOLO_ROUNDS||[PILOT_MISSIONS];
+const MISSIONS=ANNUAL_ROUNDS.flat();
+const TOTAL_ROUNDS=ANNUAL_ROUNDS.length;
+const SAVE_KEY='mvConstructorYoSolo8AnualV2';
+const COURSE_KEY='mvConstructorYoSolo8CourseV1_';
+const NOTEBOOK_KEY='mvConstructorPersonalNotebookV1_';
+const WALLET_KEY='mvConstructorYoSoloWalletV1_';
+const MAIN_INSTRUCTION='Escribe la frase completa en inglés. Si no conoces una palabra, escribe equis y continúa.';
+const CONTRACTIONS=[["don't",'do not'],["doesn't",'does not'],["didn't",'did not'],["isn't",'is not'],["aren't",'are not'],["wasn't",'was not'],["weren't",'were not'],["haven't",'have not'],["hasn't",'has not'],["hadn't",'had not']];
+const POSITIVE_CONTRACTIONS=[
+ ['I am',"I'm"],['you are',"you're"],['he is',"he's"],['she is',"she's"],['it is',"it's"],['we are',"we're"],['they are',"they're"],
+ ['I have',"I've"],['you have',"you've"],['he has',"he's"],['she has',"she's"],['it has',"it's"],['we have',"we've"],['they have',"they've"],
+ ['I had',"I'd"],['you had',"you'd"],['he had',"he'd"],['she had',"she'd"],['it had',"it'd"],['we had',"we'd"],['they had',"they'd"]
+];
+const WORD_EQUIVALENTS={
+ boy:['child','kid'],girl:['child','kid'],child:['boy','girl','kid'],
+ smart:['clever','intelligent','bright'],clever:['smart','intelligent','bright'],intelligent:['smart','clever','bright'],
+ picture:['drawing'],drawing:['picture'],food:['meal'],meal:['food'],
+ quiet:['calm','tranquil','peaceful'],calm:['quiet','tranquil','peaceful'],tranquil:['quiet','calm','peaceful'],
+ beautiful:['pretty'],pretty:['beautiful'],angry:['mad'],brave:['courageous'],
+ careful:['cautious'],cold:['chilly'],excited:['thrilled'],expensive:['costly'],
+ fast:['quick'],fine:['well','okay'],friendly:['nice'],happy:['glad'],healthy:['well'],
+ hungry:['starving'],important:['significant'],interesting:['fascinating'],kind:['nice'],
+ polite:['well-mannered'],ready:['prepared'],sad:['unhappy'],safe:['secure'],
+ strong:['powerful'],tired:['exhausted'],wet:['damp'],worried:['anxious'],
+ sofa:['couch'],couch:['sofa'],bike:['bicycle'],bicycle:['bike'],
+ film:['movie'],movie:['film'],mother:['mum','mom'],father:['dad'],
+ grandmother:['grandma','granny'],grandma:['grandmother','granny'],granny:['grandmother','grandma'],
+ shop:['store'],store:['shop'],present:['gift'],gift:['present'],
+ children:['kids'],kids:['children'],handbag:['bag','purse'],bag:['handbag','purse'],purse:['bag','handbag']
+};
+const PHRASE_EQUIVALENTS=[
+ ['by the door','next to the door','beside the door','at the door']
+];
+const WORD_GLOSS=Object.assign({
+ i:'yo',you:'tú',he:'él',she:'ella',we:'nosotros',they:'ellos',
+ the:'el / la / los / las',a:'un / una',my:'mi',your:'tu',his:'su',her:'su',our:'nuestro / nuestra',their:'su',
+ do:'hacer',does:'palabra que abre una pregunta',did:'palabra que marca el pasado',not:'no',
+ am:'estoy / soy',is:'está / es',are:'están / son',was:'estaba / era',were:'estaban / eran',
+ have:'he / hemos / han',has:'ha',had:'había / habíamos / habían',been:'estado',
+ "don't":'no', "doesn't":'no', "didn't":'no, en el pasado', "isn't":'no está / no es',
+ "aren't":'no están / no son', "wasn't":'no estaba / no era', "weren't":'no estaban / no eran',
+ "haven't":'no he / no hemos / no han', "hasn't":'no ha', "hadn't":'no había / no habíamos / no habían',
+ keeps:'guarda',key:'llave',in:'en',bag:'bolso',handbag:'bolso',purse:'bolso',
+ build:'construir',building:'construyendo',towers:'torres',tower:'torre',at:'a / en',school:'colegio',
+ read:'leer',reading:'leyendo',stories:'cuentos',home:'casa',
+ went:'fue / fuimos',to:'a',park:'parque',yesterday:'ayer',
+ buy:'comprar',new:'nuevo / nueva',swim:'nadar',swimming:'nadando',pool:'piscina',
+ written:'escrito / escrita',writing:'escribiendo',letter:'carta',today:'hoy',
+ eaten:'comido',breakfast:'desayuno',seen:'visto / vista',film:'película',movie:'película',
+ gone:'ido / se había ido',before:'antes de',lunch:'almuerzo',done:'hecho',homework:'deberes',dinner:'cena / cenar',
+ met:'conocido / se conocieron',party:'fiesta',running:'corriendo',now:'ahora',
+ wearing:'llevando puesto',coat:'abrigo',singing:'cantando',song:'canción',
+ eating:'comiendo',eight:'ocho',sleeping:'durmiendo',ten:'diez',driving:'conduciendo',six:'seis',
+ alarm:'alarma',rang:'sonó',grandma:'abuela',granny:'abuela'
+},window.YO_SOLO_GLOSS||{});
+let student='',questions=[],index=0,correct=0,locked=false,drafts={},attempts={},revealed={},notebookMarks={},notebookWords=[],roundNumber=1,walletData={correctAnswers:0,euros:0,totalEarned:0,totalPaid:0,rewardedMissions:[],payments:[]},walletSyncTimer=0;
+const $=id=>document.getElementById(id);
+function show(id){['start','round','finish'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function shuffled(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function canon(s){return String(s).trim().replace(/[’]/g,"'").replace(/\s+/g,' ').replace(/[.!?]+$/,'').toLowerCase()}
+function displayTokens(s){return String(s).trim().replace(/[.!?]+$/,'').split(/\s+/).filter(Boolean)}
+function studentSlug(name){return String(name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'alumno'}
+function progressKey(){return SAVE_KEY+'_'+studentSlug(student)}
+function courseKey(){return COURSE_KEY+studentSlug(student)}
+function walletKey(){return WALLET_KEY+studentSlug(student)}
+function loadWallet(){
+ try{
+  const data=JSON.parse(localStorage.getItem(walletKey())||'null');
+  return window.MV_WALLET?MV_WALLET.normalize(data):data||{correctAnswers:0,euros:0,totalEarned:0,totalPaid:0,rewardedMissions:[],payments:[]}
+ }catch(e){return window.MV_WALLET?MV_WALLET.blank():{correctAnswers:0,euros:0,totalEarned:0,totalPaid:0,rewardedMissions:[],payments:[]}}
+}
+function saveWallet(){localStorage.setItem(walletKey(),JSON.stringify(walletData))}
+async function syncWalletRemote(){
+ if(!window.MV_WALLET||!student)return;
+ const remote=await MV_WALLET.loadRemote(student);
+ walletData=MV_WALLET.merge(walletData,remote||MV_WALLET.blank());
+ saveWallet();renderWallet();
+ walletData=await MV_WALLET.saveRemote(student,walletData);
+ saveWallet();renderWallet()
+}
+function queueWalletRemoteSave(){
+ if(!window.MV_WALLET||!student)return;
+ clearTimeout(walletSyncTimer);
+ walletSyncTimer=setTimeout(async function(){
+  walletData=await MV_WALLET.saveRemote(student,walletData);
+  saveWallet();renderWallet()
+ },250)
+}
+function renderWallet(){
+ if(!$('wallet'))return;
+ $('wallet').textContent='💰 '+walletData.euros+' € · ⭐ '+(walletData.correctAnswers%5)+'/5'
+}
+function rewardCorrectMission(q){
+ const assisted=(revealed[q.id]||[]).length>0||(notebookMarks[q.id]||[]).length>0;
+ if(assisted||walletData.rewardedMissions.includes(q.id))return false;
+ walletData.rewardedMissions.push(q.id);walletData.correctAnswers++;
+ const wonEuro=walletData.correctAnswers%5===0;
+ if(wonEuro){walletData.totalEarned=(walletData.totalEarned||0)+1;walletData.euros++}
+ saveWallet();renderWallet();queueWalletRemoteSave();
+ if(wonEuro){
+  $('wallet').classList.remove('coin-pop');void $('wallet').offsetWidth;$('wallet').classList.add('coin-pop')
+ }
+ return wonEuro
+}
+function loadCourse(){
+ try{const data=JSON.parse(localStorage.getItem(courseKey())||'null');return data&&Number.isInteger(data.completedRound)?data:{completedRound:0}}catch(e){return{completedRound:0}}
+}
+function saveCourse(completedRound){const data={completedRound};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_curso_yo_solo',courseKey(),data);else localStorage.setItem(courseKey(),JSON.stringify(Object.assign(data,{updatedAt:new Date().toISOString()})))}
+function personalNotebookKey(){return NOTEBOOK_KEY+studentSlug(student)}
+function cleanVocabularyWord(word){return String(word).replace(/^[^A-Za-zÀ-ÿ']+|[.,!?;:]+$/g,'')}
+function notebookToken(word){return canon(cleanVocabularyWord(word)).replace(/^[^a-z']+|[^a-z']+$/g,'')}
+function meaningFor(word){return WORD_GLOSS[notebookToken(word)]||'Apréndela con la frase de ejemplo'}
+function loadPersonalNotebook(){
+ try{const data=JSON.parse(localStorage.getItem(personalNotebookKey())||'[]');return Array.isArray(data)?data:[]}catch(e){return[]}
+}
+let notebookSyncTimer=0;
+async function syncPersonalNotebook(){
+ if(!student||!window.MV_CLOUD)return loadPersonalNotebook();
+ const local=loadPersonalNotebook(),remote=await MV_CLOUD.loadData(student,'constructor_libreta');
+ const merged=MV_CLOUD.mergeNotebook(local,remote&&remote.entries);
+ localStorage.setItem(personalNotebookKey(),JSON.stringify(merged));
+ await MV_CLOUD.saveData(student,'constructor_libreta',{entries:merged});
+ return merged
+}
+function queuePersonalNotebookSync(){clearTimeout(notebookSyncTimer);notebookSyncTimer=setTimeout(syncPersonalNotebook,300)}
+function rememberWord(word,q,exampleEn){
+ if(!student||!word||!q)return;
+ const token=notebookToken(word);if(!token)return;
+ const cleanWord=cleanVocabularyWord(word)||word;
+ const entries=loadPersonalNotebook(),found=entries.find(item=>notebookToken(item.word)===token);
+ const example={en:String(exampleEn||q.en),es:q.es};
+ if(found){
+  found.lastSeen=new Date().toISOString();found.count=(found.count||1)+1;
+  if(!Array.isArray(found.examples))found.examples=[];
+  if(!found.examples.some(item=>canon(item.en)===canon(example.en)))found.examples.unshift(example);
+  found.examples=found.examples.slice(0,3)
+ }else entries.unshift({word:cleanWord,meaning:meaningFor(cleanWord),firstSeen:new Date().toISOString(),lastSeen:new Date().toISOString(),count:1,examples:[example]});
+ localStorage.setItem(personalNotebookKey(),JSON.stringify(entries));queuePersonalNotebookSync()
+}
+function openNotebook(){
+ if(!student)student=$('name').value.trim();
+ if(!student){$('name').focus();return}
+ const entries=loadPersonalNotebook();
+ $('notebookOwner').textContent='Libreta de '+student+' · '+entries.length+(entries.length===1?' palabra':' palabras');
+ $('notebookList').innerHTML=entries.length?'<div class="notebook-list">'+entries.map(item=>{
+  const example=(item.examples&&item.examples[0])||{en:'',es:''};
+  return'<article class="vocab-card"><div class="vocab-word">'+esc(item.word)+'</div><div class="vocab-meaning">'+esc(item.meaning||meaningFor(item.word))+'</div><p class="vocab-example en">'+esc(example.en)+'</p><p class="vocab-example">'+esc(example.es)+'</p><div class="vocab-date">Encontrada '+(item.count||1)+(item.count===1?' vez':' veces')+'</div></article>'
+ }).join('')+'</div>':'<div class="notebook-empty">Todavía no tienes palabras nuevas. Cuando escribas X o necesites una palabra después de tres intentos, aparecerá aquí.</div>';
+ $('notebookOverlay').classList.remove('hidden')
+}
+function closeNotebook(){$('notebookOverlay').classList.add('hidden')}
+function expandContractions(s){let out=String(s);CONTRACTIONS.forEach(([short,full])=>{out=out.replace(new RegExp(short.replace("'","['’]"),'gi'),full)});return out}
+function replacePhrase(text,full,short){
+ return String(text).replace(new RegExp('(^|[.!?]\\s+)'+full.replace(' ','\\s+'),'gi'),(match,start)=>{
+  const contracted=start+short;
+  return /[A-Z]/.test(match.slice(start.length,start.length+1))?contracted.charAt(0).toUpperCase()+contracted.slice(1):contracted
+ })
+}
+function positiveContractionVariants(text){
+ const variants=[];
+ POSITIVE_CONTRACTIONS.forEach(([full,short])=>{const changed=replacePhrase(text,full,short);if(changed!==text)variants.push(changed)});
+ return variants
+}
+function equivalentsFor(word,q){
+ const key=String(word).toLowerCase();
+ if(key==='child'){
+  if(/\b(?:el niño|al niño|del niño)\b/i.test(q?.es||''))return['boy','kid'];
+  if(/\b(?:la niña|a la niña|de la niña)\b/i.test(q?.es||''))return['girl','kid']
+ }
+ return WORD_EQUIVALENTS[key]||[]
+}
+function synonymVariants(text,q){
+ const variants=[String(text)];
+ String(text).match(/[A-Za-z']+/g)?.forEach(word=>{
+  const options=equivalentsFor(word,q);
+  options.forEach(option=>{
+   const replacement=/^[A-Z]/.test(word)?option.charAt(0).toUpperCase()+option.slice(1):option;
+   [...variants].forEach(base=>variants.push(base.replace(new RegExp('\\b'+word+'\\b'),replacement)))
+  })
+ });
+ return[...new Set(variants)].slice(0,256)
+}
+function escapeRegex(text){return String(text).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+function phraseVariants(text){
+ const variants=[String(text)];
+ PHRASE_EQUIVALENTS.forEach(group=>{
+  group.forEach(source=>{
+   [...variants].forEach(base=>{
+    const pattern=new RegExp('\\b'+escapeRegex(source)+'\\b','i');
+    if(!pattern.test(base))return;
+    group.forEach(target=>{if(target!==source)variants.push(base.replace(pattern,target))})
+   })
+  })
+ });
+ return[...new Set(variants)].slice(0,256)
+}
+function accepted(q){
+ let all=[q.en,...(q.alt||[])];
+ all=[...all,...all.map(expandContractions)];
+ all=[...all,...all.flatMap(positiveContractionVariants)];
+ all=all.flatMap(text=>synonymVariants(text,q));
+ all=all.flatMap(phraseVariants);
+ all=[...all,...all.flatMap(positiveContractionVariants)];
+ return[...new Set(all.map(x=>String(x)))]
+}
+function otherWaySuggestions(raw,q){
+ const used=new Set(canon(raw).replace(/[.!?]/g,'').split(' ').filter(Boolean));
+ const sentences=String(q.en).match(/[^.!?]+[.!?]?/g)||[q.en];
+ const targetWords=String(q.en).match(/[A-Za-z]+(?:-[A-Za-z]+)?/g)||[];
+ for(let wordIndex=targetWords.length-1;wordIndex>=0;wordIndex--){
+  const targetWord=targetWords[wordIndex],equivalents=equivalentsFor(targetWord,q),options=[targetWord.toLowerCase(),...equivalents];
+  const choices=[...new Set(options)].filter(word=>!used.has(word)).slice(0,2);
+  if(!choices.length||!equivalents.length)continue;
+  const sentence=sentences.find(part=>new RegExp('\\b'+targetWord+'\\b','i').test(part))||q.en;
+  return choices.map(choice=>{
+   const replacement=/^[A-Z]/.test(targetWord)?choice.charAt(0).toUpperCase()+choice.slice(1):choice;
+   const changed=String(sentence).trim().replace(new RegExp('\\b'+targetWord+'\\b','i'),replacement);
+   return positiveContractionVariants(changed)[0]||changed
+  })
+ }
+ return[]
+}
+function showOtherWays(raw,q){
+ const suggestions=otherWaySuggestions(raw,q);
+ if(!suggestions.length){$('otherWays').classList.add('hidden');$('otherWays').innerHTML='';return}
+ $('otherWays').innerHTML='<div class="other-ways-title">💡 OTHER WAYS · OTRAS FORMAS</div><div class="other-ways-list">'+suggestions.map(text=>'<span class="other-way">'+esc(text)+'</span>').join('')+'</div>';
+ $('otherWays').classList.remove('hidden')
+}
+function commonPrefix(a,b){let i=0;while(i<a.length&&i<b.length&&a[i]===b[i])i++;return i}
+function isUnknown(word){return String(word||'').toLowerCase()==='x'}
+function hasQuestionMark(raw,q){return q.kind!=='question'||(q.pair?/\?/.test(String(raw)):/\?\s*$/.test(String(raw)))}
+function matchUnknownGroups(raw,targetText){
+ const typed=canon(raw).split(' ').filter(Boolean),target=canon(targetText).split(' ').filter(Boolean);
+ if(!typed.some(isUnknown))return null;
+ const parts=[];
+ typed.forEach(word=>{
+  if(isUnknown(word)){
+   if(!parts.length||parts[parts.length-1]!==null)parts.push(null)
+  }else parts.push(word)
+ });
+ function walk(partIndex,targetIndex,unknownIndexes){
+  if(partIndex===parts.length)return targetIndex===target.length?unknownIndexes:null;
+  const part=parts[partIndex];
+  if(part!==null)return target[targetIndex]===part?walk(partIndex+1,targetIndex+1,unknownIndexes):null;
+  for(let end=targetIndex+1;end<=target.length;end++){
+   const added=Array.from({length:end-targetIndex},(_,i)=>targetIndex+i);
+   const result=walk(partIndex+1,end,unknownIndexes.concat(added));
+   if(result)return result
+  }
+  return null
+ }
+ const unknownIndexes=walk(0,0,[]);
+ return unknownIndexes?{text:targetText,unknownIndexes}:null
+}
+function followsPrefix(raw,targetText){
+ const typed=canon(raw);if(!typed)return true;
+ const typedWords=typed.split(' '),targetWords=canon(targetText).split(' '),endedWithSpace=/\s$/.test(String(raw));
+ if(typedWords.length>targetWords.length)return false;
+ return typedWords.every((word,i)=>{
+  if(isUnknown(word))return true;
+  const mayBePartial=i===typedWords.length-1&&!endedWithSpace;
+  return mayBePartial?String(targetWords[i]||'').startsWith(word):targetWords[i]===word
+ })
+}
+function bestVariant(raw,q){
+ const input=canon(raw),inputWords=input?input.split(' '):[],endedWithSpace=/\s$/.test(String(raw));
+ return accepted(q).map(text=>{
+  const target=canon(text),targetWords=target.split(' ');
+  let score=commonPrefix(input,target);
+  inputWords.forEach((word,i)=>{if(isUnknown(word))score+=25;else if(targetWords[i]===word)score+=20;else if(targetWords[i]&&targetWords[i].startsWith(word))score+=8});
+  if(endedWithSpace&&inputWords.every((word,i)=>isUnknown(word)||targetWords[i]===word))score+=50;
+  return{text,score}
+ }).sort((a,b)=>b.score-a.score)[0].text
+}
+function stateFor(raw,q){
+ const value=canon(raw),variants=accepted(q),best=bestVariant(raw,q),typed=value?value.split(' '):[],target=canon(best).split(' ');
+ const exact=variants.find(v=>canon(v)===value)||'';
+ const unknownMatch=variants.map(v=>matchUnknownGroups(raw,v)).find(Boolean)||null;
+ const withX=unknownMatch?unknownMatch.text:'';
+ const unknownIndexes=unknownMatch?unknownMatch.unknownIndexes:[];
+ const prefix=!value||Boolean(unknownMatch)||variants.some(v=>followsPrefix(raw,v));
+ let mismatch=-1,partial=-1;
+ for(let i=0;i<typed.length;i++){
+  if(isUnknown(typed[i]))continue;
+  if(!target[i]||!target[i].startsWith(typed[i])){mismatch=i;break}
+  if(target[i]!==typed[i]){partial=i;break}
+ }
+ return{value,typed,target,best,exact,withX,unknownIndexes,prefix,mismatch,partial}
+}
+function saveProgress(){if(!student||!questions.length)return;const data={student,questions,index,correct,drafts,attempts,revealed,notebookMarks,notebookWords,roundNumber};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_yo_solo',progressKey(),data);else localStorage.setItem(progressKey(),JSON.stringify(data))}
+function clearProgress(){if(!student)return;if(window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_yo_solo',progressKey(),{index:24,roundNumber});localStorage.removeItem(progressKey())}
+function loadProgress(){
+ try{
+  const p=JSON.parse(localStorage.getItem(progressKey())||'null');
+  if(!p||p.student!==student||!Array.isArray(p.questions)||p.questions.length!==24||p.index<0||p.index>=24)return false;
+  questions=p.questions;index=p.index;correct=p.correct||0;drafts=p.drafts||{};attempts=p.attempts||{};revealed=p.revealed||{};notebookMarks=p.notebookMarks||{};notebookWords=p.notebookWords||[];roundNumber=p.roundNumber||1;show('round');render();return true
+ }catch(e){return false}
+}
+async function startRound(){
+ student=$('name').value.trim();if(!student)return $('name').focus();localStorage.setItem('mv_current_student',student);walletData=loadWallet();await syncWalletRemote();if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_curso_yo_solo',courseKey());await MV_PROGRESS.sync(student,'constructor_progreso_yo_solo',progressKey())}await syncPersonalNotebook();if(loadProgress())return;
+ const course=loadCourse();
+ if(course.completedRound>=TOTAL_ROUNDS){roundNumber=TOTAL_ROUNDS;showCompletedCourse();return}
+ roundNumber=course.completedRound+1;questions=shuffled(ANNUAL_ROUNDS[roundNumber-1]);index=0;correct=0;drafts={};attempts={};revealed={};notebookMarks={};notebookWords=[];show('round');saveProgress();render()
+}
+function render(){
+ locked=false;const q=questions[index];
+ $('player').textContent='Jugador/a: '+student+' · Ronda '+roundNumber+' de '+TOTAL_ROUNDS;
+ $('count').textContent='Ronda '+roundNumber+' · '+(index+1)+' / 24';
+ renderWallet();
+ $('bar').style.width=(index/24*100)+'%';
+ $('mission').textContent=q.es;
+ $('mission').classList.remove('long','very-long');
+ $('answer').classList.remove('long','very-long');
+ if(q.es.length>135)$('mission').classList.add('very-long');else if(q.es.length>88)$('mission').classList.add('long');
+ if(q.en.length>145)$('answer').classList.add('very-long');else if(q.en.length>96)$('answer').classList.add('long');
+ $('answer').value=drafts[q.id]||'';$('answer').disabled=false;renderTyping();$('answer').focus();
+ $('feedback').className='feedback neutral';$('feedback').textContent='Escribe la frase completa.';
+ $('otherWays').classList.add('hidden');$('otherWays').innerHTML='';
+ $('next').classList.add('hidden')
+}
+function renderTyping(){
+ const q=questions[index];if(!q)return;
+ const input=$('answer'),raw=input.value,state=stateFor(raw,q),rawWords=String(raw).trim().split(/\s+/).filter(Boolean);
+ input.classList.remove('typing-good','typing-bad');
+ if(state.value)input.classList.add(state.prefix?'typing-good':'typing-bad');
+ const targetDisplay=displayTokens(state.best),shown=revealed[q.id]||[],notebook=notebookMarks[q.id]||[];
+ $('wordTrack').innerHTML=rawWords.map((word,i)=>{
+  const typed=state.typed[i]||'',target=state.target[i]||'',isWrong=!state.withX&&!isUnknown(typed)&&(!target||!target.startsWith(typed)),isRevealed=shown.includes(i),isNotebook=notebook.includes(i);
+  return'<span class="tracked-word '+(isNotebook?'notebook':isRevealed?'revealed':isUnknown(typed)?'unknown':isWrong?'wrong':'ok')+'">'+esc((isRevealed||isNotebook)?(targetDisplay[i]||word):word)+'</span>'
+ }).join('');
+ if(state.value&&!state.prefix){$('feedback').className='feedback bad';$('feedback').textContent='Puedes seguir escribiendo. Revisaremos la palabra roja al pulsar CHECK.'}
+ else if(state.value&&!locked){$('feedback').className='feedback neutral';$('feedback').textContent='Muy bien. Sigue escribiendo.'}
+ drafts[q.id]=raw
+}
+function revealWord(q,state,wordIndex){
+ const targetDisplay=displayTokens(state.best),rawWords=String($('answer').value).trim().split(/\s+/).filter(Boolean);
+ const word=targetDisplay[wordIndex]||state.target[wordIndex];if(!word)return;
+ const fixed=[...rawWords];fixed[wordIndex]=word;
+ $('answer').value=fixed.join(' ')+' ';
+ drafts[q.id]=$('answer').value;
+ revealed[q.id]=[...new Set([...(revealed[q.id]||[]),wordIndex])];
+ notebookMarks[q.id]=[...new Set([...(notebookMarks[q.id]||[]),wordIndex])];
+ const cleanWord=cleanVocabularyWord(word)||word;
+ if(!notebookWords.some(x=>notebookToken(x)===notebookToken(cleanWord)))notebookWords.push(cleanWord);
+ rememberWord(cleanWord,q,state.best);
+ renderTyping();saveProgress();
+ $('feedback').className='feedback neutral';$('feedback').textContent='📒 Esta palabra era: '+cleanWord.toUpperCase()+'. Ya está guardada en tu libreta personal. Continúa.'
+}
+function completeWithUnknown(q,state){
+ const targetDisplay=displayTokens(state.withX),unknownIndexes=state.unknownIndexes||[];
+ const words=unknownIndexes.map(i=>cleanVocabularyWord(targetDisplay[i])).filter(Boolean);
+ $('answer').value=state.withX;drafts[q.id]=$('answer').value;
+ notebookMarks[q.id]=[...new Set([...(notebookMarks[q.id]||[]),...unknownIndexes])];
+ words.forEach(word=>{if(!notebookWords.some(x=>notebookToken(x)===notebookToken(word)))notebookWords.push(word);rememberWord(word,q,state.withX)});
+ locked=true;$('answer').disabled=true;renderTyping();
+ $('feedback').className='feedback neutral';
+ $('feedback').textContent='📒 '+(words.length===1?'Palabra nueva: '+words[0].toUpperCase()+'. Ya está guardada':'Palabras nuevas: '+words.map(x=>x.toUpperCase()).join(', ')+'. Ya están guardadas')+' en tu libreta personal.';
+ $('next').classList.remove('hidden');speak(state.withX);saveProgress()
+}
+function checkAnswer(){
+ if(locked)return;
+ const q=questions[index],value=$('answer').value,state=stateFor(value,q);
+ if(!state.value)return bad('Escribe primero la frase.');
+ if(!hasQuestionMark(value,q))return bad(q.pair?'La primera frase es una pregunta. Escribe el signo (?) antes de la segunda frase.':'La pregunta necesita el signo de interrogación (?) al final.');
+ if(state.withX){completeWithUnknown(q,state);return}
+ if(!state.exact){
+  if(state.typed.length>state.target.length)return bad('Hay una palabra de más al final. Bórrala y vuelve a pulsar CHECK.');
+  let wordIndex=state.mismatch>=0?state.mismatch:state.partial;
+  if(wordIndex<0)return bad('La frase todavía no está completa. Continúa escribiendo.');
+  if(wordIndex>=state.target.length)return bad('Hay una palabra de más al final. Bórrala y vuelve a pulsar CHECK.');
+  const typedWord=state.typed[wordIndex]||'',targetWord=state.target[wordIndex]||'';
+  if(typedWord.replace(/[.!?]/g,'')===targetWord.replace(/[.!?]/g,'')&&typedWord!==targetWord){
+   if(targetWord.includes('?'))return bad('La primera frase es una pregunta. Coloca el signo (?) antes de la segunda frase.');
+   if(targetWord.includes('.'))return bad('Falta el punto que separa las dos frases.')
+  }
+  const key=q.id+'|'+wordIndex;attempts[key]=(attempts[key]||0)+1;
+  if(attempts[key]>=3){revealWord(q,state,wordIndex);return}
+  bad('Revisa la palabra marcada en rojo. Intento '+attempts[key]+' de 3.');saveProgress();return
+ }
+ locked=true;$('answer').disabled=true;
+ const wonEuro=rewardCorrectMission(q);
+ $('feedback').className='feedback good';$('feedback').textContent=wonEuro?'¡Fantástico! Has ganado 1 € 💰🎉':'Muy bien. Continúa. 🎉';
+ showOtherWays(value,q);
+ $('next').classList.remove('hidden');speak(state.exact)
+}
+function bad(message){$('feedback').className='feedback bad';$('feedback').textContent=message}
+function nextMission(){if(!locked)return;correct++;if(++index<24){saveProgress();render();return}finishRound()}
+function finishRound(){
+ clearProgress();saveCourse(roundNumber);show('finish');
+ const finished=roundNumber>=TOTAL_ROUNDS;
+ $('finishTitle').textContent=finished?'¡Recorrido anual completado!':'¡Ronda '+roundNumber+' completada!';
+ $('continueRound').textContent=finished?'EMPEZAR UN NUEVO RECORRIDO':'SIGUIENTE RONDA';
+ $('final').innerHTML='<p class="score">'+esc(student)+', has completado las 24 misiones de la ronda '+roundNumber+'.</p><p>Tu premio acumulado: <strong>💰 '+walletData.euros+' €</strong></p><p>'+(finished?'Has terminado las 648 misiones y recorrido los ocho mercados durante todo el curso.':'Llevas '+roundNumber+' de '+TOTAL_ROUNDS+' rondas. Tu progreso está guardado.')+'</p>';
+ if(notebookWords.length){
+  $('notebookFinal').classList.remove('hidden');
+  $('notebookFinal').innerHTML='<h2>📒 Palabras nuevas de esta ronda</h2><p>Ya están guardadas en tu libreta personal:</p><div class="notebook-words">'+notebookWords.map(word=>'<span>'+esc(word)+'</span>').join('')+'</div>'
+ }else{$('notebookFinal').classList.add('hidden');$('notebookFinal').innerHTML=''}
+}
+function showCompletedCourse(){
+ show('finish');$('finishTitle').textContent='¡Recorrido anual completado!';
+ $('continueRound').textContent='EMPEZAR UN NUEVO RECORRIDO';
+ $('final').innerHTML='<p class="score">'+esc(student)+', ya has completado las 648 misiones.</p><p>Tu premio acumulado: <strong>💰 '+walletData.euros+' €</strong></p><p>Puedes consultar tu libreta o comenzar un nuevo recorrido.</p>';
+ $('notebookFinal').classList.add('hidden');$('notebookFinal').innerHTML=''
+}
+async function saveAndExit(){saveProgress();clearTimeout(walletSyncTimer);if(window.MV_WALLET)await syncWalletRemote();location.href='constructor_frases.html'}
+function restartRound(){if(!student||!questions.length)return;questions=shuffled(ANNUAL_ROUNDS[roundNumber-1]);index=0;correct=0;drafts={};attempts={};revealed={};notebookMarks={};notebookWords=[];saveProgress();render()}
+function newRound(){
+ clearProgress();
+ if(roundNumber>=TOTAL_ROUNDS){saveCourse(0);roundNumber=1}else roundNumber++;
+ questions=shuffled(ANNUAL_ROUNDS[roundNumber-1]);index=0;correct=0;drafts={};attempts={};revealed={};notebookMarks={};notebookWords=[];show('round');saveProgress();render()
+}
+function constructorSpanishVoice(){
+ const voices=speechSynthesis.getVoices()||[],female=/(female|helena|m[oó]nica|paulina|marisol|luciana|sabina|google.*español|siri.*female)/i,male=/(male|jorge|diego|carlos|pablo)/i;
+ const spanish=voices.filter(v=>/^es(?:[-_]|$)/i.test(v.lang||''));
+ return spanish.find(v=>female.test(v.name||''))||spanish.find(v=>!male.test(v.name||''))||spanish[0]||null
+}
+function speakInstruction(){
+ if(!('speechSynthesis'in window))return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(MAIN_INSTRUCTION);u.lang='es-ES';u.rate=.82;u.pitch=1;
+ const voice=constructorSpanishVoice();if(voice)u.voice=voice;
+ speechSynthesis.speak(u)
+}
+function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
+function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startRound()});
+$('answer').addEventListener('input',renderTyping);
+$('notebookOverlay').addEventListener('click',e=>{if(e.target===$('notebookOverlay'))closeNotebook()});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){closeNotebook();return}
+ if(e.key==='Enter'&&!$('round').classList.contains('hidden')){
+  e.preventDefault();
+  locked?nextMission():checkAnswer()
+ }
+});
+if('speechSynthesis'in window)speechSynthesis.getVoices();
+</script>
+</body>
+</html>

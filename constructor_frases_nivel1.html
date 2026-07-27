@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mercado de los Verbos · Frases Nivel 1 · Nueva versión</title>
+<style>
+:root{
+  --ink:#263238; --paper:#fffaf0; --green:#49a66f; --green2:#dff4e7;
+  --gold:#f4c95d; --red:#d95d54; --blue:#4f83cc; --violet:#7957b8;
+  --shadow:0 12px 30px rgba(42,35,24,.16);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Trebuchet MS,Arial,sans-serif;color:var(--ink);background:linear-gradient(rgba(255,247,223,.18),rgba(255,247,223,.28)),url("verb-market-background.jpeg") center/cover fixed no-repeat;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;background-image:repeating-linear-gradient(0deg,transparent 0 29px,#7c5127 30px)}
+.app{width:min(1180px,96vw);margin:18px auto 36px;position:relative}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #87592e;border-radius:24px;padding:12px 18px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px}.logo{font-size:38px}.title{font-size:clamp(20px,3vw,34px);font-weight:900;color:#794a21}.subtitle{font-size:14px;color:#6a5b49;font-weight:700}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+button{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11px 15px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.17);transition:.12s transform,.12s filter}
+button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.17)}
+.btn-home{background:#f7e4ad;color:#5f441d}.btn-reset{background:#ef877f;color:white}.btn-audio{background:#7eb6ea;color:white}
+.panel{margin-top:18px;background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #87592e;border-radius:28px;box-shadow:var(--shadow);padding:clamp(16px,3vw,28px)}
+.hidden{display:none!important}
+.hero{text-align:center;padding:18px 10px}.hero h1{font-size:clamp(30px,5vw,58px);margin:0;color:#794a21}.hero p{font-size:clamp(16px,2.2vw,22px);font-weight:800;margin:10px auto 24px;max-width:800px}
+.namebox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.namebox input{min-width:min(440px,90vw);font:inherit;font-size:20px;padding:14px 18px;border-radius:15px;border:3px solid #b98a4d;background:white}.start{background:var(--green);color:white;font-size:20px;padding-inline:28px}
+.zone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.zone{border-radius:24px;padding:24px;text-align:center;border:4px solid;cursor:pointer;box-shadow:0 8px 0 rgba(0,0,0,.12);transition:.18s}.zone:hover{transform:translateY(-4px)}
+.zone.simple{background:#ecf8ee;border-color:var(--green)}.zone.be{background:#f1eafe;border-color:var(--violet)}.zone.solo{background:#fff3cf;border-color:var(--gold)}.zone .icon{font-size:64px}.zone h2{font-size:32px;margin:8px 0}.zone p{font-size:18px;font-weight:700;line-height:1.45}
+.lesson-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}.lesson-head h2{font-size:clamp(25px,4vw,42px);margin:0;color:#73481f}.head-badges{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.badge{padding:8px 13px;border-radius:999px;background:#fff0ba;font-weight:900;border:2px solid #d8a730}.guided-wallet{background:#dff6d9;border-color:#53a86b;color:#216d3a}
+.progress{height:18px;background:#eadfc9;border-radius:999px;overflow:hidden;border:2px solid #b69a72;margin:17px 0 22px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#65b87e,#f0c653);transition:.3s}
+.mission{background:#fff;border:3px dashed #b58a50;border-radius:20px;padding:16px;text-align:center;margin-bottom:18px}.mission-label{font-weight:900;color:#8a6334;text-transform:uppercase;letter-spacing:.08em}.mission-text{font-size:clamp(20px,3vw,30px);font-weight:900;margin-top:6px}
+.type-switch{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}.type-btn{background:#e8dcc8;color:#5f4b33}.type-btn.active{background:#5f9ed8;color:white}
+.walkway{display:flex;align-items:stretch;gap:10px;justify-content:center;flex-wrap:wrap;min-height:104px;padding:14px;background:#f6eedf;border-radius:20px;border:3px solid #d6b984}.slot{min-width:145px;min-height:72px;border:3px dashed #aa8b61;background:#fffdf8;border-radius:16px;display:flex;align-items:center;justify-content:center;padding:9px;font-size:21px;font-weight:900;text-align:center}.slot.filled{border-style:solid;background:#e5f5ea;border-color:#63a879}.arrow{font-size:30px;align-self:center;color:#9a6b34;font-weight:900}
+.bank-title{text-align:center;font-size:20px;font-weight:900;margin:20px 0 10px}.word-bank{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.word{background:white;color:#3e3429;border:3px solid #c5a06c;min-width:96px}.word.used{opacity:.35;pointer-events:none;box-shadow:none}.word.helper{background:#dcecff;border-color:#5b91c7}.word.trickster{background:#ffe0db;border-color:#d56b61}.word.king{background:#ece2ff;border-color:#8667c3}.word.ending{background:#fff1b7;border-color:#d6a92f}
+.solo-write{padding:18px 10px 8px;text-align:center}
+.solo-write input{width:min(920px,96%);font:inherit;font-size:clamp(22px,3vw,34px);font-weight:900;padding:18px 22px;border:4px solid #b69a72;border-radius:18px;background:white;color:var(--ink);outline:none;box-shadow:inset 0 2px 8px rgba(0,0,0,.08)}
+.solo-write input.typing-good{color:#258247;border-color:#63a879;background:#f2fff5}
+.solo-write input.typing-bad{color:#b43b32;border-color:#d56b61;background:#fff5f3}
+.solo-write input.complete{color:#176a34;border-color:#3f9b5b;background:#dff6e5}
+.solo-write .write-label{font-size:17px;font-weight:900;color:#795b36;margin-bottom:10px}
+.feedback{min-height:64px;margin-top:18px;border-radius:18px;padding:13px 16px;text-align:center;font-size:21px;font-weight:900;display:flex;align-items:center;justify-content:center}.feedback.neutral{background:#eee7db;color:#6b5d49}.feedback.good{background:#d9f3df;color:#216d3a}.feedback.bad{background:#ffe0dc;color:#9b332d}
+.controls{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:15px}.check{background:var(--green);color:white}.delete{background:#efbd5b;color:#553c12}.next{background:#607fc7;color:white}
+.rule-card{margin-top:20px;border-radius:18px;padding:15px 18px;background:#fff5ca;border-left:8px solid #e1ad2d;font-weight:800;line-height:1.5}.rule-card strong{color:#7e5217}
+.finish{text-align:center;padding:30px}.finish .trophy{font-size:90px}.finish h2{font-size:42px;color:#75481f}.score{font-size:30px;font-weight:900;color:#397b4e}.small{font-size:14px;color:#796c5b}
+@media(min-width:721px){.app{width:min(1640px,138vw);zoom:.72}.topbar{padding:8px 13px}.panel{margin-top:10px;padding:14px 20px}.progress{margin:9px 0 12px}.mission{padding:10px;margin-bottom:10px}.type-switch{margin-bottom:10px}.walkway{min-height:82px;padding:9px}.slot{min-height:58px}.bank-title{margin:10px 0 6px}.feedback{min-height:48px;margin-top:9px;padding:9px}.rule-card{margin-top:10px;padding:10px 14px}.controls{margin-top:9px}}
+@media(max-width:720px){.zone-grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.slot{min-width:125px}.arrow{display:none}.actions{display:none}}
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">🏪</div><div><div class="title">Mercado de los Verbos</div><div class="subtitle">CAMINA POR LAS FRASES · NIVEL 1</div></div></div>
+    <div class="actions"><button class="btn-home" onclick="location.href='index.html'">🏪 MERCADO</button><button class="btn-audio" onclick="speakCurrent()">🔊 ESCUCHAR</button><button class="btn-reset" onclick="restartLesson()">↻ REINICIAR</button></div>
+  </div>
+
+  <section id="startScreen" class="panel hero">
+    <h1>Camina por las frases</h1>
+    <p>Construye 108 frases en tres recorridos: primero con un camino guiado, después con el Rey BE y finalmente tú solo.</p>
+    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"/><button class="start" onclick="startGame()">EMPEZAR</button></div>
+  </section>
+
+  <section id="menuScreen" class="panel hidden">
+    <div class="hero"><h1>Nivel 1 · Mercado del Presente</h1><p>Elige una zona del mercado.</p></div>
+    <div class="zone-grid">
+      <div class="zone simple" onclick="openZone('simple')"><div class="icon">🧩</div><h2>Los Solitarios</h2><p>36 frases guiadas: viajan solos para afirmar y llaman a los ayudantes <strong>do</strong> y <strong>does</strong> para negar o preguntar.</p></div>
+      <div class="zone be" onclick="openZone('be')"><div class="icon">👑</div><h2>El Rey BE</h2><p>36 frases guiadas. En el Mercado del Presente, el Rey BE siempre viaja camuflado: <strong>am</strong> con <strong>I</strong>, <strong>is</strong> con <strong>He · She · It</strong> y <strong>are</strong> con <strong>You · We · They</strong>.</p></div>
+      <div class="zone solo" onclick="openZone('solo')"><div class="icon">🌟</div><h2>YO SOLO</h2><p>36 misiones sin banco de palabras, casillas ni pistas. Solo la frase en español y una caja grande para escribir.</p></div>
+    </div>
+  </section>
+
+  <section id="lessonScreen" class="panel hidden">
+    <div class="lesson-head"><div><h2 id="zoneTitle"></h2><div class="small" id="studentLabel"></div></div><div class="head-badges"><div class="badge guided-wallet">💰 0 € · ⭐ 0/5</div><div class="badge" id="counterBadge">1 / 36</div></div></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="typeSwitch" class="type-switch">
+      <button class="type-btn" data-kind="affirmative" onclick="setKind('affirmative')">✅ AFIRMATIVA</button>
+      <button class="type-btn" data-kind="negative" onclick="setKind('negative')">🚫 NEGATIVA</button>
+      <button class="type-btn" data-kind="question" onclick="setKind('question')">❓ PREGUNTA</button>
+    </div>
+    <div class="mission"><div class="mission-label">Tu misión</div><div id="missionText" class="mission-text"></div></div>
+    <div id="walkway" class="walkway"></div>
+    <div id="soloWrite" class="solo-write hidden">
+      <div class="write-label">Escribe la frase completa en inglés</div>
+      <input id="soloInput" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Escribe aquí..." />
+    </div>
+    <div class="bank-title">🧺 Palabras del mercado</div>
+    <div id="wordBank" class="word-bank"></div>
+    <div id="feedback" class="feedback neutral">Toca las palabras en el orden correcto.</div>
+    <div class="controls"><button class="delete" onclick="deleteLast()">⌫ BORRAR ÚLTIMA</button><button class="check" onclick="checkAnswer()">✓ CHECK</button><button id="nextBtn" class="next hidden" onclick="nextQuestion()">SIGUIENTE ➜</button></div>
+    <div id="ruleCard" class="rule-card"></div>
+  </section>
+
+  <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h2>¡Zona completada!</h2><div id="finalMessage"></div><div class="controls"><button class="start" onclick="goMenu()">VOLVER AL MENÚ</button></div></section>
+</div>
+<script src="constructor_wallet.js"></script><script src="constructor_cloud_progress.js"></script>
+<script src="constructor_guided_rewards.js"></script>
+<script>
+const simpleData=[
+ // 12 afirmativas · verbos 1-12 del Mercado
+ {testKind:'affirmative',person:'He',action:'sleep',action3:'sleeps',response:'',place:'at home',time:'at night',es:'Él duerme en casa por la noche.'},
+ {testKind:'affirmative',person:'She',action:'keep',action3:'keeps',response:'the key',place:'in her bag',time:'',es:'Ella guarda la llave en su bolso.'},
+ {testKind:'affirmative',person:'We',action:'meet',action3:'meets',response:'our friends',place:'in the park',time:'',es:'Nosotros nos reunimos con nuestros amigos en el parque.'},
+ {testKind:'affirmative',person:'I',action:'feel',action3:'feels',response:'happy',place:'',time:'today',es:'Yo me siento feliz hoy.'},
+ {testKind:'affirmative',person:'She',action:'sweep',action3:'sweeps',response:'the floor',place:'at home',time:'',es:'Ella barre el suelo en casa.'},
+ {testKind:'affirmative',person:'They',action:'leave',action3:'leaves',response:'school',place:'',time:'at three',es:'Ellos salen del colegio a las tres.'},
+ {testKind:'affirmative',person:'He',action:'lose',action3:'loses',response:'his pencil',place:'at school',time:'',es:'Él pierde su lápiz en el colegio.'},
+ {testKind:'affirmative',person:'They',action:'shoot',action3:'shoots',response:'the ball',place:'at the goal',time:'',es:'Ellos lanzan el balón a la portería.'},
+ {testKind:'affirmative',person:'It',action:'light',action3:'lights',response:'the room',place:'',time:'',es:'Eso alumbra la habitación.'},
+ {testKind:'affirmative',person:'I',action:'sit',action3:'sits',response:'',place:'on the chair',time:'',es:'Yo me siento en la silla.'},
+ {testKind:'affirmative',person:'He',action:'bend',action3:'bends',response:'his knees',place:'',time:'',es:'Él dobla las rodillas.'},
+ {testKind:'affirmative',person:'You',action:'lend',action3:'lends',response:'me a pencil',place:'',time:'',es:'Tú me prestas un lápiz.'},
+ // 12 negativas · verbos 13-24 del Mercado
+ {testKind:'negative',person:'She',action:'send',action3:'sends',response:'a message',place:'',time:'today',es:'Ella envía un mensaje hoy.'},
+ {testKind:'negative',person:'We',action:'spend',action3:'spends',response:'money',place:'at school',time:'',es:'Nosotros gastamos dinero en el colegio.'},
+ {testKind:'negative',person:'They',action:'build',action3:'builds',response:'a tower',place:'in class',time:'',es:'Ellos construyen una torre en clase.'},
+ {testKind:'negative',person:'I',action:'dream',action3:'dreams',response:'about dragons',place:'',time:'at night',es:'Yo sueño con dragones por la noche.'},
+ {testKind:'negative',person:'It',action:'mean',action3:'means',response:'the same thing',place:'',time:'',es:'Eso significa lo mismo.'},
+ {testKind:'negative',person:'He',action:'burn',action3:'burns',response:'the toast',place:'',time:'',es:'Él quema la tostada.'},
+ {testKind:'negative',person:'She',action:'learn',action3:'learns',response:'new words',place:'at school',time:'',es:'Ella aprende palabras nuevas en el colegio.'},
+ {testKind:'negative',person:'I',action:'smell',action3:'smells',response:'the flowers',place:'in the garden',time:'',es:'Yo huelo las flores en el jardín.'},
+ {testKind:'negative',person:'You',action:'lead',action3:'leads',response:'the team',place:'',time:'today',es:'Tú guías al equipo hoy.'},
+ {testKind:'negative',person:'It',action:'bleed',action3:'bleeds',response:'',place:'',time:'',es:'Mi dedo sangra.'},
+ {testKind:'negative',person:'We',action:'feed',action3:'feeds',response:'the ducks',place:'in the park',time:'',es:'Nosotros alimentamos a los patos en el parque.'},
+ {testKind:'negative',person:'They',action:'put',action3:'puts',response:'the books',place:'on the table',time:'',es:'Ellos ponen los libros sobre la mesa.'},
+ // 12 preguntas · 11 verbos del primer tramo y el segundo LIE del Mercado
+ {testKind:'question',person:'It',action:'cost',action3:'costs',response:'ten euros',place:'',time:'',es:'Eso cuesta diez euros.'},
+ {testKind:'question',person:'She',action:'shut',action3:'shuts',response:'the window',place:'',time:'at night',es:'Ella cierra la ventana por la noche.'},
+ {testKind:'question',person:'They',action:'let',action3:'lets',response:'the dog run',place:'in the park',time:'',es:'Ellos dejan correr al perro en el parque.'},
+ {testKind:'question',person:'He',action:'cut',action3:'cuts',response:'the paper',place:'in class',time:'',es:'Él corta el papel en clase.'},
+ {testKind:'question',person:'You',action:'set',action3:'sets',response:'the table',place:'',time:'',es:'Tú pones la mesa.'},
+ {testKind:'question',person:'She',action:'hit',action3:'hits',response:'the ball',place:'in the park',time:'',es:'Ella golpea el balón en el parque.'},
+ {testKind:'question',person:'It',action:'hurt',action3:'hurts',response:'',place:'',time:'today',es:'Tu pierna duele hoy.'},
+ {testKind:'question',person:'They',action:'bet',action3:'bets',response:'a coin',place:'',time:'',es:'Ellos apuestan una moneda.'},
+ {testKind:'question',person:'He',action:'read',action3:'reads',response:'a story',place:'at home',time:'',es:'Él lee un cuento en casa.'},
+ {testKind:'question',person:'It',action:'blow',action3:'blows',response:'',place:'',time:'today',es:'El viento sopla hoy.'},
+ {testKind:'question',person:'We',action:'throw',action3:'throws',response:'the ball',place:'to our friend',time:'',es:'Nosotros lanzamos el balón a nuestro amigo.'},
+ {testKind:'question',person:'He',action:'lie',action3:'lies',response:'to his mother',place:'',time:'',es:'El niño miente a su madre.'}
+];
+const beData=[
+ {person:'I',be:'am',response:'happy',place:'',time:'',es:'Yo estoy feliz.',mode:'state'},
+ {person:'You',be:'are',response:'',place:'at home',time:'',es:'Tú estás en casa.',mode:'state'},
+ {person:'He',be:'is',response:'tired',place:'',time:'',es:'Él está cansado.',mode:'state'},
+ {person:'She',be:'is',response:'',place:'in the market',time:'',es:'Ella está en el mercado.',mode:'state'},
+ {person:'We',be:'are',response:'ready',place:'',time:'',es:'Nosotros estamos preparados.',mode:'state'},
+ {person:'They',be:'are',response:'',place:'in class',time:'',es:'Ellos están en clase.',mode:'state'},
+ {person:'I',be:'am',actionIng:'reading',response:'a book',place:'',time:'',es:'Yo estoy leyendo un libro.',mode:'ing'},
+ {person:'He',be:'is',actionIng:'running',response:'',place:'in the park',time:'',es:'Él está corriendo en el parque.',mode:'ing'},
+ {person:'She',be:'is',actionIng:'writing',response:'a letter',place:'',time:'',es:'Ella está escribiendo una carta.',mode:'ing'},
+ {person:'We',be:'are',actionIng:'eating',response:'apples',place:'at home',time:'',es:'Nosotros estamos comiendo manzanas en casa.',mode:'ing'},
+ {person:'They',be:'are',actionIng:'swimming',response:'',place:'in the pool',time:'',es:'Ellos están nadando en la piscina.',mode:'ing'},
+ {person:'You',be:'are',actionIng:'singing',response:'a song',place:'at school',time:'',es:'Tú estás cantando una canción en el colegio.',mode:'ing'}
+];
+let student='',zone='',kind='affirmative',questions=[],index=0,selected=[],correct=0,locked=false;
+const $=id=>document.getElementById(id);
+function show(id){['startScreen','menuScreen','lessonScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
+const progressKey='mvConstructorProgressN1';
+function saveProgress(){if(!student||!zone||!questions.length)return;const data={student,zone,questions,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_n1',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
+function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||!p.zone||!Array.isArray(p.questions)||!p.questions.length||p.index<0||p.index>=p.questions.length)return false;zone=p.zone;questions=p.questions;index=p.index;correct=p.correct||0;kind='affirmative';$('zoneTitle').textContent=zone==='simple'?'🧩 Los Solitarios':zone==='be'?'👑 El Rey BE':'🌟 YO SOLO';$('studentLabel').textContent='Jugador/a: '+student;$('typeSwitch').classList.add('hidden');show('lessonScreen');renderQuestion();return true}catch(e){return false;}}
+function clearProgress(){if(window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_n1',progressKey,{zone,index:questions.length});localStorage.removeItem(progressKey);}
+async function startGame(){student=$('studentName').value.trim();if(!student){$('studentName').focus();return;}localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_progreso_n1',progressKey);await MV_PROGRESS.syncFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo'])}if(loadProgress())return;show('menuScreen');}
+function goMenu(){show('menuScreen');zone='';}
+function openZone(z){
+  zone=z;index=0;correct=0;kind='affirmative';
+  const kinds=['affirmative','negative','question'];
+  if(z==='solo'){
+    const mixed=[...simpleData.map(x=>({...x,source:'simple'})),...beData.map(x=>({...x,source:'be'}))];
+    questions=[];
+    for(let round=0;round<3;round++){
+      const shuffled=[...mixed].sort(()=>Math.random()-.5).slice(0,12);
+      questions.push(...shuffled.map((x,i)=>({...x,testKind:kinds[(i+round)%3]})));
+    }
+  }else{
+    if(z==='simple') questions=simpleData.map(x=>({...x,source:'simple'}));
+    else questions=kinds.flatMap(k=>beData.map(x=>({...x,source:'be',testKind:k})));
+  }
+  show('lessonScreen');
+  $('zoneTitle').textContent=z==='simple'?'🧩 Los Solitarios':z==='be'?'👑 El Rey BE':'🌟 YO SOLO';
+  $('studentLabel').textContent='Jugador/a: '+student;
+  $('typeSwitch').classList.add('hidden');
+  saveProgress();
+  renderQuestion();
+}
+function restartLesson(){if(!zone)return;index=0;correct=0;saveProgress();renderQuestion();}
+function setKind(k){kind=k;selected=[];locked=false;renderQuestion(false);}
+function contractionBe(be,subject){if(be==='am')return "am not";if(be==='is')return "isn't";return "aren't";}
+function parts(q){
+ return [q.response,q.place,q.time].filter(Boolean);
+}
+function expected(q){
+ const activeZone=zone==='solo'?q.source:zone;
+ const activeKind=q.testKind||kind;
+ if(activeZone==='simple'){
+   const naughty=['He','She','It'].includes(q.person);
+   const tail=parts(q);
+   if(activeKind==='affirmative')return [q.person,naughty?q.action3:q.action,...tail];
+   if(activeKind==='negative')return [q.person,naughty?"doesn't":"don't",q.action,...tail];
+   const answer=[naughty?'Does':'Do',q.person,q.action,...tail];
+   answer[answer.length-1]=answer[answer.length-1]+'?';
+   return answer;
+ }
+ const tail=q.mode==='ing'?[q.actionIng,...parts(q)]:parts(q);
+ if(activeKind==='affirmative')return [q.person,q.be,...tail];
+ if(activeKind==='negative')return [q.person,contractionBe(q.be,q.person),...tail];
+ const answer=[q.be[0].toUpperCase()+q.be.slice(1),q.person,...tail];
+ answer[answer.length-1]=answer[answer.length-1]+'?';
+ return answer;
+}
+function distractors(q,answer){
+ let pool=[];
+ const activeZone=zone==='solo'?q.source:zone;
+ if(activeZone==='simple') pool=["don't","doesn't",'Do','Does',q.action,q.action3||q.action+'s','am','is','are'];
+ else pool=['do',"don't",'does',"doesn't",'am','is','are',"isn't","aren't",q.actionIng||'playing'];
+ return [...new Set(pool.filter(x=>x&&!answer.includes(x)))].slice(0,5);
+}
+
+function soloExpectedText(){
+  return expected(questions[index]).join(' ');
+}
+function normalizeAnswer(s){
+  return String(s).trim().replace(/\s+/g,' ').replace(/[.]+$/,'').toLowerCase();
+}
+function soloMissionEs(q){
+  const k=q.testKind;
+  let base=q.es.trim();
+  if(k==='affirmative') return base;
+  if(k==='question'){
+    base=base.replace(/[.]+$/,'');
+    return '¿'+base.charAt(0).toUpperCase()+base.slice(1)+'?';
+  }
+  const firstSpace=base.indexOf(' ');
+  if(firstSpace>0) return base.slice(0,firstSpace)+' no'+base.slice(firstSpace);
+  return 'No '+base.charAt(0).toLowerCase()+base.slice(1);
+}
+function updateSoloTyping(){
+  if(zone!=='solo')return;
+  $('soloInput').classList.remove('typing-good','typing-bad','complete');
+}
+
+function renderQuestion(reset=true){
+  if(reset){selected=[];locked=false;}
+  const q=questions[index],ans=expected(q);
+  const activeZone=zone==='solo'?q.source:zone;
+  const activeKind=q.testKind||kind;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('active',b.dataset.kind===activeKind));
+  $('counterBadge').textContent=(index+1)+' / '+questions.length;
+  $('progressBar').style.width=(index/questions.length*100)+'%';
+
+  $('walkway').classList.toggle('hidden',zone==='solo');
+  $('soloWrite').classList.toggle('hidden',zone!=='solo');
+  document.querySelector('.bank-title').classList.toggle('hidden',zone==='solo');
+  $('wordBank').classList.toggle('hidden',zone==='solo');
+
+  if(zone==='solo'){
+    $('missionText').textContent=soloMissionEs(q)+'  →  Ahora hazla tú solo.';
+    $('soloInput').value='';
+    $('soloInput').className='';
+    setTimeout(()=>$('soloInput').focus(),0);
+  }else{
+    $('missionText').textContent=q.es+'  →  '+({affirmative:'Haz una frase afirmativa.',negative:'Haz una frase negativa.',question:'Haz una pregunta.'}[activeKind]);
+  }
+
+  let labels=[];
+  const infoLabels=[];
+  if(q.response) infoLabels.push('RESPUESTA');
+  if(q.place) infoLabels.push('¿DÓNDE?');
+  if(q.time) infoLabels.push('¿CUÁNDO?');
+
+  if(activeZone==='simple'){
+    labels = activeKind==='question' ? ['AYUDANTE DO','¿QUIÉN?','¿QUÉ HACE?',...infoLabels]
+           : activeKind==='negative' ? ['¿QUIÉN?','AYUDANTE DO','¿QUÉ HACE?',...infoLabels]
+           : ['¿QUIÉN?','¿QUÉ HACE?',...infoLabels];
+  }else{
+    const actionLabels=q.mode==='ing'?['REY BE','¿QUÉ HACE? + ING']:['¿QUÉ HACE?'];
+    labels = activeKind==='question' ? ['REY BE','¿QUIÉN?',...(q.mode==='ing'?['¿QUÉ HACE? + ING']:[]),...infoLabels]
+           : activeKind==='negative' ? ['¿QUIÉN?','REY BE + NO',...(q.mode==='ing'?['¿QUÉ HACE? + ING']:[]),...infoLabels]
+           : ['¿QUIÉN?',...actionLabels,...infoLabels];
+  }
+
+  if(zone!=='solo'){
+    $('walkway').innerHTML=labels.map((lab,i)=>`<div class="slot ${selected[i]?'filled':''}"><span>${selected[i]||'<small>'+lab+'</small>'}</span></div>${i<labels.length-1?'<div class="arrow">➜</div>':''}`).join('');
+    const words=[...ans].sort(()=>Math.random()-.5);
+    $('wordBank').innerHTML=words.map((w,i)=>`<button class="word ${wordClass(w)}" data-word="${esc(w)}" onclick="pickWord(this)">${esc(w)}</button>`).join('');
+    markUsed();
+  }
+
+  $('feedback').className='feedback neutral';
+  $('feedback').textContent=zone==='solo'?'Escribe la frase completa.':'Toca las palabras en el orden correcto.';
+  $('nextBtn').classList.add('hidden');
+  $('ruleCard').classList.toggle('hidden',zone==='solo');
+  $('ruleCard').innerHTML=zone==='solo'?'':ruleText(q);
+}
+function wordClass(w){if(["don't","doesn't",'Do','Does'].includes(w))return 'helper';if(['He','She','It'].includes(w))return 'trickster';if(['am','is','are',"isn't","aren't",'Am','Is','Are'].includes(w))return 'king';if(/(s|es|ies)$/.test(w)&&!['is','does'].includes(w))return 'ending';return '';}
+function ruleText(q){
+ const activeZone=zone==='solo'?q.source:zone;
+ const activeKind=q.testKind||kind;
+ if(activeZone==='simple'){
+   if(activeKind==='affirmative'&&['He','She','It'].includes(q.person))return '<strong>¡Hay un travieso!</strong> En este primer nivel, los trillizos <b>He, She e It</b> añaden siempre una <b>S</b> al verbo.';
+   if(activeKind==='affirmative')return '<strong>El Solitario afirma y viaja solo.</strong> Persona → acción → lo que responde → dónde → cuándo.';
+   if(activeKind==='negative')return '<strong>El Solitario necesita ayuda para decir que no.</strong> El <b>Ayudante DO</b> hace esa tarea con <b>don\'t</b> o <b>doesn\'t</b>. El Solitario se queda a su lado, tranquilito y sin cambiar.';
+   return '<strong>El Solitario necesita ayuda para preguntar.</strong> El <b>Ayudante DO</b> camina delante y el Solitario se queda a su lado, tranquilito y sin cambiar.';
+ }
+ if(activeKind==='affirmative')return '<strong>El Rey BE siempre viaja camuflado.</strong> En el Mercado del Presente puede aparecer como <b>am, is o are</b>. Sigue el modelo y el recorrido de las flechas.';
+ if(activeKind==='negative')return '<strong>El Rey BE mantiene su disfraz y dice que no él solo:</strong> <b>am not / isn\'t / aren\'t</b>.';
+ return '<strong>Para preguntar, el Rey BE camina delante con uno de sus disfraces:</strong> <b>Am / Is / Are</b> → ¿quién? → resto del camino.';
+}
+function pickWord(btn){if(locked)return;const ans=expected(questions[index]);if(selected.length>=ans.length)return;selected.push(btn.dataset.word);renderSlots();markUsed();}
+function renderSlots(){const q=questions[index],ans=expected(q);const slots=[...document.querySelectorAll('.slot')];slots.forEach((s,i)=>{s.classList.toggle('filled',!!selected[i]);s.innerHTML=selected[i]?'<span>'+esc(selected[i])+'</span>':s.innerHTML;});}
+function markUsed(){const counts={};selected.forEach(w=>counts[w]=(counts[w]||0)+1);document.querySelectorAll('.word').forEach(b=>{const w=b.dataset.word;const usedBefore=[...document.querySelectorAll('.word')].filter(x=>x.dataset.word===w&&x.classList.contains('used')).length;b.classList.toggle('used',(counts[w]||0)>usedBefore);});}
+function deleteLast(){
+  if(locked)return;
+  if(zone==='solo'){
+    const input=$('soloInput');
+    input.value=input.value.slice(0,-1);
+    updateSoloTyping();
+    input.focus();
+    return;
+  }
+  selected.pop();renderQuestion(false);
+}
+function checkAnswer(){
+  if(locked)return;
+  const ans=expected(questions[index]);
+  if(zone==='solo'){
+    const typed=normalizeAnswer($('soloInput').value);
+    const target=normalizeAnswer(ans.join(' '));
+    if(!typed){bad('Escribe primero la frase.');$('soloInput').focus();return;}
+    if(typed===target){
+      locked=true;correct++;
+      $('soloInput').classList.remove('typing-good','typing-bad');
+      $('soloInput').classList.add('complete');
+      $('feedback').className='feedback good';
+      const prize=MV_GUIDED_REWARDS.reward('n1',zone,'slot-'+index);
+      $('feedback').textContent=prize.wonEuro?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! La has construido tú solo. 🎉';
+      $('nextBtn').classList.remove('hidden');
+      speak(ans.join(' '));
+    }else{
+      bad('Inténtalo otra vez.');
+      $('soloInput').focus();
+    }
+    return;
+  }
+  if(selected.length!==ans.length){bad('Todavía faltan palabras en el camino.');return;}
+  const ok=ans.every((w,i)=>w===selected[i]);
+  if(ok){
+    locked=true;correct++;
+    $('feedback').className='feedback good';
+    const prize=MV_GUIDED_REWARDS.reward('n1',zone,'slot-'+index);
+    $('feedback').textContent=prize.wonEuro?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! Has recorrido el camino correctamente. 🎉';
+    $('nextBtn').classList.remove('hidden');
+    speak(ans.join(' '));
+  }else{
+    bad('Inténtalo otra vez. Observa quién empieza la frase en el modelo de arriba y sigue el recorrido de las flechas.');
+  }
+}
+function bad(msg){$('feedback').className='feedback bad';$('feedback').textContent=msg;}
+function nextQuestion(){
+ index++;
+ if(index>=questions.length){
+   $('progressBar').style.width='100%';
+   const key='mvConstructorN1_'+zone;
+   localStorage.setItem(key,'completed');
+   clearProgress();
+   if(window.MV_PROGRESS)MV_PROGRESS.saveFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo']);
+   const completed=['simple','be','solo'].filter(z=>localStorage.getItem('mvConstructorN1_'+z)==='completed').length;
+   show('finishScreen');
+   $('finalMessage').innerHTML=`<p class="score">🏆 ¡Has construido 36 frases!</p><p class="score">💰 Tu saldo pendiente: ${MV_GUIDED_REWARDS.balance().euros} €.</p><p>${esc(student)}, has completado esta zona practicando, sin notas.</p>${completed===3?'<p style="font-size:24px;font-weight:900">🎉 ¡Has construido 108 frases en inglés utilizando los verbos del Mercado!</p>':''}`;
+   return;
+ }
+ saveProgress();
+ renderQuestion();
+}
+function speakCurrent(){if(!zone)return;speak(expected(questions[index]).join(' '));}
+function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null;}
+function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u);}
+if('speechSynthesis'in window)speechSynthesis.getVoices();
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+$('soloInput').addEventListener('input',updateSoloTyping);
+$('soloInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});
+</script>
+</body>
+</html>

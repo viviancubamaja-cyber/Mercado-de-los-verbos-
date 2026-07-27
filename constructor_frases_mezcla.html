@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercado de los Verbos · El verbo viaja</title>
+<style>
+:root{--ink:#29323a;--paper:#fffaf0;--brown:#7a4b25;--green:#49a66f;--blue:#4f83cc;--violet:#7957b8;--red:#d85c54;--gold:#e4ad2e;--shadow:0 13px 30px #2a23182b}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Trebuchet MS,Arial,sans-serif;color:var(--ink);background:linear-gradient(rgba(255,247,223,.18),rgba(255,247,223,.28)),url("verb-market-background.jpeg") center/cover fixed no-repeat;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:repeating-linear-gradient(0deg,transparent 0 29px,#7c5127 30px)}
+.app{width:min(1180px,96vw);margin:18px auto 36px;position:relative}.topbar,.panel{background:rgba(255,250,240,.92);backdrop-filter:blur(1.5px);border:4px solid #87592e;box-shadow:var(--shadow)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:24px;padding:12px 18px}.brand{display:flex;align-items:center;gap:12px}.logo{font-size:38px}.title{font-size:clamp(20px,3vw,34px);font-weight:900;color:var(--brown)}.subtitle{font-size:14px;color:#6a5b49;font-weight:800}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11px 15px;cursor:pointer;box-shadow:0 5px 0 #0000002b;text-decoration:none}.back{background:#f7e4ad;color:#5f441d}.reset{background:#ef877f;color:white}.start,.check{background:var(--green);color:white}.next{background:#607fc7;color:white}button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002b}
+.panel{margin-top:18px;border-radius:28px;padding:clamp(18px,3vw,30px)}.hidden{display:none!important}.hero{text-align:center;padding:18px 10px}.hero .icon{font-size:76px}.hero h1{font-size:clamp(31px,5vw,58px);margin:2px 0 8px;color:var(--brown)}.hero p{font-size:clamp(17px,2.2vw,22px);font-weight:800;line-height:1.45;max-width:850px;margin:0 auto 24px}.namebox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.namebox input{min-width:min(440px,90vw);font:inherit;font-size:20px;padding:14px 18px;border-radius:15px;border:3px solid #b98a4d}.start{font-size:20px;padding-inline:28px}
+.head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.head h1{font-size:clamp(25px,4vw,42px);margin:0;color:var(--brown)}.small{font-size:14px;color:#796c5b;font-weight:800}.status{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.badge{padding:8px 13px;border-radius:999px;background:#fff0ba;font-weight:900;border:2px solid #d8a730}.wallet{padding:8px 15px;border-radius:999px;background:#dff5e5;color:#216d3a;font-size:20px;font-weight:900;border:3px solid var(--green);box-shadow:0 4px 0 #2c714044}.progress{height:18px;background:#eadfc9;border:2px solid #b69a72;border-radius:999px;overflow:hidden;margin:17px 0 22px}.progress div{height:100%;background:linear-gradient(90deg,var(--green),var(--blue),var(--violet));transition:.3s}
+.mission{background:white;border:4px dashed #b58a50;border-radius:22px;padding:18px;text-align:center;margin-bottom:20px}.mission small{font-weight:900;color:#8a6334;letter-spacing:.09em}.mission .verb{font-size:16px;color:#83694b;font-weight:900;margin-top:5px}.mission .spanish{font-size:clamp(29px,5vw,49px);font-weight:900;color:#4b3828;margin-top:7px}
+.columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.column{border:5px solid;border-radius:25px;padding:18px 14px 20px;text-align:center;transition:.18s transform,.18s box-shadow,.18s opacity}.column h2{font-size:clamp(22px,2.7vw,31px);margin:0 0 3px}.column .level-name{font-size:16px;font-weight:900;letter-spacing:.06em;margin-bottom:13px}.column input{width:100%;min-height:70px;border:3px solid #bba98c;border-radius:16px;background:white;padding:12px;font:inherit;font-size:clamp(18px,2.3vw,25px);font-weight:900;text-align:center;outline:none}.column input:focus{box-shadow:0 0 0 5px #ffffffaa}.n1{background:#e9f7ed;border-color:var(--green)}.n1 h2,.n1 .level-name{color:#267445}.n1.active{box-shadow:0 0 0 6px #49a66f55;transform:translateY(-4px)}.n2{background:#e8f3ff;border-color:var(--blue)}.n2 h2,.n2 .level-name{color:#285e9e}.n2.active{box-shadow:0 0 0 6px #4f83cc55;transform:translateY(-4px)}.n3{background:#f0e9fc;border-color:var(--violet)}.n3 h2,.n3 .level-name{color:#5e3c9e}.n3.active{box-shadow:0 0 0 6px #7957b855;transform:translateY(-4px)}.column.correct{box-shadow:0 0 0 7px #36a45888;transform:translateY(-5px)}.column.wrong{animation:shake .25s 2;border-color:var(--red)}
+.feedback{min-height:66px;margin-top:20px;border-radius:18px;padding:13px;text-align:center;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}.neutral{background:#eee7db;color:#6b5d49}.good{background:#d9f3df;color:#216d3a}.bad{background:#ffe0dc;color:#9b332d}.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}.finish{text-align:center}.finish .trophy{font-size:90px}.finish h1{font-size:clamp(30px,5vw,54px);color:var(--brown)}.score{font-size:27px;font-weight:900;color:#397b4e}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(max-width:760px){.columns{grid-template-columns:1fr}.topbar{align-items:flex-start}.actions{display:none}.column{padding:13px}.column input{min-height:58px}}
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">🏪</div><div><div class="title">Mercado de los Verbos</div><div class="subtitle">CONSTRUCTOR · EL VERBO VIAJA</div></div></div>
+    <div class="actions"><a class="back" href="constructor_frases.html">🏆 CONSTRUCTOR</a><button class="reset" onclick="restart()">↻ REINICIAR</button></div>
+  </header>
+
+  <section id="startScreen" class="panel hero">
+    <div class="icon">🌟</div>
+    <h1>El verbo viaja</h1>
+    <p>Lee la frase, descubre en qué nivel vive y escríbela en su columna. El mismo verbo aparecerá de formas diferentes y sin complementos.</p>
+    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startGame()">EMPEZAR</button></div>
+  </section>
+
+  <section id="gameScreen" class="panel hidden">
+    <div class="head"><div><h1>¿Dónde vive esta frase?</h1><div id="player" class="small"></div></div><div class="status"><div id="wallet" class="wallet">💰 0 €</div><div id="counter" class="badge"></div></div></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="mission"><small>TU MISIÓN</small><div id="verbName" class="verb"></div><div id="spanish" class="spanish"></div></div>
+    <div class="columns">
+      <div class="column n1" data-level="1"><h2>Mercado del presente</h2><div class="level-name">NIVEL 1</div><input data-level="1" autocomplete="off" spellcheck="false" placeholder="Escribe aquí"></div>
+      <div class="column n2" data-level="2"><h2>Mercado del pasado</h2><div class="level-name">NIVEL 2</div><input data-level="2" autocomplete="off" spellcheck="false" placeholder="Escribe aquí"></div>
+      <div class="column n3" data-level="3"><h2>Mercado perfecto</h2><div class="level-name">NIVEL 3 · REINA HAVE</div><input data-level="3" autocomplete="off" spellcheck="false" placeholder="Escribe aquí"></div>
+    </div>
+    <div id="feedback" class="feedback neutral">Elige una columna y escribe la frase en inglés.</div>
+    <div class="controls"><button class="check" onclick="checkAnswer()">✓ CHECK</button><button id="nextBtn" class="next hidden" onclick="nextMission()">SIGUIENTE ➜</button></div>
+  </section>
+
+  <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h1>¡Los verbos saben viajar!</h1><div id="finalText"></div><div class="controls"><button class="start" onclick="playAgain()">JUGAR OTRA VEZ</button><a class="back" href="constructor_frases.html">VOLVER AL CONSTRUCTOR</a></div></section>
+</main>
+<script src="constructor_wallet.js"></script>
+<script src="constructor_cloud_progress.js"></script>
+<script src="constructor_guided_rewards.js"></script>
+<script>
+const missions=[
+ {verb:'DORMIR',level:2,es:'Yo dormí.',en:'I slept'},
+ {verb:'ESCRIBIR',level:1,es:'Yo estoy escribiendo.',en:'I am writing'},
+ {verb:'BEBER',level:3,es:'Yo he bebido.',en:'I have drunk'},
+ {verb:'CANTAR',level:2,es:'Yo no canté.',en:"I didn't sing"},
+ {verb:'DORMIR',level:1,es:'Yo estoy durmiendo.',en:'I am sleeping'},
+ {verb:'ESCRIBIR',level:2,es:'Yo escribí.',en:'I wrote'},
+ {verb:'ESCRIBIR',level:3,es:'Yo he escrito.',en:'I have written'},
+ {verb:'BEBER',level:2,es:'Yo no bebí.',en:"I didn't drink"},
+ {verb:'CANTAR',level:1,es:'Yo estoy cantando.',en:'I am singing'},
+ {verb:'BEBER',level:2,es:'Yo bebí.',en:'I drank'},
+ {verb:'DORMIR',level:3,es:'Yo he dormido.',en:'I have slept'},
+ {verb:'ESCRIBIR',level:2,es:'Yo no escribí.',en:"I didn't write"},
+ {verb:'BEBER',level:1,es:'Yo estoy bebiendo.',en:'I am drinking'},
+ {verb:'CANTAR',level:2,es:'Yo canté.',en:'I sang'},
+ {verb:'CANTAR',level:3,es:'Yo he cantado.',en:'I have sung'},
+ {verb:'DORMIR',level:2,es:'Yo no dormí.',en:"I didn't sleep"}
+];
+let student='',index=0,locked=false,selectedLevel=null,correct=0,euros=0;
+const $=id=>document.getElementById(id);
+const inputs=()=>[...document.querySelectorAll('.column input')];
+function show(id){['startScreen','gameScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+const progressKey='mvConstructorProgressMezcla';
+function saveProgress(){if(!student)return;const data={student,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_mezcla',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
+function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||p.index<0||p.index>=missions.length)return false;index=p.index;correct=p.correct||0;euros=p.euros||0;$('player').textContent='Jugador/a: '+student;show('gameScreen');render();return true}catch(e){return false;}}
+function clearProgress(){if(student&&window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_mezcla',progressKey,{index:missions.length,correct});localStorage.removeItem(progressKey)}
+async function startGame(){student=$('studentName').value.trim();if(!student)return $('studentName').focus();localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);euros=MV_GUIDED_REWARDS.balance().euros;if(window.MV_PROGRESS)await MV_PROGRESS.sync(student,'constructor_progreso_mezcla',progressKey);if(loadProgress()){euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();return}index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
+function updateWallet(){$('wallet').textContent='💰 '+euros+' €'}
+function render(){locked=false;selectedLevel=null;const q=missions[index];$('counter').textContent=(index+1)+' / '+missions.length;$('bar').style.width=(index/missions.length*100)+'%';updateWallet();$('verbName').textContent='El verbo que viaja: '+q.verb;$('spanish').textContent=q.es;inputs().forEach(i=>{i.value='';i.disabled=false});document.querySelectorAll('.column').forEach(c=>c.classList.remove('active','correct','wrong'));$('feedback').className='feedback neutral';$('feedback').textContent='Elige una columna y escribe la frase en inglés.';$('nextBtn').classList.add('hidden')}
+function choose(input){if(locked)return;selectedLevel=Number(input.dataset.level);inputs().forEach(i=>{if(i!==input)i.value=''});document.querySelectorAll('.column').forEach(c=>{c.classList.remove('wrong');c.classList.toggle('active',Number(c.dataset.level)===selectedLevel)})}
+function norm(s){return String(s).trim().replace(/[’‘]/g,"'").replace(/\s+/g,' ').replace(/[.!?]+$/,'').toLowerCase()}
+function comparable(s){return norm(s).replace(/\bdid not\b/g,"didn't")}
+function hasCapitalI(s){return /^\s*I(?:\s|$)/.test(String(s))}
+function checkAnswer(){if(locked)return;const q=missions[index],input=inputs().find(i=>i.value.trim());if(!input){bad('Primero elige una columna y escribe la frase.');return}selectedLevel=Number(input.dataset.level);if(selectedLevel!==q.level){document.querySelector('.column[data-level="'+selectedLevel+'"]').classList.add('wrong');bad('Mira los carteles: ¿la frase habla del presente, del pasado o del Mercado perfecto?');return}if(!hasCapitalI(input.value)){bad('En inglés, YO siempre se escribe con I mayúscula.');input.focus();return}if(comparable(input.value)!==comparable(q.en)){bad('La columna es correcta. Fíjate en el nombre del mercado y escribe el verbo correctamente.');input.focus();return}locked=true;const oldEuros=euros;correct++;MV_GUIDED_REWARDS.reward('mezcla',q.level,q.en);euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();document.querySelector('.column[data-level="'+q.level+'"]').classList.add('correct');inputs().forEach(i=>i.disabled=true);$('feedback').className='feedback good';$('feedback').textContent=euros>oldEuros?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! El verbo ha llegado a su columna. 🎉';$('nextBtn').classList.remove('hidden');speak(q.en)}
+function bad(text){$('feedback').className='feedback bad';$('feedback').textContent=text}
+function nextMission(){if(++index<missions.length){saveProgress();return render();}localStorage.setItem('mvConstructorGranMezclaPiloto','completed');clearProgress();show('finishScreen');$('finalText').innerHTML='<p class="score">'+esc(student)+', has colocado '+correct+' de '+missions.length+' frases.</p><p class="score">💰 Tu saldo pendiente es '+euros+' €.</p><p>Has seguido la evolución de cuatro verbos por los tres niveles.</p>'}
+function restart(){if($('gameScreen').classList.contains('hidden'))return;index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;render()}
+function playAgain(){index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;saveProgress();show('gameScreen');render()}
+function susan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
+function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const v=susan();if(v)u.voice=v;speechSynthesis.speak(u)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});if('speechSynthesis' in window)speechSynthesis.getVoices();
+</script>
+</body>
+</html>
