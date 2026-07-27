@@ -1325,8 +1325,9 @@ button.pay{
 })();
 </script>
 
+<link rel="stylesheet" href="mobile-responsive.css">
 </head>
-<body>
+<body class="legacy-market-page">
 <main class="screen">
   <div class="title" id="mainTitle"><span class="stand-main">STAND 1 · LEVEL 3</span><span class="stand-range">VERBS 1–10</span></div>
   <section class="panel seller">
@@ -1851,6 +1852,15 @@ function getSpokenWordForAudio(word, kind='base'){
   if(w==='read') return kind==='base' ? 'reed' : 'red';
   return word;
 }
+function mvClearBritishVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
+  const british=voices.filter(v=>String(v.lang||'').toLowerCase().replace('_','-').startsWith('en-gb'));
+  const preferred=[/\bSusan\b/i,/^Google UK English Female$/i,/Microsoft Sonia.*English.*United Kingdom/i,/Microsoft Libby.*English.*United Kingdom/i,/^Serena/i,/^Kate/i,/^Martha/i,/^Hazel/i,/^Fiona/i];
+  for(const pattern of preferred){const voice=british.find(v=>pattern.test(v.name||''));if(voice)return voice;}
+  const unclear=/(male|daniel|george|arthur|oliver|ryan|david|mark|alex)/i;
+  return british.find(v=>!unclear.test(v.name||''))||null;
+}
 function speakWord(kind='base'){
   if(!current||!('speechSynthesis' in window))return;
   const writtenWord=kind==='past'?current.past:(kind==='part'?current.part:current.en);
@@ -1858,14 +1868,12 @@ function speakWord(kind='base'){
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(spokenWord);
   u.lang='en-GB';
-  u.rate=.82;
-  // Preferimos una voz masculina inglesa si el navegador la tiene disponible.
-  const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
-  const male=voices.find(v=>/en[-_]GB/i.test(v.lang)&&/(male|daniel|george|arthur|oliver|ryan)/i.test(v.name))
-          || voices.find(v=>/^en/i.test(v.lang)&&/(male|daniel|george|arthur|oliver|ryan|david|mark|alex)/i.test(v.name));
-  if(male)u.voice=male;
+  u.rate=.75;
+  u.pitch=1;
+  const clearBritish=mvClearBritishVoice();
+  if(clearBritish)u.voice=clearBritish;
   window.speechSynthesis.speak(u);
-} 
+}
 function renderVerbButtons(){verbsDiv.innerHTML='';verbData.forEach(item=>{const b=document.createElement('button');b.textContent=item.es;if(completed.has(item.id)){b.classList.add('completed');b.disabled=true}else b.onclick=()=>chooseVerb(item.id);verbsDiv.appendChild(b)})}
 function chooseVerb(id){if(completed.has(id))return;current=verbData.find(v=>v.id===id);if(current&&current.en)current.en=current.en.trim();startTimerIfNeeded();stage='write';selected.clear();selectedPayment=null;originalLetters=[];workingLetters=[];clearCells();resetColumnStatus();resultDiv.textContent='';resultDiv.className='result';document.querySelectorAll('.verb-buttons button').forEach(b=>b.classList.toggle('selected',b.textContent===current.es));buyerChoice.textContent=current.es.toUpperCase();speech.textContent='Write the product in English.';stepText.textContent='Spell it: write the product in English inside Product.';hint.textContent='Then press Check verb.';const esBtn=document.getElementById('audioBuyerEsBtn'); if(esBtn) esBtn.classList.remove('hidden'); speakSelectedVerbEs();;renderBlanks((current.en||'').trim().length)}
 function clearCells(){productCell.innerHTML='';payCell.innerHTML='';newProductCell.innerHTML=''}
@@ -2554,6 +2562,7 @@ function speakText(text, lang='en-GB', rate=0.86){
   const u=new SpeechSynthesisUtterance(text);
   u.lang=lang;
   u.rate=rate;
+  if(/^en/i.test(lang)){const susan=mvClearBritishVoice();if(susan)u.voice=susan;}
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
@@ -8897,8 +8906,186 @@ main.screen > section.seller.panel > .actions{
   setInterval(repairKeepButton, 700);
 })();
 </script>
+
+<script id="mv-libro-audio-nav-fix-v1">
+(function(){
+  function pickVoice(lang, female){
+    var voices=[];
+    try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){}
+    var exact=voices.filter(function(v){return String(v.lang||'').toLowerCase().replace('_','-').indexOf(lang.toLowerCase())===0;});
+    var names = female
+      ? /(female|serena|sonia|kate|fiona|samantha|martha|hazel|susan|libby|victoria|moira|tessa|karen|monica|mónica|helena|paulina|marisol|luciana|google uk english female|google español)/i
+      : /.*/;
+    return exact.find(function(v){return names.test(v.name||'');}) || exact[0] || voices.find(function(v){return String(v.lang||'').toLowerCase().indexOf(lang.slice(0,2).toLowerCase())===0 && names.test(v.name||'');}) || null;
+  }
+  window.mvSpeakPreferred=function(text,lang,rate){
+    if(!text || !('speechSynthesis' in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(String(text).replace(/\s*,\s*/g,', '));
+      u.lang=lang||'en-GB';
+      u.rate=rate || ((u.lang==='es-ES')?0.78:0.84);
+      u.pitch=(u.lang==='en-GB')?1.08:1.0;
+      var v=pickVoice(u.lang,true); if(v) u.voice=v;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  };
+  try{ window.speechSynthesis.getVoices(); }catch(e){}
+})();
+</script>
+
+
+<script id="mv-libro-final-voice-fix-3">
+(function(){
+  function verbs(){ try{return (typeof window.allVerbs==='function')?window.allVerbs():[];}catch(e){return [];} }
+  function current(){ var a=verbs(); return a[Number(window.bookIndex)||0] || a[0] || {}; }
+  window.speakBook=function(lang){
+    var v=current(), text='';
+    if(lang==='es') text=v.es||'';
+    else if(lang==='past') text=v.past||'';
+    else if(lang==='part') text=v.part||'';
+    else text=v.en||'';
+    if(typeof window.mvSpeakPreferred==='function') window.mvSpeakPreferred(text,lang==='es'?'es-ES':'en-GB',lang==='es'?0.78:0.84);
+  };
+  window.speakBookForm=function(form){
+    var v=current(); var text=form==='past'?(v.past||''):form==='part'?(v.part||''):(v.en||'');
+    if(typeof window.mvSpeakPreferred==='function') window.mvSpeakPreferred(text,'en-GB',0.84);
+  };
+  document.addEventListener('click',function(e){
+    var b=e.target && e.target.closest ? e.target.closest('#notebook button') : null;
+    if(!b) return;
+    var t=(b.textContent||'').toLowerCase();
+    /* Navegación del libro: no detener NEXT/PREVIOUS antes de llegar al botón. */
+  },true);
+})();
+</script>
+
+<script src="constructor_wallet.js"></script><script src="market_wallet_bridge.js"></script>
 </body>
 </html>
+
+<!-- MV V1.2.1 · Microcirugía Libro Nivel 3: restaurar PREVIOUS / NEXT -->
+<script id="mv-v121-libro-n3-nav-real">
+(function(){
+  if(window.__mvV121LibroN3NavReal) return;
+  window.__mvV121LibroN3NavReal=true;
+
+  function verbs(){
+    try{ return typeof window.allVerbs==='function' ? window.allVerbs() : []; }
+    catch(_e){ return []; }
+  }
+
+  document.addEventListener('click',function(e){
+    var button=e.target && e.target.closest ? e.target.closest('#notebook .book-nav button') : null;
+    if(!button) return;
+    var label=String(button.textContent||'').toLowerCase();
+    var direction=label.indexOf('next')>=0 ? 1 : (label.indexOf('previous')>=0 ? -1 : 0);
+    if(!direction) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    var list=verbs();
+    if(!list.length) return;
+    bookIndex=(bookIndex+direction+list.length)%list.length;
+    renderBook();
+  },true);
+
+  function navigateBeforeCover(e){
+    var button=e.target && e.target.closest ? e.target.closest('#notebook .book-nav button') : null;
+    if(!button) return;
+    var label=String(button.textContent||'').toLowerCase();
+    var direction=label.indexOf('next')>=0 ? 1 : (label.indexOf('previous')>=0 ? -1 : 0);
+    if(!direction) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    var list=verbs();
+    if(!list.length) return false;
+    bookIndex=(bookIndex+direction+list.length)%list.length;
+    renderBook();
+    return false;
+  }
+
+  window.addEventListener('click',navigateBeforeCover,true);
+
+  function openRealStudy(e){
+    var target=e.target && e.target.closest ? e.target.closest('#startScreen .start-study-book-v3, #startScreen .start-book-test-v3') : null;
+    if(!target) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    var list=verbs();
+    if(!list.length) return false;
+    if(typeof bookIndex!=='number' || !list[bookIndex]) bookIndex=0;
+    renderBook();
+    var notebook=document.getElementById('notebook');
+    if(notebook){
+      notebook.classList.add('show');
+      notebook.style.setProperty('display','flex','important');
+      notebook.style.setProperty('z-index','2147483646','important');
+    }
+    return false;
+  }
+
+  ['pointerdown','touchend','click'].forEach(function(eventName){
+    window.addEventListener(eventName,openRealStudy,true);
+  });
+
+  var previousClose=window.closeNotebook;
+  window.closeNotebook=function(){
+    try{ if(typeof previousClose==='function') previousClose.apply(this,arguments); }catch(_e){}
+    var notebook=document.getElementById('notebook');
+    if(notebook){
+      notebook.classList.remove('show');
+      notebook.style.removeProperty('display');
+    }
+  };
+
+  function installBookVoice(){
+    var female=/(female|martha|serena|sonia|samantha|karen|moira|tessa|fiona|kate|libby|hazel|susan|victoria|ava|allison|zira|sandy|shelly|flo|m[oó]nica|helena|paulina|marisol|luciana|sabina|google.*female|google.*español|siri.*female)/i;
+    var male=/(male|daniel|george|arthur|oliver|ryan|david|mark|alex|jorge|diego|carlos)/i;
+    function voices(){try{return window.speechSynthesis.getVoices()||[];}catch(_e){return[];}}
+    function pick(lang){
+      var all=voices(),wanted=String(lang||'en-GB').toLowerCase().replace('_','-'),base=wanted.slice(0,2);
+      var exact=all.filter(function(v){return String(v.lang||'').toLowerCase().replace('_','-').indexOf(wanted)===0;});
+      var same=all.filter(function(v){return String(v.lang||'').toLowerCase().slice(0,2)===base;});
+      return exact.find(function(v){return female.test(v.name||'');})||same.find(function(v){return female.test(v.name||'');})||exact.find(function(v){return !male.test(v.name||'');})||same.find(function(v){return !male.test(v.name||'');})||exact[0]||same[0]||null;
+    }
+    window.mvSpeakPreferred=function(text,lang,rate){
+      if(!text||!('speechSynthesis'in window))return;
+      var clean=String(text).replace(/\s*,\s*/g,', '),wanted=lang||'en-GB';
+      if(String(wanted).toLowerCase().indexOf('en')===0&&clean.indexOf(',')<0)clean=clean.toLowerCase();
+      try{var u=new SpeechSynthesisUtterance(clean);u.lang=wanted;u.rate=String(wanted).toLowerCase().indexOf('en')===0?0.75:(rate||0.82);u.pitch=1;if(String(wanted).toLowerCase().indexOf('en')===0){var clearBritish=mvClearBritishVoice();if(clearBritish)u.voice=clearBritish;}window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}catch(_e){}
+    };
+  }
+  installBookVoice();
+
+  window.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('#notebook .sound-btn'):null;
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    var call=String(b.getAttribute('onclick')||'');
+    if(call.indexOf("'es'")>=0)return window.mvSpeakPreferred((document.getElementById('bookEs')||{}).textContent||'','es-ES',0.80);
+    if(call.indexOf("'past'")>=0)return window.mvSpeakPreferred((document.getElementById('bookPast')||{}).textContent||'','en-GB',0.82);
+    if(call.indexOf("'part'")>=0)return window.mvSpeakPreferred((document.getElementById('bookPart')||{}).textContent||'','en-GB',0.82);
+    window.mvSpeakPreferred((document.getElementById('bookEn')||{}).textContent||'','en-GB',0.82);
+  },true);
+
+  window.addEventListener('click',function(e){
+    var close=e.target&&e.target.closest?e.target.closest('#notebook .quit-btn'):null;
+    if(!close)return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    var notebook=document.getElementById('notebook');
+    if(notebook){notebook.classList.remove('show');notebook.style.removeProperty('display');notebook.style.removeProperty('visibility');}
+    return false;
+  },true);
+})();
+</script>
 
 
 <!-- MV FASE4.5R · Portada limpia desde mensajes TEST (sin recargar, sin modal pegado) -->
