@@ -1,0 +1,14 @@
+{
+  "name": "Mercado de los Verbos",
+  "short_name": "Mercado Verbos",
+  "description": "Mercado de los Verbos — acceso de alumnado y familias",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff7df",
+  "theme_color": "#7b4b20",
+  "icons": [
+    {"src":"alex-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"alex-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}

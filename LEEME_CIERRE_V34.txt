@@ -1,0 +1,11 @@
+MERCADO DE LOS VERBOS — CIERRE V34
+
+Versión cerrada para uso con alumnado y familias.
+Se añade la capa instalable del Mercado con Álex como icono oficial.
+
+Acceso web normal: index.html
+Instalación como app: app.html
+
+La app abre el Mercado desde index.html y conserva los parámetros del enlace familiar al entrar desde la página de instalación.
+
+Expansiones futuras reservadas para una fase posterior: condicionales, voz pasiva y nuevos mercados.
