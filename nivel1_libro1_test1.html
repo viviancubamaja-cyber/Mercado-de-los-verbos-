@@ -64,9 +64,9 @@
   function back(e){stop(e);if(state.isNavigating)return false;state.isNavigating=true;try{var x=byId('exitScreen');if(x){x.classList.remove('show');x.style.removeProperty('display');x.style.removeProperty('visibility');x.style.removeProperty('opacity')}}finally{setTimeout(function(){state.isNavigating=false},350)}return false}
   function quit(e){stop(e);if(state.isNavigating)return false;state.isNavigating=true;try{var x=byId('exitScreen');if(x){x.classList.remove('show');x.style.removeProperty('display');x.style.removeProperty('visibility');x.style.removeProperty('opacity')}var s=byId('startScreen');if(s)s.classList.add('show')}finally{setTimeout(function(){state.isNavigating=false},350)}return false}
   window.enterFromStart=start;window.saveAndExit=save;window.returnToMarket=back;window.quitGame=quit;
-  window.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest('#startScreen .start-enter-v72-img,button.save,#exitScreen .exit-return-hotspot,#exitScreen .exit-quit-hotspot'))stop(e)},true);
-  window.addEventListener('touchstart',function(e){var t=e.target;if(t&&t.closest&&t.closest('#startScreen .start-enter-v72-img,button.save,#exitScreen .exit-return-hotspot,#exitScreen .exit-quit-hotspot'))stop(e)},true);
-  window.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('#startScreen .start-enter-v72-img'))return start(e);if(t.closest('button.save,.save[onclick*="saveAndExit"]'))return save(e);if(t.closest('#exitScreen .exit-return-hotspot'))return back(e);if(t.closest('#exitScreen .exit-quit-hotspot'))return quit(e)},true);
+  window.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest('#startScreen .start-enter-v72-img,#exitScreen .exit-return-hotspot,#exitScreen .exit-quit-hotspot'))stop(e)},true);
+  window.addEventListener('touchstart',function(e){var t=e.target;if(t&&t.closest&&t.closest('#startScreen .start-enter-v72-img,#exitScreen .exit-return-hotspot,#exitScreen .exit-quit-hotspot'))stop(e)},true);
+  window.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('#startScreen .start-enter-v72-img'))return start(e);if(LEVEL!==1&&t.closest('button.save,.save[onclick*="saveAndExit"]'))return save(e);if(t.closest('#exitScreen .exit-return-hotspot'))return back(e);if(t.closest('#exitScreen .exit-quit-hotspot'))return quit(e)},true);
   window.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.target!==nameInput())return;stop(e);start(e)},true);
 })();
 </script>
@@ -5856,6 +5856,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       l1TestPassed.add(passedStand);
       l1RefreshUnlockedStands();
       renderStandButtons();
+      l1InternalSaveState();
       if(result) result.textContent = "✅ Aprobado: " + score + "/10";
       setTimeout(()=>{
         const overlay=document.getElementById("l1TestOverlay");
@@ -6426,7 +6427,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       ev.stopPropagation();
       if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
     }
-    saveVisibleState();
+    if(typeof window.l1ForceInternalSave === "function") window.l1ForceInternalSave();
     var msg = byId("l1Msg");
     if(msg) msg.textContent = "💾 Partida guardada.";
     showOverlay();
@@ -12834,12 +12835,11 @@ main.screen > section.seller.panel > .actions{
       var stand=btn.getAttribute('data-stand');
       if(!stand) return;
 
-      /* El puesto puede seguir visualmente bloqueado, pero el icono de mini test
-         debe poder abrirse sin obligar a recorrer el mercado. */
-      try{ btn.disabled=false; btn.removeAttribute('disabled'); }catch(e){}
-      btn.style.pointerEvents='auto';
+      var isLocked=btn.disabled || btn.classList.contains('locked');
+      var existing=btn.querySelector('.mv-stand-mini-trigger');
+      if(isLocked && existing){ existing.remove(); existing=null; }
 
-      if(!btn.querySelector('.mv-stand-mini-trigger')){
+      if(!isLocked && !existing){
         var mini=document.createElement('span');
         mini.className='mv-stand-mini-trigger';
         mini.setAttribute('data-mini-stand', stand);
@@ -12866,6 +12866,8 @@ main.screen > section.seller.panel > .actions{
     var t=e.target;
     var mini=t && t.closest ? t.closest('.mv-stand-mini-trigger') : null;
     if(!mini) return;
+    var standButton=mini.closest('button[data-stand]');
+    if(!standButton || standButton.disabled || standButton.classList.contains('locked')) return false;
     e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     var stand=mini.getAttribute('data-mini-stand') || (mini.closest('button[data-stand]') && mini.closest('button[data-stand]').getAttribute('data-stand')) || '1';
     try{
@@ -12919,12 +12921,7 @@ main.screen > section.seller.panel > .actions{
     el.style.setProperty('opacity','0','important');
   }
   function showMarketPanels(){
-    try{ if(LEVEL===1 && typeof window.l1ForceInternalRestore==='function' && window.l1ForceInternalRestore()) return; }catch(e){}
-    try{ if(typeof window.renderStandButtons === 'function') window.renderStandButtons(); }catch(e){}
-    try{ if(typeof window.updateScoreboard === 'function') window.updateScoreboard(); }catch(e){}
-    try{ if(typeof window.l1RefreshUnlockedStands === 'function') window.l1RefreshUnlockedStands(); }catch(e){}
-    try{ if(typeof window.n2RefreshUnlockedStands === 'function') window.n2RefreshUnlockedStands(); }catch(e){}
-    try{ if(typeof window.n3RefreshUnlockedStands === 'function') window.n3RefreshUnlockedStands(); }catch(e){}
+    try{ if(typeof window.l1ForceInternalRestore==='function') window.l1ForceInternalRestore(); }catch(e){}
   }
   function returnToMarket(e){
     if(e){ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }
@@ -14187,3 +14184,56 @@ main.screen > section.seller.panel > .actions{
 }
 </style>
 <script src="student_identity.js"></script>
+<script id="l1-canonical-navigation-v44">
+(function(){
+  if(window.__l1CanonicalNavigationV44) return;
+  window.__l1CanonicalNavigationV44=true;
+  function byId(id){ return document.getElementById(id); }
+  function stop(e){ if(!e)return; e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); }
+  function hide(el){ if(!el)return; el.classList.remove('show','active','visible'); el.style.setProperty('display','none','important'); el.style.setProperty('visibility','hidden','important'); el.style.setProperty('opacity','0','important'); }
+  function show(el){ if(!el)return; el.classList.add('show'); el.style.setProperty('display','flex','important'); el.style.setProperty('visibility','visible','important'); el.style.setProperty('opacity','1','important'); }
+
+  function restoreMarket(e){
+    stop(e);
+    ['l1SaveOverlayFinal','l1SaveScreen','exitScreen','l1TestOverlay','l1FinalTestOverlay','finalScreen','l1FinalScreen'].forEach(function(id){ hide(byId(id)); });
+    document.body.classList.remove('game-paused');
+    if(typeof window.l1ForceInternalRestore==='function') window.l1ForceInternalRestore();
+    return false;
+  }
+
+  function saveAndShow(e){
+    stop(e);
+    hide(byId('exitScreen')); hide(byId('l1SaveScreen'));
+    if(typeof window.l1ForceInternalSave==='function') window.l1ForceInternalSave();
+    var overlay=byId('l1SaveOverlayFinal');
+    show(overlay);
+    if(!overlay || getComputedStyle(overlay).display==='none') document.body.classList.remove('game-paused');
+    return false;
+  }
+
+  function exitGame(e){
+    stop(e);
+    if(typeof window.l1ForceInternalSave==='function') window.l1ForceInternalSave();
+    hide(byId('l1SaveOverlayFinal')); hide(byId('l1SaveScreen')); hide(byId('exitScreen'));
+    var level=byId('level1Screen'); if(level){ level.classList.remove('show'); level.style.setProperty('display','none','important'); }
+    document.body.classList.remove('game-paused');
+    show(byId('startScreen'));
+    return false;
+  }
+
+  window.l1CanonicalReturnToMarket=restoreMarket;
+  window.l1CanonicalSaveAndExit=saveAndShow;
+  window.l1ReturnMarketReal=restoreMarket;
+  window.l1SaveExitFinal=saveAndShow;
+  window.returnToMarket=restoreMarket;
+  window.saveAndExit=saveAndShow;
+  window.l1ExitStartReal=exitGame;
+
+  document.addEventListener('click',function(e){
+    var t=e.target; if(!t||!t.closest)return;
+    if(t.closest('button.save,.l1-save-small,#l1SaveExitBtnFinal')) return saveAndShow(e);
+    if(t.closest('#l1BackMarketFinal,.mv-fix27-market-btn')) return restoreMarket(e);
+    if(t.closest('#l1QuitGameFinal')) return exitGame(e);
+  },true);
+})();
+</script>
