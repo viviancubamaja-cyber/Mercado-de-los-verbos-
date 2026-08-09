@@ -2075,6 +2075,7 @@ button.pay{
   box-shadow:0 7px 0 #351707;
 }
 .l1-save-overlay-final .l1-save-hotspot-market{background:linear-gradient(#36b95c,#16843a);}
+.l1-save-overlay-final .l1-save-hotspot-exam{background:linear-gradient(#397fd1,#174f91);}
 .l1-save-overlay-final .l1-save-hotspot-exit{background:linear-gradient(#f3a62d,#c76812);}
 </style>
 
@@ -6388,6 +6389,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
 <div id="l1SaveOverlayFinal" class="l1-save-overlay-final" aria-label="Partida guardada">
   <div class="l1-save-confirm-card" role="status"><div class="l1-save-confirm-icon">💾</div><h2>PARTIDA GUARDADA</h2><p>Tu progreso se ha guardado correctamente.</p></div>
   <button type="button" id="l1BackMarketFinal" class="l1-save-hotspot l1-save-hotspot-market" aria-label="Volver al mercado">VOLVER AL MERCADO</button>
+  <button type="button" id="l1OpenExamFinal" class="l1-save-hotspot l1-save-hotspot-exam" aria-label="Abrir examen de Nivel 1">TEST / EXAMEN</button>
   <button type="button" id="l1QuitGameFinal" class="l1-save-hotspot l1-save-hotspot-exit" aria-label="Salir del juego">SALIR DEL JUEGO</button>
 </div>
 
@@ -14240,11 +14242,13 @@ main.screen > section.seller.panel > .actions{
 
   function exitGame(e){
     stop(e);
-    if(typeof window.l1ForceInternalSave==='function') window.l1ForceInternalSave();
-    hide(byId('l1SaveOverlayFinal')); hide(byId('l1SaveScreen')); hide(byId('exitScreen'));
-    var level=byId('level1Screen'); if(level){ level.classList.remove('show'); level.style.setProperty('display','none','important'); }
-    document.body.classList.remove('game-paused');
-    show(byId('startScreen'));
+    if(typeof window.irAlMenuNiveles==='function') return window.irAlMenuNiveles();
+    return false;
+  }
+
+  function openExam(e){
+    stop(e);
+    if(typeof window.openLevel1FinalTest==='function') return window.openLevel1FinalTest();
     return false;
   }
 
@@ -14260,6 +14264,7 @@ main.screen > section.seller.panel > .actions{
     var t=e.target; if(!t||!t.closest)return;
     if(t.closest('button.save,.l1-save-small,#l1SaveExitBtnFinal')) return saveAndShow(e);
     if(t.closest('#l1BackMarketFinal,.mv-fix27-market-btn')) return restoreMarket(e);
+    if(t.closest('#l1OpenExamFinal')) return openExam(e);
     if(t.closest('#l1QuitGameFinal')) return exitGame(e);
   },true);
 })();
