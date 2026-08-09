@@ -2,7 +2,7 @@
   "name": "Mercado de los Verbos",
   "short_name": "Mercado Verbos",
   "description": "Mercado de los Verbos — acceso de alumnado y familias",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fff7df",
