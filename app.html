@@ -11,77 +11,81 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mercado Verbos">
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172d47;background:#f7e8a7}*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:clamp(6px,2vw,24px);background:#f7e8a7}.page{width:min(1200px,100%);margin:auto}.welcome{position:relative}.hero{display:block;width:100%;height:auto}.cover-action{position:absolute;left:62.5%;top:59%;width:32.5%;height:12%;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer}.cover-action:focus-visible{outline:clamp(2px,.35vw,5px) solid #fff;outline-offset:clamp(1px,.2vw,3px)}.access{width:min(720px,100%);margin:clamp(18px,3vw,36px) auto 0;padding:clamp(18px,4vw,34px);border:3px solid #85501e;border-radius:24px;background:#fffaf0;box-shadow:0 14px 34px rgba(71,40,13,.18)}h1,h2{margin:0 0 14px;color:#7b2d13}h1{font-size:clamp(26px,5vw,40px);text-align:center}h2{font-size:clamp(21px,4vw,28px)}.intro,.notice{line-height:1.5}.intro{text-align:center;margin:0 0 24px}.notice{padding:12px 14px;border-left:5px solid #d69a27;background:#fff2c8;border-radius:8px;font-weight:650}.choice{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}.field{display:grid;gap:7px;margin:14px 0}label{font-weight:800}input{width:100%;min-height:48px;padding:10px 12px;border:2px solid #9b7955;border-radius:12px;background:#fff;font:inherit;font-size:16px}input:focus{outline:3px solid rgba(31,104,164,.25);border-color:#1f68a4}.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 18px;border:0;border-radius:12px;background:#17679f;color:#fff;font:inherit;font-weight:850;cursor:pointer}.button.secondary{background:#7b4b20}.button:hover{filter:brightness(1.08)}.login-choice{display:flex;justify-content:center;margin-top:18px}.screen{margin-top:22px;padding-top:22px;border-top:2px solid #ead4ae}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.message{min-height:1.5em;margin:12px 0 0;font-weight:750;color:#9b251c}.message.success{color:#176b3a}[hidden]{display:none!important}@media(max-width:620px){.choice{grid-template-columns:1fr}.choice .button{width:100%}.access{border-width:2px;border-radius:18px}.cover-action{min-height:22px}}
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172d47;background:#f7e8a7}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7e8a7}.view{width:100%;height:100vh;height:100dvh}[hidden]{display:none!important}.cover-view{display:flex;align-items:center;justify-content:center;overflow:hidden}.cover-frame{position:relative;display:inline-block;max-width:100%;max-height:100%;line-height:0}.hero{display:block;width:auto;height:auto;max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain}.cover-action{position:absolute;left:62.5%;top:59%;width:32.5%;height:12%;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer}.cover-action:focus-visible{outline:clamp(2px,.35vw,5px) solid #fff;outline-offset:clamp(1px,.2vw,3px)}.form-view{overflow-y:auto;padding:clamp(16px,4vw,40px);display:flex;align-items:center;justify-content:center}.card{width:min(680px,100%);padding:clamp(20px,5vw,38px);border:3px solid #85501e;border-radius:24px;background:#fffaf0;box-shadow:0 14px 34px rgba(71,40,13,.18)}h1,h2{margin:0 0 16px;color:#7b2d13}h1{font-size:clamp(27px,5vw,42px);text-align:center}h2{font-size:clamp(21px,4vw,29px)}.intro,.notice{line-height:1.5}.intro{text-align:center;margin:0 0 26px}.notice{padding:12px 14px;border-left:5px solid #d69a27;background:#fff2c8;border-radius:8px;font-weight:650}.field{display:grid;gap:7px;margin:15px 0}label{font-weight:800}input{width:100%;min-height:48px;padding:10px 12px;border:2px solid #9b7955;border-radius:12px;background:#fff;font:inherit;font-size:16px}input:focus{outline:3px solid rgba(31,104,164,.25);border-color:#1f68a4}.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 18px;border:0;border-radius:12px;background:#17679f;color:#fff;font:inherit;font-weight:850;cursor:pointer}.button.secondary{background:#7b4b20}.button.ghost{background:#66513c}.button:hover{filter:brightness(1.08)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.actions .button{flex:1 1 170px}.message{min-height:1.5em;margin:12px 0 0;font-weight:750;color:#9b251c}@media(max-width:620px){.card{border-width:2px;border-radius:18px}.cover-action{min-height:22px}.form-view{align-items:flex-start}}
+.cover-frame{width:min(100vw,177.683vh);width:min(100vw,177.683dvh);aspect-ratio:1672/941;max-width:none;max-height:none}.hero{width:100%;height:100%;max-width:none;max-height:none}
 </style>
 </head>
 <body>
-<main class="page">
-  <div class="welcome">
-    <img class="hero" src="Ale%20portada%20final.jpeg" alt="Álex en el Mercado de los Verbos">
-    <button id="coverAction" class="cover-action" type="button" aria-label="Mostrar opciones de acceso"></button>
-  </div>
+<main>
+  <section id="coverScreen" class="view cover-view" aria-label="Portada">
+    <div class="cover-frame">
+      <img class="hero" src="Ale%20portada%20final.jpeg" alt="Álex en el Mercado de los Verbos">
+      <button id="coverAction" class="cover-action" type="button" aria-label="Mostrar opciones de acceso"></button>
+    </div>
+  </section>
 
-  <section id="accessPanel" class="access" aria-labelledby="accessTitle">
-    <h1 id="accessTitle">Acceso al Mercado</h1>
-    <p class="intro">Elige una opción para continuar.</p>
-
-    <section id="firstTime" aria-labelledby="firstTimeTitle">
-      <h2 id="firstTimeTitle">1. Primera vez</h2>
+  <section id="accessScreen" class="view form-view" aria-labelledby="accessTitle" hidden>
+    <div class="card">
+      <h1 id="accessTitle">Acceso al Mercado</h1>
+      <h2>1. Primera vez</h2>
       <form id="activationForm">
-        <div class="choice">
-          <div class="field">
-            <label for="activationCode">Código de activación</label>
-            <input id="activationCode" name="activationCode" type="text" autocomplete="off" required>
-          </div>
-          <button class="button" type="submit">Activar acceso</button>
+        <div class="field">
+          <label for="activationCode">Código de activación</label>
+          <input id="activationCode" name="activationCode" type="text" autocomplete="off" required>
         </div>
+        <div class="actions"><button class="button" type="submit">Activar acceso</button></div>
         <p id="activationMessage" class="message" aria-live="polite"></p>
       </form>
-    </section>
-
-    <div class="login-choice">
-      <button id="showLogin" class="button secondary" type="button">2. Ya tengo cuenta</button>
+      <div class="actions">
+        <button id="showLogin" class="button secondary" type="button">2. Ya tengo cuenta</button>
+        <button class="button ghost" type="button" data-back="cover">Volver</button>
+      </div>
     </div>
+  </section>
 
-    <section id="registerScreen" class="screen" aria-labelledby="registerTitle" hidden>
+  <section id="registerScreen" class="view form-view" aria-labelledby="registerTitle" hidden>
+    <div class="card">
       <h2 id="registerTitle">Crear cuenta del alumno</h2>
       <p class="notice">Versión provisional/local para pruebas. El código no se valida ni se canjea todavía. La validación real se conectará posteriormente a Supabase.</p>
       <form id="registerForm">
         <div class="field"><label for="studentName">Nombre del alumno</label><input id="studentName" name="studentName" type="text" autocomplete="name" required></div>
         <div class="field"><label for="newUsername">Nombre de usuario</label><input id="newUsername" name="newUsername" type="text" autocomplete="username" required></div>
         <div class="field"><label for="newPassword">Contraseña</label><input id="newPassword" name="newPassword" type="password" autocomplete="new-password" required></div>
-        <div class="actions"><button class="button" type="submit">Crear cuenta y entrar</button><button class="button secondary back" type="button">Volver</button></div>
+        <div class="actions"><button class="button" type="submit">Crear cuenta y entrar</button><button class="button secondary" type="button" data-back="access">Volver</button></div>
         <p id="registerMessage" class="message" aria-live="polite"></p>
       </form>
-    </section>
+    </div>
+  </section>
 
-    <section id="loginScreen" class="screen" aria-labelledby="loginTitle" hidden>
+  <section id="loginScreen" class="view form-view" aria-labelledby="loginTitle" hidden>
+    <div class="card">
       <h2 id="loginTitle">Ya tengo cuenta</h2>
       <p class="notice">Acceso local de prueba. Solo comprueba la cuenta creada anteriormente en este navegador.</p>
       <form id="loginForm">
         <div class="field"><label for="loginUsername">Usuario</label><input id="loginUsername" name="loginUsername" type="text" autocomplete="username" required></div>
         <div class="field"><label for="loginPassword">Contraseña</label><input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" required></div>
-        <div class="actions"><button class="button" type="submit">Entrar al Mercado</button><button class="button secondary back" type="button">Volver</button></div>
+        <div class="actions"><button class="button" type="submit">Entrar al Mercado</button><button class="button secondary" type="button" data-back="access">Volver</button></div>
         <p id="loginMessage" class="message" aria-live="polite"></p>
       </form>
-    </section>
+    </div>
   </section>
 </main>
 <script>
 const ACCOUNT_KEY='mercadoVerbosLocalAccountV1';
-const accessPanel=document.getElementById('accessPanel');
-const firstTime=document.getElementById('firstTime');
-const registerScreen=document.getElementById('registerScreen');
-const loginScreen=document.getElementById('loginScreen');
+const screens={
+  cover:document.getElementById('coverScreen'),
+  access:document.getElementById('accessScreen'),
+  register:document.getElementById('registerScreen'),
+  login:document.getElementById('loginScreen')
+};
 const activationCode=document.getElementById('activationCode');
 
 function gameUrl(){return './index.html'+location.search+location.hash;}
-function showScreen(screen){
-  firstTime.hidden=Boolean(screen);
-  registerScreen.hidden=screen!=='register';
-  loginScreen.hidden=screen!=='login';
-  document.getElementById('showLogin').hidden=Boolean(screen);
-  if(screen){screen==='register'?document.getElementById('studentName').focus():document.getElementById('loginUsername').focus();}
+function showScreen(name){
+  Object.entries(screens).forEach(([key,screen])=>{screen.hidden=key!==name;});
+  if(name==='access')activationCode.focus();
+  if(name==='register')document.getElementById('studentName').focus();
+  if(name==='login')document.getElementById('loginUsername').focus();
 }
 function activationFromUrl(){
   const accepted=new Set(['code','codigo','codigofamiliar','codigoactivacion','activation','activationcode','activacion','family','familia','familycode']);
@@ -93,7 +97,7 @@ function activationFromUrl(){
 }
 
 activationCode.value=activationFromUrl();
-document.getElementById('coverAction').addEventListener('click',()=>{accessPanel.scrollIntoView({behavior:'smooth',block:'start'});activationCode.focus();});
+document.getElementById('coverAction').addEventListener('click',()=>showScreen('access'));
 document.getElementById('activationForm').addEventListener('submit',event=>{
   event.preventDefault();
   const code=activationCode.value.trim();
@@ -103,7 +107,7 @@ document.getElementById('activationForm').addEventListener('submit',event=>{
   showScreen('register');
 });
 document.getElementById('showLogin').addEventListener('click',()=>showScreen('login'));
-document.querySelectorAll('.back').forEach(button=>button.addEventListener('click',()=>showScreen(null)));
+document.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.back)));
 document.getElementById('registerForm').addEventListener('submit',event=>{
   event.preventDefault();
   const account={
