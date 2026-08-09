@@ -34,7 +34,10 @@
   function rewriteRequest(element,name){
     if(!element||/^(SCRIPT|STYLE|INPUT|TEXTAREA)$/.test(element.tagName)||element.children.length)return;
     const text=clean(element.textContent);
-    if(/(?:escribe|introduce|ingresa).{0,40}(?:tu )?nombre/i.test(text))element.textContent=name?'Alumno: '+name:'';
+    if(/(?:escribe|introduce|ingresa).{0,40}(?:tu )?nombre/i.test(text)){
+      const replacement=name?'Alumno: '+name:'';
+      if(element.textContent!==replacement)element.textContent=replacement;
+    }
   }
   function hydrate(root=document){
     const name=remember(get());
@@ -64,5 +67,5 @@
   document.addEventListener('DOMContentLoaded',()=>hydrate(),{once:true});
   document.addEventListener('click',()=>hydrate(),true);
   document.addEventListener('submit',()=>hydrate(),true);
-  new MutationObserver(records=>records.forEach(record=>{if(record.type==='characterData')hydrate(record.target.parentElement);record.addedNodes.forEach(node=>{if(node.nodeType===1)hydrate(node);});})).observe(document.documentElement,{childList:true,characterData:true,subtree:true});
+  new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)hydrate(node);}))).observe(document.documentElement,{childList:true,subtree:true});
 })();
