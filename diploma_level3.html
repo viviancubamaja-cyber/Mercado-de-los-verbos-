@@ -55,7 +55,8 @@
     for(const k of keys){ const v=params.get(k); if(v && v.trim()) return v.trim(); }
     return '';
   }
-  const name = first('name','student','alumno','nombre') || 'STUDENT';
+  let account = null; try { account = JSON.parse(localStorage.getItem('mercadoVerbosLocalAccountV1') || 'null'); } catch (error) {}
+  const name = (account && account.studentName) || first('name','student','alumno','nombre') || 'STUDENT';
   const gradeRaw = first('grade','average','avg','nota','media');
   const dateRaw = first('date','fecha') || new Date().toLocaleDateString('en-GB');
   const teacherRaw = first('teacher','profesor','professora') || 'Teacher';

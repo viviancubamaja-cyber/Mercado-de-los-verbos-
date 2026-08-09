@@ -57,7 +57,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
   <section id="startScreen" class="panel hero">
     <h1>Camina por las frases</h1>
     <p>Construye 108 frases en tres recorridos: primero con un camino guiado, después con el Rey BE y finalmente tú solo.</p>
-    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"/><button class="start" onclick="startGame()">EMPEZAR</button></div>
+    <div class="namebox"><button class="start" onclick="startGame()">EMPEZAR</button></div>
   </section>
 
   <section id="menuScreen" class="panel hidden">
@@ -93,7 +93,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
   <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h2>¡Zona completada!</h2><div id="finalMessage"></div><div class="controls"><button class="start" onclick="goMenu()">VOLVER AL MENÚ</button></div></section>
 </div>
 <script src="constructor_wallet.js"></script><script src="constructor_cloud_progress.js"></script>
-<script src="constructor_guided_rewards.js"></script>
+<script src="constructor_guided_rewards.js"></script><script src="student_identity.js"></script>
 <script>
 const simpleData=[
  // 12 afirmativas · verbos 1-12 del Mercado
@@ -157,7 +157,7 @@ const progressKey='mvConstructorProgressN1';
 function saveProgress(){if(!student||!zone||!questions.length)return;const data={student,zone,questions,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_n1',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||!p.zone||!Array.isArray(p.questions)||!p.questions.length||p.index<0||p.index>=p.questions.length)return false;zone=p.zone;questions=p.questions;index=p.index;correct=p.correct||0;kind='affirmative';$('zoneTitle').textContent=zone==='simple'?'🧩 Los Solitarios':zone==='be'?'👑 El Rey BE':'🌟 YO SOLO';$('studentLabel').textContent='Jugador/a: '+student;$('typeSwitch').classList.add('hidden');show('lessonScreen');renderQuestion();return true}catch(e){return false;}}
 function clearProgress(){if(window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_n1',progressKey,{zone,index:questions.length});localStorage.removeItem(progressKey);}
-async function startGame(){student=$('studentName').value.trim();if(!student){$('studentName').focus();return;}localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_progreso_n1',progressKey);await MV_PROGRESS.syncFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo'])}if(loadProgress())return;show('menuScreen');}
+async function startGame(){student=MV_STUDENT_IDENTITY.get();if(!student)return;await MV_GUIDED_REWARDS.start(student);if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_progreso_n1',progressKey);await MV_PROGRESS.syncFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo'])}if(loadProgress())return;show('menuScreen');}
 function goMenu(){show('menuScreen');zone='';}
 function openZone(z){
   zone=z;index=0;correct=0;kind='affirmative';
@@ -374,7 +374,6 @@ function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return 
 function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u);}
 if('speechSynthesis'in window)speechSynthesis.getVoices();
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 $('soloInput').addEventListener('input',updateSoloTyping);
 $('soloInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});
 </script>

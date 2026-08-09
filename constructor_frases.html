@@ -73,7 +73,8 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;ba
   if(!link)return;
   link.addEventListener('click',function(){
     var url=new URL(link.href);
-    var student=(localStorage.getItem('mv_current_student')||'').trim();
+    var account=null;try{account=JSON.parse(localStorage.getItem('mercadoVerbosLocalAccountV1')||'null');}catch(e){}
+    var student=String(account&&account.studentName||localStorage.getItem('mv_current_student')||'').trim();
     if(student)url.searchParams.set('student',student);
     url.searchParams.set('return',location.href);
     link.href=url.toString();

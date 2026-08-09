@@ -33,7 +33,7 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
     <div class="icon">🌟</div>
     <h1>El verbo viaja</h1>
     <p>Lee la frase, descubre en qué nivel vive y escríbela en su columna. El mismo verbo aparecerá de formas diferentes y sin complementos.</p>
-    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startGame()">EMPEZAR</button></div>
+    <div class="namebox"><button class="start" onclick="startGame()">EMPEZAR</button></div>
   </section>
 
   <section id="gameScreen" class="panel hidden">
@@ -54,6 +54,7 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
 <script src="constructor_wallet.js"></script>
 <script src="constructor_cloud_progress.js"></script>
 <script src="constructor_guided_rewards.js"></script>
+<script src="student_identity.js"></script>
 <script>
 const missions=[
  {verb:'DORMIR',level:2,es:'Yo dormí.',en:'I slept'},
@@ -81,7 +82,7 @@ const progressKey='mvConstructorProgressMezcla';
 function saveProgress(){if(!student)return;const data={student,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_mezcla',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||p.index<0||p.index>=missions.length)return false;index=p.index;correct=p.correct||0;euros=p.euros||0;$('player').textContent='Jugador/a: '+student;show('gameScreen');render();return true}catch(e){return false;}}
 function clearProgress(){if(student&&window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_mezcla',progressKey,{index:missions.length,correct});localStorage.removeItem(progressKey)}
-async function startGame(){student=$('studentName').value.trim();if(!student)return $('studentName').focus();localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);euros=MV_GUIDED_REWARDS.balance().euros;if(window.MV_PROGRESS)await MV_PROGRESS.sync(student,'constructor_progreso_mezcla',progressKey);if(loadProgress()){euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();return}index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
+async function startGame(){student=MV_STUDENT_IDENTITY.get();if(!student)return;await MV_GUIDED_REWARDS.start(student);euros=MV_GUIDED_REWARDS.balance().euros;if(window.MV_PROGRESS)await MV_PROGRESS.sync(student,'constructor_progreso_mezcla',progressKey);if(loadProgress()){euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();return}index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
 function updateWallet(){$('wallet').textContent='💰 '+euros+' €'}
 function render(){locked=false;selectedLevel=null;const q=missions[index];$('counter').textContent=(index+1)+' / '+missions.length;$('bar').style.width=(index/missions.length*100)+'%';updateWallet();$('verbName').textContent='El verbo que viaja: '+q.verb;$('spanish').textContent=q.es;inputs().forEach(i=>{i.value='';i.disabled=false});document.querySelectorAll('.column').forEach(c=>c.classList.remove('active','correct','wrong'));$('feedback').className='feedback neutral';$('feedback').textContent='Elige una columna y escribe la frase en inglés.';$('nextBtn').classList.add('hidden')}
 function choose(input){if(locked)return;selectedLevel=Number(input.dataset.level);inputs().forEach(i=>{if(i!==input)i.value=''});document.querySelectorAll('.column').forEach(c=>{c.classList.remove('wrong');c.classList.toggle('active',Number(c.dataset.level)===selectedLevel)})}
@@ -96,7 +97,7 @@ function playAgain(){index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;s
 function susan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
 function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const v=susan();if(v)u.voice=v;speechSynthesis.speak(u)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});if('speechSynthesis' in window)speechSynthesis.getVoices();
+inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});if('speechSynthesis' in window)speechSynthesis.getVoices();
 </script>
 </body>
 </html>

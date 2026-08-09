@@ -44,7 +44,8 @@
   <div class="brand">From Class to Book · The Verb Market</div>
 </div></section></main><script>
   const params = new URLSearchParams(location.search);
-  const student = (params.get('student') || params.get('name') || 'STUDENT').toUpperCase();
+  let account = null; try { account = JSON.parse(localStorage.getItem('mercadoVerbosLocalAccountV1') || 'null'); } catch (error) {}
+  const student = ((account && account.studentName) || params.get('student') || params.get('name') || 'STUDENT').toUpperCase();
   const date = params.get('date') || new Date().toLocaleDateString('en-GB');
   const grade = params.get('grade') || params.get('average') || '';
   const teacher = params.get('teacher') || params.get('profesor') || params.get('professora') || '';

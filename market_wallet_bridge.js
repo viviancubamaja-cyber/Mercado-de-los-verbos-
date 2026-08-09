@@ -6,7 +6,10 @@ let student='',wallet=null,lastSignature='',timer=0;
 function clean(value){return String(value||'').trim()}
 function currentStudent(){
  const level=String(window.MV_LEVEL_ID||'');
+ let accountName='';
+ try{const account=JSON.parse(localStorage.getItem('mercadoVerbosLocalAccountV1')||'null');accountName=clean(account&&account.studentName)}catch(error){}
  const candidates=[
+  accountName,
   level&&sessionStorage.getItem('mv_current_student_'+level),
   sessionStorage.getItem('mv_current_student'),
   localStorage.getItem('mv_current_student'),

@@ -47,7 +47,7 @@ button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002
   <section id="start" class="panel hero">
     <h1>Los ocho mercados</h1>
     <p>27 rondas de 24 misiones. Avanza a tu ritmo, guarda cuando quieras y recorre los ocho mercados durante todo el curso.</p>
-    <div class="namebox"><input id="name" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startRound()">EMPEZAR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button></div>
+    <div class="namebox"><button class="start" onclick="startRound()">EMPEZAR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button></div>
   </section>
 
   <section id="round" class="panel hidden">
@@ -77,6 +77,7 @@ button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002
 <script src="constructor_yo_solo_bank.js"></script>
 <script src="constructor_wallet.js"></script>
 <script src="constructor_cloud_progress.js"></script>
+<script src="student_identity.js"></script>
 <script>
 const PILOT_MISSIONS=[
  {id:'present-a',tense:'Presente',kind:'affirmative',es:'Ella guarda la llave en su bolso.',en:'She keeps the key in her bag.',alt:['She keeps the key in her handbag.','She keeps the key in her purse.']},
@@ -252,8 +253,8 @@ function rememberWord(word,q,exampleEn){
  localStorage.setItem(personalNotebookKey(),JSON.stringify(entries));queuePersonalNotebookSync()
 }
 function openNotebook(){
- if(!student)student=$('name').value.trim();
- if(!student){$('name').focus();return}
+ if(!student)student=MV_STUDENT_IDENTITY.get();
+ if(!student)return;
  const entries=loadPersonalNotebook();
  $('notebookOwner').textContent='Libreta de '+student+' · '+entries.length+(entries.length===1?' palabra':' palabras');
  $('notebookList').innerHTML=entries.length?'<div class="notebook-list">'+entries.map(item=>{
@@ -411,7 +412,7 @@ function loadProgress(){
  }catch(e){return false}
 }
 async function startRound(){
- student=$('name').value.trim();if(!student)return $('name').focus();localStorage.setItem('mv_current_student',student);walletData=loadWallet();await syncWalletRemote();if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_curso_yo_solo',courseKey());await MV_PROGRESS.sync(student,'constructor_progreso_yo_solo',progressKey())}await syncPersonalNotebook();if(loadProgress())return;
+ student=MV_STUDENT_IDENTITY.get();if(!student)return;walletData=loadWallet();await syncWalletRemote();if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_curso_yo_solo',courseKey());await MV_PROGRESS.sync(student,'constructor_progreso_yo_solo',progressKey())}await syncPersonalNotebook();if(loadProgress())return;
  const course=loadCourse();
  if(course.completedRound>=TOTAL_ROUNDS){roundNumber=TOTAL_ROUNDS;showCompletedCourse();return}
  roundNumber=course.completedRound+1;questions=shuffled(ANNUAL_ROUNDS[roundNumber-1]);index=0;correct=0;drafts={};attempts={};revealed={};notebookMarks={};notebookWords=[];show('round');saveProgress();render()
@@ -538,7 +539,6 @@ function speakInstruction(){
 function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
 function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startRound()});
 $('answer').addEventListener('input',renderTyping);
 $('notebookOverlay').addEventListener('click',e=>{if(e.target===$('notebookOverlay'))closeNotebook()});
 document.addEventListener('keydown',e=>{
