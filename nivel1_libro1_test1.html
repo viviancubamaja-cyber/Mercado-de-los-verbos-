@@ -5490,10 +5490,17 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     const verbs = STANDS[String(stand)] || [];
     return verbs.length > 0 && verbs.every(v => l1Completed.has(v.id));
   }
+  function l1MiniTestPassed(stand){
+    const s=String(stand);
+    return l1TestPassed.has(s) && Number(l1TestScores[s])===10;
+  }
+  window.mvL1IsMiniTestPassed = function(stand){ return l1MiniTestPassed(stand); };
   window.mvL1StandMarketCompleted = function(stand){ return l1StandVerbsCompleted(stand); };
   window.mvL1ApplyMiniTestPass = function(stand,direct,score){
     const s=String(stand);
     if(Number.isFinite(Number(score))) l1TestScores[s]=Number(score);
+    if(Number(score) < 10){ l1InternalSaveState(); return false; }
+    if(l1MiniTestPassed(s)) return false;
     if(direct){ (STANDS[s]||[]).forEach(v=>l1Completed.add(v.id)); }
     l1TestPassed.add(s);
     l1RefreshUnlockedStands();
@@ -5501,25 +5508,19 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     const progress=document.getElementById('l1Progress');
     if(progress) progress.textContent=Math.round((l1Completed.size/l1All.length)*100)+'%';
     l1InternalSaveState();
+    return true;
   };
   window.mvL1GoToStand = function(stand){
     const idx=l1All.findIndex(v=>String(v.stand)===String(stand));
     if(idx>=0){ l1Index=idx; renderL1Verb(false); }
   };
   function l1StandCompleted(stand){
-    const verbs = STANDS[String(stand)] || [];
-    return verbs.length > 0 && l1StandVerbsCompleted(stand) && l1TestPassed.has(String(stand));
+    return l1MiniTestPassed(stand);
   }
   function l1RefreshUnlockedStands(){
     const keys = Object.keys(STANDS).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
-    let max = 1;
-    for(const n of keys){
-      if(n === max && l1StandCompleted(n)){
-        max = n + 1;
-      }
-    }
     const last = keys.length ? Math.max(...keys) : 1;
-    l1MaxUnlockedStand = Math.min(max, last);
+    l1MaxUnlockedStand = last;
     l1UnlockedStand = l1MaxUnlockedStand;
   }
   function l1MarkSlotsCorrect(){
@@ -5551,7 +5552,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     l1RefreshUnlockedStands();
     const item = currentItem();
     if(!item) return false;
-    if(Number(item.stand) > l1MaxUnlockedStand){
+    if(false && Number(item.stand) > l1MaxUnlockedStand){
       l1Index = l1FirstIncompleteIndexInStand(l1MaxUnlockedStand);
       const msg = document.getElementById("l1Msg");
       if(msg) msg.textContent = "🔒 Completa primero el puesto anterior.";
@@ -5574,24 +5575,17 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     if(!box) return;
     box.innerHTML = "";
     Object.keys(STANDS).sort((a,b)=>Number(a)-Number(b)).forEach(stand=>{
-      const n = Number(stand);
       const btn=document.createElement("button");
       btn.type="button";
-      btn.textContent="Puesto "+stand;
+      const testPassed=l1MiniTestPassed(stand);
+      btn.textContent="Puesto "+stand+(testPassed ? " ✓" : "");
       btn.setAttribute("data-stand", stand);
 
-      const locked = n > l1MaxUnlockedStand;
-      if(locked){
-        btn.classList.add("locked");
-        btn.disabled = true;
-        btn.setAttribute("aria-disabled","true");
-        btn.title = "Completa primero el puesto anterior";
-      }else{
-        btn.onclick=()=>{
-          const idx = l1All.findIndex(v=>String(v.stand)===String(stand));
-          if(idx>=0){ l1Index=idx; renderL1Verb(false); }
-        };
-      }
+      if(testPassed){ btn.classList.add("l1-test-passed"); btn.setAttribute("data-test-passed","true"); btn.title="MiniTest superado: 10/10"; }
+      btn.onclick=()=>{
+        const idx = l1All.findIndex(v=>String(v.stand)===String(stand));
+        if(idx>=0){ l1Index=idx; renderL1Verb(false); }
+      };
 
       if(currentItem() && String(currentItem().stand)===String(stand)) btn.classList.add("active");
       box.appendChild(btn);
@@ -5700,7 +5694,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
   function l1PickLetter(idx){
     const item=currentItem(); if(!item) return;
     l1RefreshUnlockedStands();
-    if(Number(item.stand) > l1MaxUnlockedStand){
+    if(false && Number(item.stand) > l1MaxUnlockedStand){
       document.getElementById("l1Msg").textContent = "🔒 Completa primero el puesto anterior.";
       speak("Complete the previous stand first.", "en-GB");
       l1Index = l1FirstIncompleteIndexInStand(l1MaxUnlockedStand);
@@ -5780,6 +5774,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       saveOverlay.style.setProperty("display","none","important");
     }
     const s = String(stand);
+    if(l1MiniTestPassed(s)) return false;
     const verbs = STANDS[s] || [];
     if(!verbs.length) return;
 
@@ -5792,7 +5787,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     const result=document.getElementById("l1TestResult");
     const retry=document.getElementById("l1TestRetryBtn");
 
-    if(subtitle) subtitle.textContent = "Puesto " + s + " · Nota mínima: 5";
+    if(subtitle) subtitle.textContent = "Puesto " + s + " · Para superarlo: 10/10";
     if(result) result.textContent = "";
     if(retry) retry.style.display = "none";
     if(body){
@@ -5844,14 +5839,14 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     try{
       window.l1TestScores = l1TestScores;
       window.__mvStandExamScores = window.__mvStandExamScores || {};
-      window.__mvStandExamScores["1|" + String(l1CurrentTestStand)] = {nota:score, aciertos:correct, errores:Math.max(0,total-correct), total:total, passed:score>=5};
-      if(typeof window.mvRegistrarIntentoReal === "function") window.mvRegistrarIntentoReal(1, l1CurrentTestStand, correct, total, score, score>=5);
+      window.__mvStandExamScores["1|" + String(l1CurrentTestStand)] = {nota:score, aciertos:correct, errores:Math.max(0,total-correct), total:total, passed:score===10};
+      if(typeof window.mvRegistrarIntentoReal === "function") window.mvRegistrarIntentoReal(1, l1CurrentTestStand, correct, total, score, score===10);
     }catch(e){}
 
     const result=document.getElementById("l1TestResult");
     const retry=document.getElementById("l1TestRetryBtn");
 
-    if(score >= 5){
+    if(score === 10){
       const passedStand = String(l1CurrentTestStand);
       l1TestPassed.add(passedStand);
       l1RefreshUnlockedStands();
@@ -5879,7 +5874,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
         }
       }, 1200);
     }else{
-      if(result) result.textContent = "❌ Suspenso: " + score + "/10. Necesitas 5 para pasar.";
+      if(result) result.textContent = "Sigue practicando: " + score + "/10. Necesitas 10/10 para superar el MiniTest.";
       if(retry) retry.style.display = "";
     }
     return false;
@@ -5996,7 +5991,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       const current = currentItem();
       const nextItem = l1All[l1Index+1];
 
-      if(nextItem && current && Number(nextItem.stand) > Number(current.stand)){
+      if(false && nextItem && current && Number(nextItem.stand) > Number(current.stand)){
         if(l1StandCompleted(current.stand)){
           l1Index++;
           renderL1Verb(false);
@@ -6011,7 +6006,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
         return;
       }
 
-      if(nextItem && Number(nextItem.stand) > l1MaxUnlockedStand){
+      if(false && nextItem && Number(nextItem.stand) > l1MaxUnlockedStand){
         if(current && l1StandVerbsCompleted(current.stand) && !l1TestPassed.has(String(current.stand))){
           l1OpenTestForStand(current.stand);
           return;
@@ -12661,6 +12656,7 @@ main.screen > section.seller.panel > .actions{
   }
   function buildMicroTest(stand){
     var s=String(stand||currentStandNumber());
+    if(typeof window.mvL1IsMiniTestPassed==='function' && window.mvL1IsMiniTestPassed(s)) return false;
     var verbs=(typeof STANDS!=='undefined' && STANDS[s]) ? STANDS[s] : [];
     var body=document.getElementById('l1TestBody');
     var result=document.getElementById('l1TestResult');
@@ -12749,12 +12745,12 @@ main.screen > section.seller.panel > .actions{
       window.l1TestScores[s] = score;
       window.__mvStandExamScores = window.__mvStandExamScores || {};
       var direct=String(window.__mvL1DirectMiniStand||'')===s;
-      var passed=direct ? score===10 : score>=5;
+      var passed=score===10;
       window.__mvStandExamScores['1|'+s] = {nota:score, aciertos:correct, errores:Math.max(0,total-correct), total:total, passed:passed};
       if(typeof window.mvRegistrarIntentoReal==='function') window.mvRegistrarIntentoReal(1, s, correct, total, score, passed);
     }catch(e){}
     var direct=String(window.__mvL1DirectMiniStand||'')===s;
-    var passed=direct ? score===10 : score>=5;
+    var passed=score===10;
     var result=document.getElementById('l1TestResult');
     if(result){
       result.textContent = passed ? '✅ Aprobado: '+score+'/10 · '+correct+'/'+total : (direct ? 'Has obtenido '+score+'/10. Para superar este puesto directamente necesitas conseguir 10/10. Practica primero en el mercado y vuelve a intentarlo.' : '❌ Sigue practicando: '+score+'/10 · '+correct+'/'+total);
@@ -12771,7 +12767,7 @@ main.screen > section.seller.panel > .actions{
           if(typeof window.checkFinalScreenAfterCompletion==='function') window.checkFinalScreenAfterCompletion();
         }else if(typeof window.mvL1GoToStand==='function') window.mvL1GoToStand(next);
         var msg=document.getElementById('l1Msg');
-        if(msg) msg.textContent=Number(s)>=15?'✅ Nivel 1 completado.':'✅ Mini test superado. Puesto '+next+' desbloqueado.';
+        if(msg) msg.textContent=Number(s)>=15?'✅ Nivel 1 completado.':'✅ MiniTest superado con 10/10.';
       },1000);
     }else if(retry) retry.style.display='';
     return false;
@@ -12835,7 +12831,7 @@ main.screen > section.seller.panel > .actions{
       var stand=btn.getAttribute('data-stand');
       if(!stand) return;
 
-      var isLocked=btn.disabled || btn.classList.contains('locked');
+      var isLocked=btn.disabled || btn.classList.contains('locked') || btn.getAttribute('data-test-passed')==='true';
       var existing=btn.querySelector('.mv-stand-mini-trigger');
       if(isLocked && existing){ existing.remove(); existing=null; }
 
@@ -12867,7 +12863,7 @@ main.screen > section.seller.panel > .actions{
     var mini=t && t.closest ? t.closest('.mv-stand-mini-trigger') : null;
     if(!mini) return;
     var standButton=mini.closest('button[data-stand]');
-    if(!standButton || standButton.disabled || standButton.classList.contains('locked')) return false;
+    if(!standButton || standButton.disabled || standButton.classList.contains('locked') || standButton.getAttribute('data-test-passed')==='true') return false;
     e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     var stand=mini.getAttribute('data-mini-stand') || (mini.closest('button[data-stand]') && mini.closest('button[data-stand]').getAttribute('data-stand')) || '1';
     try{
@@ -14184,6 +14180,13 @@ main.screen > section.seller.panel > .actions{
 }
 </style>
 <script src="student_identity.js"></script>
+<style id="l1-open-choice-minitest-status-v45">
+#l1StandList button[data-stand].l1-test-passed{
+  border-color:#16833a !important;
+  background:linear-gradient(180deg,#e8ffe9,#bcefc4) !important;
+  color:#0b5125 !important;
+}
+</style>
 <script id="l1-canonical-navigation-v44">
 (function(){
   if(window.__l1CanonicalNavigationV44) return;
