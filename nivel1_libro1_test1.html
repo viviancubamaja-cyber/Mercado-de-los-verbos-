@@ -12149,9 +12149,9 @@ main.screen > section.seller.panel > .actions{
   // Reemplaza el guardado de TEST antiguo para que nunca bloquee con alert si ya estamos saliendo desde un mensaje.
   window.mv45PSaveTestDraft = silentSave;
   function clearNameForNewStudent(){
-    try{ sessionStorage.removeItem('mv_current_student_1'); sessionStorage.removeItem('mv_current_student_n1'); sessionStorage.removeItem('mv_current_student'); }catch(e){}
+    var active=rememberStudent(getStudent());
     var inp=visibleNameInput();
-    if(inp){ try{inp.value=''; inp.focus();}catch(e){} }
+    if(inp && active){ try{inp.value=active;}catch(e){} }
   }
   function closeAllTestLayers(){
     ['mv45jOutcomeOverlay','mv44ExamOutcomeOverlay','mv44TrainingOverlay','l1FinalTestOverlay','l1FinalScreen','finalScreen','exitScreen','notebook','saveExitScreen','savedGameScreen'].forEach(function(id){forceHide(byId(id));});

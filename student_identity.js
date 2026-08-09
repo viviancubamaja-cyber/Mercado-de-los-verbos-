@@ -2,7 +2,7 @@
   'use strict';
   const ACCOUNT_KEY='mercadoVerbosLocalAccountV1';
   const LEVEL=String(window.MV_LEVEL_ID||'').replace(/\D/g,'');
-  const inputSelector='#playerName,#studentName,#mvExamNameInput,#nameInput,#studentInput,#nombreAlumno,#playerNameInput,input[placeholder*="escribe tu nombre" i]';
+  const inputSelector='#playerName,#studentName,#mvExamNameInput,#nameInput,#studentInput,#nombreAlumno,#playerNameInput,#mvFix20L1NameInput,[id^="mvFix5NameInputN"],input[placeholder*="escribe tu nombre" i],input[placeholder*="nombre y apellido" i]';
 
   function clean(value){return String(value||'').trim().replace(/\s+/g,' ');}
   function accountName(){
@@ -49,7 +49,7 @@
       input.setAttribute('aria-hidden','true');
     });
     if(root.nodeType===1)rewriteRequest(root,name);
-    root.querySelectorAll?.('.mv-exam-name-sub,#mvFix20StartMsgL1,[data-name-prompt]').forEach(element=>rewriteRequest(element,name));
+    root.querySelectorAll?.('.mv-exam-name-sub,.mvfix5-sub,#mvFix20StartMsgL1,#mvFix20L1NameGate p,[data-name-prompt]').forEach(element=>rewriteRequest(element,name));
     return name;
   }
 
@@ -64,5 +64,5 @@
   document.addEventListener('DOMContentLoaded',()=>hydrate(),{once:true});
   document.addEventListener('click',()=>hydrate(),true);
   document.addEventListener('submit',()=>hydrate(),true);
-  new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)hydrate(node);}))).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(records=>records.forEach(record=>{if(record.type==='characterData')hydrate(record.target.parentElement);record.addedNodes.forEach(node=>{if(node.nodeType===1)hydrate(node);});})).observe(document.documentElement,{childList:true,characterData:true,subtree:true});
 })();
