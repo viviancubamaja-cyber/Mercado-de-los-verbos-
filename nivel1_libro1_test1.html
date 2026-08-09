@@ -10497,8 +10497,8 @@ main.screen > section.seller.panel > .actions{
       ov.className='mv-exam-name-overlay';
       ov.innerHTML='<div class="mv-exam-name-card">'
         +'<div class="mv-exam-name-title">📝 EXAMEN NIVEL 1</div>'
-        +'<div class="mv-exam-name-sub">Escribe nombre y apellido para hacer el examen</div>'
-        +'<input id="mvExamNameInput" class="mv-exam-name-input" maxlength="40" autocomplete="off" placeholder="NOMBRE Y APELLIDO" aria-label="Nombre y apellido para examen">'
+        +'<div class="mv-exam-name-sub"></div>'
+        +'<input id="mvExamNameInput" type="hidden" class="mv-exam-name-input">'
         +'<div id="mvExamNameMsg" class="mv-exam-name-msg"></div>'
         +'<div class="mv-exam-name-actions"><button type="button" id="mvExamNameStart" class="mv-exam-start">✅ COMENZAR EXAMEN</button><button type="button" id="mvExamNameCancel" class="mv-exam-cancel">🏠 Cancelar</button></div></div>';
       document.body.appendChild(ov);
@@ -14016,17 +14016,24 @@ main.screen > section.seller.panel > .actions{
       ov.className='mv-exam-name-overlay';
       ov.innerHTML='<div class="mv-exam-name-card">'
         +'<div class="mv-exam-name-title">📝 EXAMEN NIVEL 1</div>'
-        +'<div class="mv-exam-name-sub">Escribe nombre y apellido para hacer el examen</div>'
-        +'<input id="mvExamNameInput" class="mv-exam-name-input" maxlength="40" autocomplete="off" placeholder="NOMBRE Y APELLIDO" aria-label="Nombre y apellido para examen">'
+        +'<div class="mv-exam-name-sub"></div>'
+        +'<input id="mvExamNameInput" type="hidden" class="mv-exam-name-input">'
         +'<div id="mvExamNameMsg" class="mv-exam-name-msg"></div>'
         +'<div class="mv-exam-name-actions"><button type="button" id="mvExamNameStart" class="mv-exam-start">✅ COMENZAR EXAMEN</button><button type="button" id="mvExamNameCancel" class="mv-exam-cancel">🏠 Cancelar</button></div>'
         +'</div>';
       document.body.appendChild(ov);
     }
     var inp=byId('mvExamNameInput');
+    var accountStudent='';
+    try{ accountStudent=window.MV_STUDENT_IDENTITY ? window.MV_STUDENT_IDENTITY.get() : window.mvGetStudentName(); }catch(e){}
+    accountStudent=String(accountStudent||'').trim();
+    var sub=ov.querySelector('.mv-exam-name-sub');
+    if(sub) sub.textContent='Alumno: '+accountStudent.replace(/_/g,' ');
     if(inp){
-      inp.setAttribute('placeholder','NOMBRE Y APELLIDO');
-      inp.setAttribute('maxlength','40');
+      inp.type='hidden';
+      inp.value=accountStudent;
+      inp.style.setProperty('display','none','important');
+      inp.setAttribute('aria-hidden','true');
       if(!inp.__goldMicrofixUpper){
         inp.addEventListener('input',function(){ inp.value=String(inp.value||'').toUpperCase(); var m=byId('mvExamNameMsg'); if(m)m.textContent=''; },true);
         inp.addEventListener('keydown',function(e){ if(e.key==='Enter') beginExam(e); },true);
@@ -14042,10 +14049,8 @@ main.screen > section.seller.panel > .actions{
     var ov=ensureNameOverlay();
     var inp=byId('mvExamNameInput');
     var msg=byId('mvExamNameMsg');
-    if(inp) inp.value='';
     if(msg) msg.textContent='';
     show(ov);
-    setTimeout(function(){ try{ if(inp) inp.focus(); }catch(_){} },60);
     return false;
   }
   function launchRealExam(n){
@@ -14080,8 +14085,11 @@ main.screen > section.seller.panel > .actions{
     if(e){ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); }catch(_){} }
     var inp=byId('mvExamNameInput') || byId('mvFix5NameInputN1');
     var msg=byId('mvExamNameMsg') || byId('mvFix5NameMsgN1');
-    var n=norm(inp && inp.value);
-    if(!n){ if(msg) msg.textContent='✏️ Escribe nombre y apellido para comenzar el examen.'; try{ if(inp) inp.focus(); }catch(_){} return false; }
+    var automaticName='';
+    try{ automaticName=window.MV_STUDENT_IDENTITY ? window.MV_STUDENT_IDENTITY.get() : window.mvGetStudentName(); }catch(_){}
+    var n=norm((inp && inp.value) || automaticName);
+    if(inp) inp.value=n;
+    if(!n){ if(msg) msg.textContent='No se encontró el alumno de la cuenta.'; return false; }
     return launchRealExam(n);
   }
   function isLauncher(t){
