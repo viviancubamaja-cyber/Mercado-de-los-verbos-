@@ -14230,3 +14230,62 @@ main.screen > section.seller.panel > .actions{
   -webkit-text-stroke:.45px #2b160b;text-shadow:-1px -1px 0 #2b160b,1px -1px 0 #2b160b,-1px 1px 0 #2b160b,1px 1px 0 #2b160b,0 2px 2px #000;
 }
 </style>
+
+<script id="mv-creator-test-mode-v2">
+(function(){
+  if(window.__mvCreatorTestModeV2) return;
+  window.__mvCreatorTestModeV2=true;
+  function testName(){
+    try{return sessionStorage.getItem('mv_creator_test_mode')==='1' ? (sessionStorage.getItem('mv_creator_test_name')||'') : '';}catch(e){return '';}
+  }
+  function applyName(){
+    var n=testName(); if(!n) return;
+    var input=document.getElementById('playerName')||document.getElementById('studentName')||document.getElementById('nameInput');
+    if(input){ input.value=n; input.readOnly=true; input.setAttribute('aria-label','Nombre de prueba automático'); }
+    try{
+      var L=String(window.MV_LEVEL_ID||'');
+      sessionStorage.setItem('mv_current_student',n);
+      if(L) sessionStorage.setItem('mv_current_student_'+L,n);
+      var num=(L.match(/(\d+)/)||[])[1];
+      if(num){sessionStorage.setItem('mv_current_student_'+num,n);sessionStorage.setItem('mv_current_student_n'+num,n);}
+      localStorage.setItem('mv_last_student',n);localStorage.setItem('mv_last_alumno',n);
+      if(typeof window.mvSetStudentName==='function') window.mvSetStudentName(n);
+    }catch(e){}
+  }
+  /* Las pruebas de la creadora no deben ensuciar Supabase. Solo se bloquean escrituras a sesiones. */
+  var nativeFetch=window.fetch;
+  if(nativeFetch && !window.__mvCreatorFetchWrapped){
+    window.__mvCreatorFetchWrapped=true;
+    window.fetch=function(input,init){
+      var url=typeof input==='string'?input:(input&&input.url)||'';
+      var method=String((init&&init.method)||'GET').toUpperCase();
+      if(testName() && /supabase\.co\/rest\/v1\/sesiones/i.test(url) && /^(POST|PATCH|PUT|DELETE)$/.test(method)){
+        return Promise.resolve(new Response('',{status:204,statusText:'Creator test: not persisted'}));
+      }
+      return nativeFetch.apply(this,arguments);
+    };
+  }
+  applyName();
+  document.addEventListener('DOMContentLoaded',applyName);
+  setTimeout(applyName,50);setTimeout(applyName,250);setTimeout(applyName,800);
+})();
+</script>
+
+<script id="mv-free-market-n1-v2">
+(function(){
+  if(window.__mvFreeMarketN1V2) return; window.__mvFreeMarketN1V2=true;
+  function unlock(){
+    try{ l1RefreshUnlockedStands=function(){l1MaxUnlockedStand=15;l1UnlockedStand=15;return 15;}; l1MaxUnlockedStand=15;l1UnlockedStand=15; }catch(e){}
+    var box=document.getElementById('l1StandList');
+    if(box){box.querySelectorAll('button[data-stand]').forEach(function(b){b.disabled=false;b.classList.remove('locked');b.removeAttribute('aria-disabled');b.title='Elige libremente este puesto';});}
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('#l1StandList button[data-stand]'):null;if(!b)return;
+    unlock();
+    var stand=b.getAttribute('data-stand');
+    try{var idx=l1All.findIndex(function(v){return String(v.stand)===String(stand)});if(idx>=0){l1Index=idx;renderL1Verb(false);}}catch(_e){try{loadStand(Number(stand));}catch(__e){}}
+  },true);
+  unlock();document.addEventListener('DOMContentLoaded',unlock);setTimeout(unlock,100);setTimeout(unlock,600);
+  try{new MutationObserver(unlock).observe(document.documentElement,{subtree:true,childList:true});}catch(e){}
+})();
+</script>
