@@ -11968,6 +11968,60 @@ main.screen > section.seller.panel > .actions{
 })();
 </script>
 
+
+<style id="mv-mobile-clean-debug">
+/* Producción: el diagnóstico de Supabase era solo para pruebas. */
+#mv45DRealBox,#mv45DRealCheck,#mv45DRealStatus,#mv45DRealOpenFinal{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+</style>
+
+
+<style id="mv-l1-mobile-usability-v1">
+/* Móvil Nivel 1: no miniaturizar el tablero como escritorio; permitir recorrido vertical y escritura táctil. */
+@media (max-width:900px){
+  html,body{
+    width:100%!important;height:auto!important;min-height:100%!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+  }
+  body{display:block!important;align-items:initial!important;justify-content:initial!important;padding:0!important;}
+  .screen{
+    width:100%!important;max-width:100%!important;height:auto!important;min-height:100vh!important;
+    transform:none!important;transform-origin:top left!important;margin:0 auto!important;
+    padding:8px!important;grid-template-columns:1fr!important;grid-template-rows:auto!important;
+    overflow:visible!important;align-items:stretch!important;align-content:start!important;
+  }
+  .screen>.panel,.panel.work-area,.seller,.buyer{height:auto!important;min-height:0!important;overflow:visible!important;}
+  .title{grid-column:1!important;}
+  .verb-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .market-table,.rule-grid{grid-template-columns:1fr!important;}
+  .market-table{overflow:visible!important;}
+  .col{min-height:0!important;height:auto!important;}
+  .letters{flex-wrap:wrap!important;min-height:56px!important;}
+  .tile{min-width:44px!important;min-height:44px!important;}
+  .tile.blank{position:relative!important;z-index:20!important;pointer-events:auto!important;}
+  .tile.blank input,#productCell input,input[data-index]{
+    display:block!important;pointer-events:auto!important;touch-action:manipulation!important;
+    -webkit-user-select:text!important;user-select:text!important;
+    position:relative!important;z-index:30!important;opacity:1!important;
+    min-width:40px!important;min-height:40px!important;font-size:24px!important;
+  }
+  #productCell{position:relative!important;z-index:25!important;pointer-events:auto!important;}
+  #startScreen.start-screen,#exitScreen.exit-screen{position:fixed!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;}
+}
+</style>
+<script id="mv-l1-mobile-input-focus-v1">
+(function(){
+  function focusMarketInput(ev){
+    if(window.innerWidth>900) return;
+    var input=ev.target&&ev.target.closest?ev.target.closest('#productCell input, input[data-index]'):null;
+    if(!input) return;
+    setTimeout(function(){try{input.focus({preventScroll:true});}catch(_){try{input.focus();}catch(__){}}},0);
+  }
+  document.addEventListener('touchend',focusMarketInput,{passive:true});
+  document.addEventListener('pointerup',focusMarketInput,true);
+})();
+</script>
+
 </body>
 </html>
 
