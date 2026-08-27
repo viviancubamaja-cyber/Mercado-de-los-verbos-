@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script src="access_control.js"></script><script src="secure_guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Level 3 Certificate · The Verb Market</title>
@@ -31,7 +32,6 @@
     .teacher-value{font-size:9.4pt;background:#f6e5c9!important;border-bottom:0.7pt solid #63482a!important}
   }
 </style>
-<link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
 <div class="toolbar">
@@ -55,8 +55,7 @@
     for(const k of keys){ const v=params.get(k); if(v && v.trim()) return v.trim(); }
     return '';
   }
-  let account = null; try { account = JSON.parse(localStorage.getItem('mercadoVerbosLocalAccountV1') || 'null'); } catch (error) {}
-  const name = (account && account.studentName) || first('name','student','alumno','nombre') || 'STUDENT';
+  const name = first('name','student','alumno','nombre') || 'STUDENT';
   const gradeRaw = first('grade','average','avg','nota','media');
   const dateRaw = first('date','fecha') || new Date().toLocaleDateString('en-GB');
   const teacherRaw = first('teacher','profesor','professora') || 'Teacher';

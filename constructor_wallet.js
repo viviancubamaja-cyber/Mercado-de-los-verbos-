@@ -111,91 +111,18 @@ async function loadAll(){
  }catch(e){}
  return wallets
 }
-  async function payStudent(student,teacher,requestedAmount){
-    const current=normalize(await loadRemote(student));
-    if(current.euros<=0)return current;
-    const wanted=integer(requestedAmount);
-    if(wanted<=0)return current;
-    const amount=Math.min(wanted,current.euros),paidAt=new Date().toISOString();
-    current.totalPaid+=amount;
-    current.payments.unshift({
-      id:'pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
-      amount,paidAt,teacher:String(teacher||'').trim()
-    });
-    current.euros=Math.max(0,current.totalEarned-current.totalPaid);current.updatedAt=paidAt;
-    return saveRemote(student,current)
-  }
-
-function plainObject(value){return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}
-function dataFromRow(row){
- if(!row)return null;
- try{
-  const parsed=JSON.parse(String(row.motivo||'{}'));
-  return plainObject(parsed.data||parsed)
- }catch(e){return null}
-}
-async function loadData(student,type){
- const name=String(student||'').trim(),kind=String(type||'').trim();
- if(!name||!kind)return null;
- try{
-  const path=TABLE+'?select=alumno,motivo,created_at&alumno=ilike.'+
-   encodeURIComponent(name)+'&tipo_actividad=eq.'+encodeURIComponent(kind)+'&order=created_at.desc&limit=1';
-  const response=await request(path);
-  if(!response.ok)return null;
-  const rows=await response.json();
-  return rows&&rows[0]?dataFromRow(rows[0]):null
- }catch(e){return null}
-}
-async function saveData(student,type,data){
- const name=String(student||'').trim(),kind=String(type||'').trim();
- if(!name||!kind)return plainObject(data);
- const value=Object.assign({},plainObject(data),{updatedAt:new Date().toISOString()});
- try{
-  const existing=await loadData(name,kind);
-  const now=new Date().toISOString();
-  const payload={
-   alumno:name,nivel:0,tipo_actividad:kind,numero_actividad:0,nota:0,aciertos:0,errores:0,
-   total_preguntas:0,intento:1,fecha:now,motivo:JSON.stringify({version:1,data:value}),
-   verbos_completados_total:0,pagos_realizados:0,tiempo_segundo:0,nota_examen:0,sesiones:1
-  };
-  const filter=TABLE+'?alumno=ilike.'+encodeURIComponent(name)+'&tipo_actividad=eq.'+encodeURIComponent(kind);
-  const response=await request(existing?filter:TABLE,{
-   method:existing?'PATCH':'POST',
-   headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
-   body:JSON.stringify(payload)
-  });
-  return response.ok?value:plainObject(data)
- }catch(e){return plainObject(data)}
-}
-function stateScore(value){
- const data=plainObject(value);
- return integer(data.completedRound)*100000+integer(data.roundNumber)*10000+
-  integer(data.index)*100+integer(data.correct)+integer(data.completedCount);
-}
-function newerState(localValue,remoteValue){
- const local=plainObject(localValue),remote=plainObject(remoteValue);
- if(!Object.keys(remote).length)return local;
- if(!Object.keys(local).length)return remote;
- const localTime=Date.parse(String(local.updatedAt||''))||0;
- const remoteTime=Date.parse(String(remote.updatedAt||''))||0;
- if(remoteTime!==localTime)return remoteTime>localTime?remote:local;
- return stateScore(remote)>=stateScore(local)?remote:local
-}
-function mergeNotebook(left,right){
- const result=[],seen=new Map();
- [left,right].forEach(list=>(Array.isArray(list)?list:[]).forEach(item=>{
-  if(!item||typeof item!=='object')return;
-  const word=String(item.word||'').trim(),key=slug(word);
-  if(!key)return;
-  const current=seen.get(key);
-  const next=Object.assign({},current||{},item,{word});
-  next.count=Math.max(integer(current&&current.count),integer(item.count),1);
-  seen.set(key,next)
- }));
- seen.forEach(item=>result.push(item));
- return result.sort((a,b)=>String(a.word).localeCompare(String(b.word)))
+async function payStudent(student,teacher){
+ const current=normalize(await loadRemote(student));
+ if(current.euros<=0)return current;
+ const amount=current.euros,paidAt=new Date().toISOString();
+ current.totalPaid+=amount;
+ current.payments.unshift({
+  id:'pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
+  amount,paidAt,teacher:String(teacher||'').trim()
+ });
+ current.euros=0;current.updatedAt=paidAt;
+ return saveRemote(student,current)
 }
 
 window.MV_WALLET={TYPE,blank,normalize,merge,slug,loadRemote,saveRemote,loadAll,payStudent};
-window.MV_CLOUD={loadData,saveData,newerState,mergeNotebook};
 })();

@@ -13,15 +13,6 @@ Esta versión conserva completos:
 - RULES y sus audios
 - Monedero, pagos del profesor y libreta personal
 
-Guardado unificado:
-- El monedero central se comparte entre los tres niveles, el Constructor,
-  Yo solo, Gran mezcla, el Mercado del Futuro y CAN.
-- Cada misión premiada tiene una marca única: repetirla no vuelve a sumar.
-- El profesor puede pagar todo el saldo o solo una parte. Cada pago queda
-  registrado y el resto continúa pendiente para la próxima vez.
-- La libreta personal y el progreso se sincronizan con Supabase y mantienen
-  una copia local para poder continuar si falla temporalmente la conexión.
-
 También incorpora una entrada al Mercado del Futuro:
 - WILL
 - WOULD
@@ -37,11 +28,4 @@ a Internet. Al entrar desde este paquete, recuerda el nombre del alumno cuando
 ya ha sido escrito en el Constructor y ofrece el camino de regreso al Mercado
 principal.
 
-Esta edición sustituye la versión anterior del mismo archivo final.
-
-VERSIÓN MÓVIL
-- Las mismas pantallas se adaptan automáticamente a teléfonos y tabletas.
-- Los botones y campos de escritura tienen tamaño táctil.
-- Los tres mercados clásicos conservan sus tres recorridos mediante
-  desplazamiento lateral, para no perder la comparación visual.
-- El escritorio mantiene exactamente su presentación y funcionamiento.
+El archivo ZIP original no fue modificado.

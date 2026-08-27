@@ -65,12 +65,6 @@
   .teacher-wallet-history{max-height:250px;overflow:auto;display:grid;gap:7px;margin:12px 0;}
   .teacher-wallet-history-row{background:white;border:2px solid #d6a85c;border-radius:12px;padding:9px 11px;font-weight:800;}
   .teacher-wallet-empty{background:#fff3cd;border-radius:12px;padding:12px;text-align:center;font-weight:900;color:#664d03;}
-  .teacher-wallet-payment{margin:12px 0;padding:12px;background:#fffaf0;border:2px solid #d6a85c;border-radius:14px;}
-  .teacher-wallet-payment label{display:block;color:#7b2d13;font-weight:1000;margin-bottom:7px;}
-  .teacher-wallet-payment-row{display:flex;align-items:center;gap:8px;}
-  .teacher-wallet-payment-row input{width:150px;max-width:70%;font-size:22px;font-weight:1000;padding:9px 11px;border:2px solid #b98233;border-radius:10px;background:white;color:#7b2d13;}
-  .teacher-wallet-payment-row span{font-size:23px;font-weight:1000;color:#7b2d13;}
-  .teacher-wallet-payment small{display:block;margin-top:7px;font-weight:800;color:#664d03;}
   /* VERSION 1.0 GOLD - QR, tarjeta familiar y diploma premium */
   .teacher-qr-btn{background:#20c997;color:#063b2f;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #0f7660;}
   .teacher-card-family-btn{background:#0dcaf0;color:#04313b;border:0;border-radius:10px;padding:9px 12px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #087990;}
@@ -110,6 +104,15 @@
   .teacher-group-card strong{display:block;color:#7b2d13;font-size:18px;margin-bottom:3px;}
   .teacher-group-card span{display:block;font-size:13px;color:#6a4a2d;}
   .teacher-group-card button{margin-top:8px;background:#198754;color:white;border:0;border-radius:9px;padding:7px 10px;font-weight:1000;cursor:pointer;}
+  .teacher-group-actions{display:flex!important;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .teacher-group-actions button{margin-top:0;}
+  .teacher-group-actions .teacher-group-rename-btn{background:#f7b733;color:#3b220c;}
+  .teacher-group-actions .teacher-group-delete-btn{background:#dc3545;color:white;}
+  .teacher-group-students{display:grid;gap:8px;margin:12px 0 16px;max-height:38vh;overflow:auto;padding-right:4px;}
+  .teacher-group-student-row{display:flex;align-items:center;gap:10px;background:white;border:2px solid #d6a85c;border-radius:12px;padding:9px 11px;font-weight:900;}
+  .teacher-group-student-row input{transform:scale(1.2);}
+  .teacher-group-bulk{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .teacher-group-bulk button{border:0;border-radius:10px;padding:8px 11px;font-weight:1000;cursor:pointer;background:#6c757d;color:white;}
   .teacher-group-pill{display:inline-block;background:#e9f7ef;color:#0f5132;border:1px solid #198754;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:1000;margin-left:6px;}
   .teacher-student-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}
   .teacher-edit-form{display:grid;gap:10px;margin:12px 0 16px;}
@@ -138,6 +141,8 @@
 
   /* V1.1 - Panel Familia: lectura Supabase + presentación humanizada */
   .family-toggle{margin-top:22px;margin-left:10px;background:#198754;color:white;border:0;border-radius:16px;padding:12px 18px;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 0 #0f5132;}
+.logout-toggle{margin-top:22px;margin-left:10px;background:#7b4b20;color:white;border:0;border-radius:16px;padding:12px 18px;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 0 #4a2c13;}
+.logout-toggle:hover{filter:brightness(1.08)}
   .family-toggle:hover{filter:brightness(1.08)}
   .family-panel{position:fixed;inset:0;background:rgba(20,12,5,.72);z-index:99998;display:none;align-items:center;justify-content:center;padding:18px;}
   .family-box{width:min(760px,94vw);max-height:92vh;overflow:auto;background:#fffaf0;border:4px solid #7b4b20;border-radius:28px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:26px;text-align:center;}
@@ -192,7 +197,29 @@
   @media(max-width:720px){.family-toggle{margin-left:0}.family-cards{grid-template-columns:1fr}.family-box{padding:18px}.family-bar{height:26px}.family-stands-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.family-stand{padding:7px 3px}}
 
 </style>
-<link rel="stylesheet" href="mobile-responsive.css">
+<style id="mv-secure-entry-style">html.mv-access-checking body{visibility:hidden}</style>
+<script>document.documentElement.classList.add('mv-access-checking');</script>
+<script src="access_control.js"></script>
+<script>
+(async function(){
+  try{
+    if(!window.MV_ACCESS){ location.replace('./app.html'); return; }
+    const session=await window.MV_ACCESS.validate();
+    if(!session){ location.replace('./app.html'); return; }
+    window.MV_CURRENT_ACCESS=session;
+    if(['student','individual'].includes(session.role) && session.displayName){
+      localStorage.setItem('mv_current_student',session.displayName);
+      localStorage.setItem('mv_last_student',session.displayName);
+      localStorage.setItem('mv_last_alumno',session.displayName);
+      sessionStorage.setItem('mv_current_student',session.displayName);
+    }
+    if(['creator','teacher','school'].includes(session.role) && session.displayName){
+      localStorage.setItem('mv_teacher_full_name_v1',session.displayName);
+    }
+    document.documentElement.classList.remove('mv-access-checking');
+  }catch(error){ location.replace('./app.html'); }
+})();
+</script>
 </head>
 <body>
   <main class="card">
@@ -233,8 +260,22 @@
     <p class="note">Elige un nivel para aprender los verbos o entra al Constructor para utilizarlos en frases.</p>
     <button class="teacher-toggle" id="openTeacherPanel">👩‍🏫 Área del profesor</button>
     <button class="family-toggle" id="openFamilyPanel">👨‍👩‍👧 Familia</button>
+    <button class="logout-toggle" id="mvLogoutButton" type="button">🚪 Salir / Cambiar cuenta</button>
 
   </main>
+
+<script id="mv-secure-logout-home">
+(function(){
+  var btn=document.getElementById('mvLogoutButton');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    try{
+      if(window.MV_ACCESS && typeof window.MV_ACCESS.logout==='function') window.MV_ACCESS.logout();
+    }catch(e){ console.warn('[MV logout]',e); }
+    location.replace('./app.html');
+  });
+})();
+</script>
 
 <script>
 (function(){
@@ -796,10 +837,10 @@
       </div>
       <div class="teacher-login" id="teacherLogin">
         <strong>Acceso profesor:</strong>
-        <input id="teacherCode" type="password" placeholder="Código" autocomplete="off">
+        <input id="teacherCode" type="hidden" value="SECURE">
         <input id="teacherFullName" type="text" placeholder="Nombre y apellidos del profesor" autocomplete="name">
         <button id="teacherEnter">Entrar</button>
-        <small>Clave provisional: <b>PROFE</b></small>
+        <small>Acceso reservado a cuentas autorizadas de profesora, centro o creadora.</small>
       </div>
       <div id="teacherContent" style="display:none">
         <div class="teacher-stats">
@@ -844,6 +885,40 @@
       <div class="teacher-assign-actions">
         <button type="button" class="teacher-assign-cancel" id="teacherCreateStudentCancel">Cancelar</button>
         <button type="button" class="teacher-assign-save" id="teacherCreateStudentSave">Crear alumno</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherRenameGroupOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherRenameGroupTitle">
+      <h3 id="teacherRenameGroupTitle">✏️ Renombrar grupo</h3>
+      <p id="teacherRenameGroupCurrent">Grupo</p>
+      <div class="teacher-edit-form">
+        <label>Nuevo nombre<input id="teacherRenameGroupName" type="text" autocomplete="off"></label>
+      </div>
+      <div class="teacher-warning">Los alumnos y su progreso se conservan. Solo cambia el nombre del grupo.</div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherRenameGroupCancel">Cancelar</button>
+        <button type="button" class="teacher-assign-save" id="teacherRenameGroupSave">Guardar nombre</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="teacher-assign-overlay" id="teacherDeleteGroupOverlay" aria-hidden="true">
+    <div class="teacher-assign-box" role="dialog" aria-modal="true" aria-labelledby="teacherDeleteGroupTitle" style="width:min(620px,94vw)">
+      <h3 id="teacherDeleteGroupTitle">🗑 Eliminar grupo</h3>
+      <p id="teacherDeleteGroupCurrent">Grupo</p>
+      <div class="teacher-warning">El grupo se eliminará. Los alumnos que NO marques pasarán a <b>Sin grupo</b> y conservarán todo su progreso. Los alumnos marcados se eliminarán definitivamente con su historial.</div>
+      <div class="teacher-group-bulk">
+        <button type="button" id="teacherDeleteGroupSelectAll">Seleccionar todos</button>
+        <button type="button" id="teacherDeleteGroupSelectNone">Ninguno</button>
+      </div>
+      <div class="teacher-group-students" id="teacherDeleteGroupStudents"></div>
+      <p>Para confirmar la eliminación del grupo, escribe <b>ELIMINAR GRUPO</b>:</p>
+      <div class="teacher-edit-form"><input id="teacherDeleteGroupConfirm" type="text" autocomplete="off" placeholder="ELIMINAR GRUPO"></div>
+      <div class="teacher-assign-actions">
+        <button type="button" class="teacher-assign-cancel" id="teacherDeleteGroupCancel">Cancelar</button>
+        <button type="button" class="teacher-delete-btn" id="teacherDeleteGroupSave">Eliminar grupo</button>
       </div>
     </div>
   </section>
@@ -930,18 +1005,9 @@
       <h4>Historial de pagos</h4>
       <div class="teacher-wallet-history" id="teacherWalletHistory"></div>
       <div class="teacher-warning">Al confirmar, solo se pagan los euros pendientes. Las estrellas parciales y todo el historial se conservan.</div>
-      <div class="teacher-wallet-payment">
-        <label for="teacherWalletAmount">Cantidad que voy a pagar</label>
-        <div class="teacher-wallet-payment-row">
-          <input id="teacherWalletAmount" type="number" min="1" step="1" inputmode="numeric" aria-describedby="teacherWalletAmountHelp">
-          <span>€</span>
-        </div>
-        <small id="teacherWalletAmountHelp">Si pagas solo una parte, el resto seguirá apareciendo como pendiente.</small>
-      </div>
       <div class="teacher-assign-actions">
         <button type="button" class="teacher-assign-cancel" id="teacherWalletCancel">Cerrar</button>
-        <button type="button" class="teacher-edit-btn" id="teacherWalletPayAll">💶 Pagar todo</button>
-        <button type="button" class="teacher-wallet-btn" id="teacherWalletPay">✅ Marcar pago</button>
+        <button type="button" class="teacher-wallet-btn" id="teacherWalletPay">✅ Marcar saldo como pagado</button>
       </div>
     </div>
   </section>
@@ -991,13 +1057,20 @@
   const createStudentName=document.getElementById('teacherCreateStudentName');
   const createStudentSurname=document.getElementById('teacherCreateStudentSurname');
   const createStudentGroup=document.getElementById('teacherCreateStudentGroup');
+  let renamingGroup='';
+  let deletingGroup='';
+  const renameGroupOverlay=document.getElementById('teacherRenameGroupOverlay');
+  const renameGroupCurrent=document.getElementById('teacherRenameGroupCurrent');
+  const renameGroupName=document.getElementById('teacherRenameGroupName');
+  const deleteGroupOverlay=document.getElementById('teacherDeleteGroupOverlay');
+  const deleteGroupCurrent=document.getElementById('teacherDeleteGroupCurrent');
+  const deleteGroupStudents=document.getElementById('teacherDeleteGroupStudents');
+  const deleteGroupConfirm=document.getElementById('teacherDeleteGroupConfirm');
   let walletStudent='';
   const walletOverlay=document.getElementById('teacherWalletOverlay');
   const walletStudentLabel=document.getElementById('teacherWalletStudent');
   const walletSummary=document.getElementById('teacherWalletSummary');
   const walletHistory=document.getElementById('teacherWalletHistory');
-  const walletAmount=document.getElementById('teacherWalletAmount');
-  const walletPayAll=document.getElementById('teacherWalletPayAll');
   const walletPay=document.getElementById('teacherWalletPay');
   function readLocalJson(key,def){ try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(def));}catch(e){return def;} }
   function loadGroups(){ if(groupsCache===null) groupsCache=readLocalJson(GROUPS_KEY,[]); return groupsCache; }
@@ -1016,18 +1089,8 @@
   function paymentDate(value){
     try{return new Date(value).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return String(value||'');}
   }
-  function selectedPaymentAmount(){
-    return Math.floor(Number(walletAmount&&walletAmount.value)||0);
-  }
-  function updateWalletPayButton(){
-    const wallet=walletFor(walletStudent),amount=selectedPaymentAmount();
-    const valid=wallet.euros>0&&amount>=1&&amount<=wallet.euros;
-    walletPay.disabled=!valid;
-    walletPay.textContent=wallet.euros<=0?'✅ No hay euros pendientes':valid?'✅ Marcar '+amount+' € como pagados':'✅ Escribe una cantidad válida';
-  }
   function renderWalletModal(){
     const wallet=walletFor(walletStudent),stars=wallet.correctAnswers%5;
-    const previous=selectedPaymentAmount();
     walletStudentLabel.textContent='Alumno: '+walletStudent;
     walletSummary.innerHTML=
       `<div class="teacher-wallet-stat"><strong>${wallet.euros} €</strong>Pendientes</div>`+
@@ -1037,11 +1100,8 @@
     walletHistory.innerHTML=wallet.payments.length?wallet.payments.map(function(item){
       return `<div class="teacher-wallet-history-row">✅ <strong>${item.amount} €</strong> · ${escapeHtml(paymentDate(item.paidAt))}${item.teacher?' · Pagado por '+escapeHtml(item.teacher):''}</div>`;
     }).join(''):'<div class="teacher-wallet-empty">Todavía no hay pagos registrados.</div>';
-    walletAmount.max=String(wallet.euros);
-    walletAmount.disabled=wallet.euros<=0;
-    walletAmount.value=wallet.euros>0?String(previous>=1&&previous<=wallet.euros?previous:wallet.euros):'';
-    walletPayAll.disabled=wallet.euros<=0;
-    updateWalletPayButton();
+    walletPay.disabled=wallet.euros<=0;
+    walletPay.textContent=wallet.euros>0?'✅ Marcar '+wallet.euros+' € como pagados':'✅ No hay euros pendientes';
   }
   function openWalletModal(name){
     walletStudent=String(name||'').trim();if(!walletStudent||!walletOverlay)return;
@@ -1050,22 +1110,15 @@
   function closeWalletModal(){
     walletStudent='';if(walletOverlay){walletOverlay.style.display='none';walletOverlay.setAttribute('aria-hidden','true');}
   }
-  async function payCurrentWallet(amountOverride){
+  async function payCurrentWallet(){
     if(!walletStudent||!window.MV_WALLET)return;
     const current=walletFor(walletStudent);
     if(current.euros<=0)return renderWalletModal();
-    const amount=Math.floor(Number(amountOverride)||selectedPaymentAmount());
-    if(amount<1||amount>current.euros){
-      alert('Escribe una cantidad entre 1 € y '+current.euros+' €.');
-      if(walletAmount)walletAmount.focus();
-      return;
-    }
-    if(!confirm('¿Confirmas que ya has pagado '+amount+' € a '+walletStudent+'?'))return;
+    if(!confirm('¿Confirmas que ya has pagado '+current.euros+' € a '+walletStudent+'?'))return;
     walletPay.disabled=true;walletPay.textContent='Guardando pago...';
-    walletPayAll.disabled=true;
     const teacher=(localStorage.getItem('mv_teacher_full_name_v1')||'').trim();
-    const updated=await MV_WALLET.payStudent(walletStudent,teacher,amount);
-    if(updated.totalPaid<current.totalPaid+amount){
+    const updated=await MV_WALLET.payStudent(walletStudent,teacher);
+    if(updated.totalPaid<current.totalPaid+current.euros){
       wallets[MV_WALLET.slug(walletStudent)]=current;
       renderWalletModal();
       status.textContent='No se pudo confirmar el pago en la base de datos. No se ha descontado ningún euro; inténtalo de nuevo con conexión.';
@@ -1073,7 +1126,7 @@
     }
     wallets[MV_WALLET.slug(walletStudent)]=updated;
     renderWalletModal();render();
-    status.textContent=(updated.euros>0?'Pago parcial registrado: ':'Pago registrado: ')+amount+' € pagados a '+walletStudent+'. '+(updated.euros>0?'Quedan '+updated.euros+' € pendientes.':'El saldo pendiente queda a 0 €.');
+    status.textContent='Pago registrado: '+current.euros+' € pagados a '+walletStudent+'. El saldo pendiente queda a 0 €.';
   }
   async function loadAdminData(){
     // Carga grupos, asignaciones y mensajes desde Supabase. Si las tablas no existen todavía, conserva datos locales.
@@ -1100,6 +1153,23 @@
   async function remoteCreateGroup(name){
     if(!name) return;
     try{ const res=await sb(GROUP_TABLE,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({nombre:name})}); if(res.ok) adminRemoteAvailable=true; }catch(e){}
+  }
+  async function remoteRenameGroup(oldName,newName){
+    if(!oldName||!newName||oldName===newName) return;
+    try{
+      const gRes=await sb(`${GROUP_TABLE}?nombre=eq.${encodeURIComponent(oldName)}`,{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({nombre:newName})});
+      const aRes=await sb(`${ASSIGN_TABLE}?grupo=eq.${encodeURIComponent(oldName)}`,{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({grupo:newName})});
+      if(gRes.ok&&aRes.ok) adminRemoteAvailable=true;
+    }catch(e){}
+  }
+  async function remoteDeleteGroup(name){
+    if(!name) return;
+    try{
+      await Promise.all([
+        sb(`${ASSIGN_TABLE}?grupo=eq.${encodeURIComponent(name)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}}),
+        sb(`${GROUP_TABLE}?nombre=eq.${encodeURIComponent(name)}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}})
+      ]);
+    }catch(e){}
   }
   async function remoteSetStudentGroup(alumno,groupName){
     if(!alumno) return;
@@ -1136,15 +1206,13 @@
   document.getElementById('openTeacherPanel').onclick=open;
   document.getElementById('closeTeacherPanel').onclick=close;
   function enterTeacherPanel(){
-    const input=document.getElementById('teacherCode');
-    const code=(input && input.value ? input.value : '').trim().toUpperCase();
-    if(code!=='PROFE'){
-      alert('Código incorrecto.');
-      if(input){ input.focus(); input.select(); }
+    const access=window.MV_CURRENT_ACCESS || (window.MV_ACCESS&&window.MV_ACCESS.session());
+    if(!access || !['creator','teacher','school'].includes(access.role)){
+      alert('Esta zona está reservada a cuentas autorizadas de profesora, centro o creadora.');
       return;
     }
     const teacherNameInput=document.getElementById('teacherFullName');
-    const teacherName=(teacherNameInput && teacherNameInput.value ? teacherNameInput.value : '').trim();
+    const teacherName=(access.displayName || (teacherNameInput && teacherNameInput.value ? teacherNameInput.value : '')).trim();
     if(teacherName) localStorage.setItem('mv_teacher_full_name_v1', teacherName);
     login.style.display='none';
     content.style.display='block';
@@ -1154,12 +1222,6 @@
   const teacherFullNameInput=document.getElementById('teacherFullName');
   if(teacherFullNameInput) teacherFullNameInput.value=savedTeacherName;
   document.getElementById('teacherEnter').onclick=enterTeacherPanel;
-  document.getElementById('teacherCode').addEventListener('keydown',function(e){
-    if(e.key==='Enter'){
-      e.preventDefault();
-      enterTeacherPanel();
-    }
-  });
   const teacherFullNameEnter=document.getElementById('teacherFullName');
   if(teacherFullNameEnter) teacherFullNameEnter.addEventListener('keydown',function(e){
     if(e.key==='Enter'){ e.preventDefault(); enterTeacherPanel(); }
@@ -1169,9 +1231,7 @@
   document.getElementById('teacherLevelFilter').onchange=render;
   document.getElementById('teacherGroupFilter').onchange=render;
   if(document.getElementById('teacherWalletCancel'))document.getElementById('teacherWalletCancel').onclick=closeWalletModal;
-  if(walletAmount)walletAmount.addEventListener('input',updateWalletPayButton);
-  if(walletPayAll)walletPayAll.onclick=function(){const current=walletFor(walletStudent);if(current.euros>0)payCurrentWallet(current.euros);};
-  if(walletPay)walletPay.onclick=function(){payCurrentWallet();};
+  if(walletPay)walletPay.onclick=payCurrentWallet;
   if(walletOverlay)walletOverlay.addEventListener('click',function(e){if(e.target===walletOverlay)closeWalletModal();});
 
   // FIX31 - Acceso rápido: tarjeta Alumnos = volver a todos los alumnos
@@ -1203,6 +1263,15 @@
     groups.push(name); saveGroups(groups); input.value=''; status.textContent='Guardando grupo...'; await remoteCreateGroup(name); render();
   };
   document.getElementById('newTeacherGroupName').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('createTeacherGroup').click(); });
+  document.getElementById('teacherRenameGroupCancel').onclick=closeRenameGroupModal;
+  document.getElementById('teacherRenameGroupSave').onclick=saveRenameGroup;
+  renameGroupName.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRenameGroup(); } });
+  if(renameGroupOverlay) renameGroupOverlay.addEventListener('click',function(e){ if(e.target===renameGroupOverlay) closeRenameGroupModal(); });
+  document.getElementById('teacherDeleteGroupCancel').onclick=closeDeleteGroupModal;
+  document.getElementById('teacherDeleteGroupSave').onclick=deleteTeacherGroup;
+  document.getElementById('teacherDeleteGroupSelectAll').onclick=function(){ deleteGroupStudents.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true); };
+  document.getElementById('teacherDeleteGroupSelectNone').onclick=function(){ deleteGroupStudents.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false); };
+  if(deleteGroupOverlay) deleteGroupOverlay.addEventListener('click',function(e){ if(e.target===deleteGroupOverlay) closeDeleteGroupModal(); });
   document.getElementById('openCreateTeacherStudent').onclick=openCreateStudentModal;
   document.getElementById('teacherCreateStudentCancel').onclick=closeCreateStudentModal;
   document.getElementById('teacherCreateStudentSave').onclick=createStudentBeforePlaying;
@@ -1251,6 +1320,86 @@
   document.getElementById('teacherDeleteCancel').onclick=closeDeleteModal;
   document.getElementById('teacherDeleteSave').onclick=function(){ deleteStudentFromSupabase(); };
   if(deleteOverlay){ deleteOverlay.addEventListener('click',function(e){ if(e.target===deleteOverlay) closeDeleteModal(); }); }
+  function groupStudentNames(groupName){
+    const assignments=loadAssignments();
+    const names=[...new Set(rows.map(r=>String(val(r,['alumno','nombre','student'],'')).trim()).filter(Boolean))];
+    return names.filter(name=>(assignments[slug(name)]||'')===groupName).sort((a,b)=>a.localeCompare(b,'es'));
+  }
+  function openRenameGroupModal(groupName){
+    renamingGroup=String(groupName||'').trim();
+    if(!renamingGroup) return;
+    renameGroupCurrent.textContent='Grupo actual: '+renamingGroup;
+    renameGroupName.value=renamingGroup;
+    renameGroupOverlay.style.display='flex'; renameGroupOverlay.setAttribute('aria-hidden','false');
+    setTimeout(()=>{ renameGroupName.focus(); renameGroupName.select(); },50);
+  }
+  function closeRenameGroupModal(){
+    renamingGroup='';
+    renameGroupOverlay.style.display='none'; renameGroupOverlay.setAttribute('aria-hidden','true');
+  }
+  async function saveRenameGroup(){
+    const oldName=renamingGroup;
+    const newName=(renameGroupName.value||'').trim();
+    if(!oldName) return closeRenameGroupModal();
+    if(!newName){ alert('Escribe el nuevo nombre del grupo.'); return; }
+    const groups=loadGroups();
+    if(groups.some(g=>slug(g)===slug(newName) && slug(g)!==slug(oldName))){ alert('Ya existe un grupo con ese nombre.'); return; }
+    const idx=groups.findIndex(g=>g===oldName);
+    if(idx>=0) groups[idx]=newName;
+    saveGroups(groups);
+    const assignments=loadAssignments();
+    Object.keys(assignments).forEach(k=>{ if(assignments[k]===oldName) assignments[k]=newName; });
+    saveAssignments(assignments);
+    const filter=document.getElementById('teacherGroupFilter');
+    if(filter.value===oldName) filter.value=newName;
+    status.textContent='Renombrando grupo...';
+    await remoteRenameGroup(oldName,newName);
+    closeRenameGroupModal(); render();
+    status.textContent='✅ Grupo renombrado. Los alumnos y su progreso se conservan.';
+  }
+  function openDeleteGroupModal(groupName){
+    deletingGroup=String(groupName||'').trim();
+    if(!deletingGroup) return;
+    const students=groupStudentNames(deletingGroup);
+    deleteGroupCurrent.textContent='Grupo: '+deletingGroup+' · '+students.length+' alumno'+(students.length===1?'':'s');
+    deleteGroupStudents.innerHTML=students.length?students.map(name=>`<label class="teacher-group-student-row"><input type="checkbox" value="${escapeAttr(name)}"><span>${escapeHtml(name)}</span></label>`).join(''):'<div class="teacher-wallet-empty">Este grupo está vacío. Puedes eliminarlo directamente.</div>';
+    deleteGroupConfirm.value='';
+    deleteGroupOverlay.style.display='flex'; deleteGroupOverlay.setAttribute('aria-hidden','false');
+    setTimeout(()=>deleteGroupConfirm.focus(),50);
+  }
+  function closeDeleteGroupModal(){
+    deletingGroup='';
+    deleteGroupOverlay.style.display='none'; deleteGroupOverlay.setAttribute('aria-hidden','true');
+  }
+  async function deleteStudentByName(alumno){
+    const res=await fetch(`${URL}/rest/v1/${TABLE}?alumno=eq.${encodeURIComponent(alumno)}`,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Prefer':'return=minimal'}});
+    if(!res.ok) throw new Error('No se pudo eliminar a '+alumno+' (Supabase '+res.status+')');
+    rows=rows.filter(r=>String(val(r,['alumno'],'')).trim()!==alumno);
+    const notes=loadNotes(); delete notes[noteKeyForName(alumno)]; delete notes[slug(alumno)]; saveNotes(notes);
+    await remoteDeleteStudentAdmin(alumno);
+  }
+  async function deleteTeacherGroup(){
+    const groupName=deletingGroup;
+    if(!groupName) return closeDeleteGroupModal();
+    if((deleteGroupConfirm.value||'').trim().toUpperCase()!=='ELIMINAR GRUPO'){ alert('Para eliminar el grupo, escribe ELIMINAR GRUPO.'); return; }
+    const selected=[...deleteGroupStudents.querySelectorAll('input[type=checkbox]:checked')].map(cb=>cb.value);
+    const selectedKeys=new Set(selected.map(slug));
+    const allStudents=groupStudentNames(groupName);
+    const assignments=loadAssignments();
+    // Los no marcados pasan a Sin grupo. Los marcados se eliminan definitivamente.
+    allStudents.forEach(name=>{ delete assignments[slug(name)]; });
+    saveAssignments(assignments);
+    try{
+      status.textContent='Eliminando grupo...';
+      for(const alumno of selected){ await deleteStudentByName(alumno); }
+      const groups=loadGroups().filter(g=>g!==groupName); saveGroups(groups);
+      await remoteDeleteGroup(groupName);
+      const filter=document.getElementById('teacherGroupFilter'); if(filter.value===groupName) filter.value='';
+      closeDeleteGroupModal(); render();
+      const moved=allStudents.filter(n=>!selectedKeys.has(slug(n))).length;
+      status.textContent='✅ Grupo eliminado. '+selected.length+' alumno'+(selected.length===1?'':'s')+' eliminado'+(selected.length===1?'':'s')+' definitivamente; '+moved+' movido'+(moved===1?'':'s')+' a Sin grupo.';
+    }catch(e){ alert('No se pudo completar la eliminación del grupo: '+e.message); render(); }
+  }
   function setStudentGroup(alumno, groupName){
     const assignments=loadAssignments();
     const key=slug(alumno);
@@ -1510,12 +1659,14 @@
     const grid=document.getElementById('teacherGroupsGrid');
     const cards=groups.map(g=>{
       const count=studentNames.filter(a=>(assignments[slug(a)]||'')===g).length;
-      return `<div class="teacher-group-card"><strong>${escapeHtml(g)}</strong><span>${count} alumno${count===1?'':'s'}</span><button type="button" data-group-filter="${escapeAttr(g)}">Ver grupo</button></div>`;
+      return `<div class="teacher-group-card"><strong>${escapeHtml(g)}</strong><span>${count} alumno${count===1?'':'s'}</span><div class="teacher-group-actions"><button type="button" data-group-filter="${escapeAttr(g)}">Ver grupo</button><button type="button" class="teacher-group-rename-btn" data-group-rename="${escapeAttr(g)}">Renombrar</button><button type="button" class="teacher-group-delete-btn" data-group-delete="${escapeAttr(g)}">Eliminar grupo</button></div></div>`;
     });
     const unassigned=studentNames.filter(a=>!(assignments[slug(a)]||'')).length;
     cards.push(`<div class="teacher-group-card"><strong>Sin grupo</strong><span>${unassigned} alumno${unassigned===1?'':'s'}</span><button type="button" data-group-filter="__unassigned__">Ver</button></div>`);
     grid.innerHTML=cards.join('');
     grid.querySelectorAll('button[data-group-filter]').forEach(btn=>btn.onclick=function(){ filter.value=this.getAttribute('data-group-filter'); render(); });
+    grid.querySelectorAll('button[data-group-rename]').forEach(btn=>btn.onclick=function(){ openRenameGroupModal(this.getAttribute('data-group-rename')||''); });
+    grid.querySelectorAll('button[data-group-delete]').forEach(btn=>btn.onclick=function(){ openDeleteGroupModal(this.getAttribute('data-group-delete')||''); });
   }
   function escapeHtml(x){ return String(x||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
   function escapeAttr(x){ return escapeHtml(x).replace(/'/g,'&#39;'); }

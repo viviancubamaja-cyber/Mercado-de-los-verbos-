@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
+<script src="access_control.js"></script><script src="secure_guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Yo solo · Ocho mercados</title>
@@ -35,7 +36,6 @@ button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002
 @media(max-height:720px) and (min-width:721px){.app{margin-top:3px}.topbar{padding:3px 9px}.logo{font-size:22px}.title{font-size:21px}.subtitle{font-size:9px}.panel{margin-top:4px;padding-top:8px;padding-bottom:8px}.mission{padding:6px 12px}.answer textarea{min-height:64px}.word-track{min-height:30px}.feedback{min-height:36px}.controls{margin-top:4px}}
 @media(max-width:720px){.topbar{align-items:flex-start}.actions{display:none}.namebox input{min-width:100%}}
 </style>
-<link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
 <div class="app">
@@ -47,7 +47,7 @@ button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002
   <section id="start" class="panel hero">
     <h1>Los ocho mercados</h1>
     <p>27 rondas de 24 misiones. Avanza a tu ritmo, guarda cuando quieras y recorre los ocho mercados durante todo el curso.</p>
-    <div class="namebox"><button class="start" onclick="startRound()">EMPEZAR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button></div>
+    <div class="namebox"><input id="name" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startRound()">EMPEZAR</button><button class="notebook-button" onclick="openNotebook()">📒 MI LIBRETA</button></div>
   </section>
 
   <section id="round" class="panel hidden">
@@ -76,8 +76,6 @@ button:active,.back:active{transform:translateY(3px);box-shadow:0 2px 0 #0000002
 </div>
 <script src="constructor_yo_solo_bank.js"></script>
 <script src="constructor_wallet.js"></script>
-<script src="constructor_cloud_progress.js"></script>
-<script src="student_identity.js"></script>
 <script>
 const PILOT_MISSIONS=[
  {id:'present-a',tense:'Presente',kind:'affirmative',es:'Ella guarda la llave en su bolso.',en:'She keeps the key in her bag.',alt:['She keeps the key in her handbag.','She keeps the key in her purse.']},
@@ -220,7 +218,7 @@ function rewardCorrectMission(q){
 function loadCourse(){
  try{const data=JSON.parse(localStorage.getItem(courseKey())||'null');return data&&Number.isInteger(data.completedRound)?data:{completedRound:0}}catch(e){return{completedRound:0}}
 }
-function saveCourse(completedRound){const data={completedRound};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_curso_yo_solo',courseKey(),data);else localStorage.setItem(courseKey(),JSON.stringify(Object.assign(data,{updatedAt:new Date().toISOString()})))}
+function saveCourse(completedRound){localStorage.setItem(courseKey(),JSON.stringify({completedRound,updatedAt:new Date().toISOString()}))}
 function personalNotebookKey(){return NOTEBOOK_KEY+studentSlug(student)}
 function cleanVocabularyWord(word){return String(word).replace(/^[^A-Za-zÀ-ÿ']+|[.,!?;:]+$/g,'')}
 function notebookToken(word){return canon(cleanVocabularyWord(word)).replace(/^[^a-z']+|[^a-z']+$/g,'')}
@@ -228,16 +226,6 @@ function meaningFor(word){return WORD_GLOSS[notebookToken(word)]||'Apréndela co
 function loadPersonalNotebook(){
  try{const data=JSON.parse(localStorage.getItem(personalNotebookKey())||'[]');return Array.isArray(data)?data:[]}catch(e){return[]}
 }
-let notebookSyncTimer=0;
-async function syncPersonalNotebook(){
- if(!student||!window.MV_CLOUD)return loadPersonalNotebook();
- const local=loadPersonalNotebook(),remote=await MV_CLOUD.loadData(student,'constructor_libreta');
- const merged=MV_CLOUD.mergeNotebook(local,remote&&remote.entries);
- localStorage.setItem(personalNotebookKey(),JSON.stringify(merged));
- await MV_CLOUD.saveData(student,'constructor_libreta',{entries:merged});
- return merged
-}
-function queuePersonalNotebookSync(){clearTimeout(notebookSyncTimer);notebookSyncTimer=setTimeout(syncPersonalNotebook,300)}
 function rememberWord(word,q,exampleEn){
  if(!student||!word||!q)return;
  const token=notebookToken(word);if(!token)return;
@@ -250,11 +238,11 @@ function rememberWord(word,q,exampleEn){
   if(!found.examples.some(item=>canon(item.en)===canon(example.en)))found.examples.unshift(example);
   found.examples=found.examples.slice(0,3)
  }else entries.unshift({word:cleanWord,meaning:meaningFor(cleanWord),firstSeen:new Date().toISOString(),lastSeen:new Date().toISOString(),count:1,examples:[example]});
- localStorage.setItem(personalNotebookKey(),JSON.stringify(entries));queuePersonalNotebookSync()
+ localStorage.setItem(personalNotebookKey(),JSON.stringify(entries))
 }
 function openNotebook(){
- if(!student)student=MV_STUDENT_IDENTITY.get();
- if(!student)return;
+ if(!student)student=$('name').value.trim();
+ if(!student){$('name').focus();return}
  const entries=loadPersonalNotebook();
  $('notebookOwner').textContent='Libreta de '+student+' · '+entries.length+(entries.length===1?' palabra':' palabras');
  $('notebookList').innerHTML=entries.length?'<div class="notebook-list">'+entries.map(item=>{
@@ -402,8 +390,8 @@ function stateFor(raw,q){
  }
  return{value,typed,target,best,exact,withX,unknownIndexes,prefix,mismatch,partial}
 }
-function saveProgress(){if(!student||!questions.length)return;const data={student,questions,index,correct,drafts,attempts,revealed,notebookMarks,notebookWords,roundNumber};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_yo_solo',progressKey(),data);else localStorage.setItem(progressKey(),JSON.stringify(data))}
-function clearProgress(){if(!student)return;if(window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_yo_solo',progressKey(),{index:24,roundNumber});localStorage.removeItem(progressKey())}
+function saveProgress(){if(!student||!questions.length)return;localStorage.setItem(progressKey(),JSON.stringify({student,questions,index,correct,drafts,attempts,revealed,notebookMarks,notebookWords,roundNumber}))}
+function clearProgress(){if(student)localStorage.removeItem(progressKey())}
 function loadProgress(){
  try{
   const p=JSON.parse(localStorage.getItem(progressKey())||'null');
@@ -412,7 +400,7 @@ function loadProgress(){
  }catch(e){return false}
 }
 async function startRound(){
- student=MV_STUDENT_IDENTITY.get();if(!student)return;walletData=loadWallet();await syncWalletRemote();if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_curso_yo_solo',courseKey());await MV_PROGRESS.sync(student,'constructor_progreso_yo_solo',progressKey())}await syncPersonalNotebook();if(loadProgress())return;
+ student=$('name').value.trim();if(!student)return $('name').focus();localStorage.setItem('mv_current_student',student);walletData=loadWallet();await syncWalletRemote();if(loadProgress())return;
  const course=loadCourse();
  if(course.completedRound>=TOTAL_ROUNDS){roundNumber=TOTAL_ROUNDS;showCompletedCourse();return}
  roundNumber=course.completedRound+1;questions=shuffled(ANNUAL_ROUNDS[roundNumber-1]);index=0;correct=0;drafts={};attempts={};revealed={};notebookMarks={};notebookWords=[];show('round');saveProgress();render()
@@ -539,6 +527,7 @@ function speakInstruction(){
 function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
 function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startRound()});
 $('answer').addEventListener('input',renderTyping);
 $('notebookOverlay').addEventListener('click',e=>{if(e.target===$('notebookOverlay'))closeNotebook()});
 document.addEventListener('keydown',e=>{

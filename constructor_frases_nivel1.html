@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script src="access_control.js"></script><script src="secure_guard.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Mercado de los Verbos · Frases Nivel 1 · Nueva versión</title>
@@ -45,7 +46,6 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
 @media(min-width:721px){.app{width:min(1640px,138vw);zoom:.72}.topbar{padding:8px 13px}.panel{margin-top:10px;padding:14px 20px}.progress{margin:9px 0 12px}.mission{padding:10px;margin-bottom:10px}.type-switch{margin-bottom:10px}.walkway{min-height:82px;padding:9px}.slot{min-height:58px}.bank-title{margin:10px 0 6px}.feedback{min-height:48px;margin-top:9px;padding:9px}.rule-card{margin-top:10px;padding:10px 14px}.controls{margin-top:9px}}
 @media(max-width:720px){.zone-grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.slot{min-width:125px}.arrow{display:none}.actions{display:none}}
 </style>
-<link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
 <div class="app">
@@ -57,7 +57,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
   <section id="startScreen" class="panel hero">
     <h1>Camina por las frases</h1>
     <p>Construye 108 frases en tres recorridos: primero con un camino guiado, después con el Rey BE y finalmente tú solo.</p>
-    <div class="namebox"><button class="start" onclick="startGame()">EMPEZAR</button></div>
+    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"/><button class="start" onclick="startGame()">EMPEZAR</button></div>
   </section>
 
   <section id="menuScreen" class="panel hidden">
@@ -92,8 +92,8 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
 
   <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h2>¡Zona completada!</h2><div id="finalMessage"></div><div class="controls"><button class="start" onclick="goMenu()">VOLVER AL MENÚ</button></div></section>
 </div>
-<script src="constructor_wallet.js"></script><script src="constructor_cloud_progress.js"></script>
-<script src="constructor_guided_rewards.js"></script><script src="student_identity.js"></script>
+<script src="constructor_wallet.js"></script>
+<script src="constructor_guided_rewards.js"></script>
 <script>
 const simpleData=[
  // 12 afirmativas · verbos 1-12 del Mercado
@@ -154,10 +154,10 @@ let student='',zone='',kind='affirmative',questions=[],index=0,selected=[],corre
 const $=id=>document.getElementById(id);
 function show(id){['startScreen','menuScreen','lessonScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
 const progressKey='mvConstructorProgressN1';
-function saveProgress(){if(!student||!zone||!questions.length)return;const data={student,zone,questions,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_n1',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
+function saveProgress(){if(!student||!zone||!questions.length)return;localStorage.setItem(progressKey,JSON.stringify({student,zone,questions,index,correct}));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||!p.zone||!Array.isArray(p.questions)||!p.questions.length||p.index<0||p.index>=p.questions.length)return false;zone=p.zone;questions=p.questions;index=p.index;correct=p.correct||0;kind='affirmative';$('zoneTitle').textContent=zone==='simple'?'🧩 Los Solitarios':zone==='be'?'👑 El Rey BE':'🌟 YO SOLO';$('studentLabel').textContent='Jugador/a: '+student;$('typeSwitch').classList.add('hidden');show('lessonScreen');renderQuestion();return true}catch(e){return false;}}
-function clearProgress(){if(window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_n1',progressKey,{zone,index:questions.length});localStorage.removeItem(progressKey);}
-async function startGame(){student=MV_STUDENT_IDENTITY.get();if(!student)return;await MV_GUIDED_REWARDS.start(student);if(window.MV_PROGRESS){await MV_PROGRESS.sync(student,'constructor_progreso_n1',progressKey);await MV_PROGRESS.syncFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo'])}if(loadProgress())return;show('menuScreen');}
+function clearProgress(){localStorage.removeItem(progressKey);}
+async function startGame(){student=$('studentName').value.trim();if(!student){$('studentName').focus();return;}localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);if(loadProgress())return;show('menuScreen');}
 function goMenu(){show('menuScreen');zone='';}
 function openZone(z){
   zone=z;index=0;correct=0;kind='affirmative';
@@ -360,7 +360,6 @@ function nextQuestion(){
    const key='mvConstructorN1_'+zone;
    localStorage.setItem(key,'completed');
    clearProgress();
-   if(window.MV_PROGRESS)MV_PROGRESS.saveFlags(student,'constructor_completado_n1','mvConstructorN1_',['simple','be','solo']);
    const completed=['simple','be','solo'].filter(z=>localStorage.getItem('mvConstructorN1_'+z)==='completed').length;
    show('finishScreen');
    $('finalMessage').innerHTML=`<p class="score">🏆 ¡Has construido 36 frases!</p><p class="score">💰 Tu saldo pendiente: ${MV_GUIDED_REWARDS.balance().euros} €.</p><p>${esc(student)}, has completado esta zona practicando, sin notas.</p>${completed===3?'<p style="font-size:24px;font-weight:900">🎉 ¡Has construido 108 frases en inglés utilizando los verbos del Mercado!</p>':''}`;
@@ -374,6 +373,7 @@ function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return 
 function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u);}
 if('speechSynthesis'in window)speechSynthesis.getVoices();
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 $('soloInput').addEventListener('input',updateSoloTyping);
 $('soloInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});
 </script>

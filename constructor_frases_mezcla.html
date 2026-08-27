@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
+<script src="access_control.js"></script><script src="secure_guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mercado de los Verbos · El verbo viaja</title>
@@ -20,7 +21,6 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
 @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @media(max-width:760px){.columns{grid-template-columns:1fr}.topbar{align-items:flex-start}.actions{display:none}.column{padding:13px}.column input{min-height:58px}}
 </style>
-<link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
 <main class="app">
@@ -33,7 +33,7 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
     <div class="icon">🌟</div>
     <h1>El verbo viaja</h1>
     <p>Lee la frase, descubre en qué nivel vive y escríbela en su columna. El mismo verbo aparecerá de formas diferentes y sin complementos.</p>
-    <div class="namebox"><button class="start" onclick="startGame()">EMPEZAR</button></div>
+    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startGame()">EMPEZAR</button></div>
   </section>
 
   <section id="gameScreen" class="panel hidden">
@@ -51,10 +51,6 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
 
   <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h1>¡Los verbos saben viajar!</h1><div id="finalText"></div><div class="controls"><button class="start" onclick="playAgain()">JUGAR OTRA VEZ</button><a class="back" href="constructor_frases.html">VOLVER AL CONSTRUCTOR</a></div></section>
 </main>
-<script src="constructor_wallet.js"></script>
-<script src="constructor_cloud_progress.js"></script>
-<script src="constructor_guided_rewards.js"></script>
-<script src="student_identity.js"></script>
 <script>
 const missions=[
  {verb:'DORMIR',level:2,es:'Yo dormí.',en:'I slept'},
@@ -79,25 +75,25 @@ const $=id=>document.getElementById(id);
 const inputs=()=>[...document.querySelectorAll('.column input')];
 function show(id){['startScreen','gameScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
 const progressKey='mvConstructorProgressMezcla';
-function saveProgress(){if(!student)return;const data={student,index,correct};if(window.MV_PROGRESS)MV_PROGRESS.save(student,'constructor_progreso_mezcla',progressKey,data);else localStorage.setItem(progressKey,JSON.stringify(data));}
+function saveProgress(){if(!student)return;localStorage.setItem(progressKey,JSON.stringify({student,index,correct,euros}));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||p.index<0||p.index>=missions.length)return false;index=p.index;correct=p.correct||0;euros=p.euros||0;$('player').textContent='Jugador/a: '+student;show('gameScreen');render();return true}catch(e){return false;}}
-function clearProgress(){if(student&&window.MV_PROGRESS)return MV_PROGRESS.clear(student,'constructor_progreso_mezcla',progressKey,{index:missions.length,correct});localStorage.removeItem(progressKey)}
-async function startGame(){student=MV_STUDENT_IDENTITY.get();if(!student)return;await MV_GUIDED_REWARDS.start(student);euros=MV_GUIDED_REWARDS.balance().euros;if(window.MV_PROGRESS)await MV_PROGRESS.sync(student,'constructor_progreso_mezcla',progressKey);if(loadProgress()){euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();return}index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
+function clearProgress(){localStorage.removeItem(progressKey);}
+function startGame(){student=$('studentName').value.trim();if(!student)return $('studentName').focus();if(loadProgress())return;index=0;correct=0;euros=0;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
 function updateWallet(){$('wallet').textContent='💰 '+euros+' €'}
 function render(){locked=false;selectedLevel=null;const q=missions[index];$('counter').textContent=(index+1)+' / '+missions.length;$('bar').style.width=(index/missions.length*100)+'%';updateWallet();$('verbName').textContent='El verbo que viaja: '+q.verb;$('spanish').textContent=q.es;inputs().forEach(i=>{i.value='';i.disabled=false});document.querySelectorAll('.column').forEach(c=>c.classList.remove('active','correct','wrong'));$('feedback').className='feedback neutral';$('feedback').textContent='Elige una columna y escribe la frase en inglés.';$('nextBtn').classList.add('hidden')}
 function choose(input){if(locked)return;selectedLevel=Number(input.dataset.level);inputs().forEach(i=>{if(i!==input)i.value=''});document.querySelectorAll('.column').forEach(c=>{c.classList.remove('wrong');c.classList.toggle('active',Number(c.dataset.level)===selectedLevel)})}
 function norm(s){return String(s).trim().replace(/[’‘]/g,"'").replace(/\s+/g,' ').replace(/[.!?]+$/,'').toLowerCase()}
 function comparable(s){return norm(s).replace(/\bdid not\b/g,"didn't")}
 function hasCapitalI(s){return /^\s*I(?:\s|$)/.test(String(s))}
-function checkAnswer(){if(locked)return;const q=missions[index],input=inputs().find(i=>i.value.trim());if(!input){bad('Primero elige una columna y escribe la frase.');return}selectedLevel=Number(input.dataset.level);if(selectedLevel!==q.level){document.querySelector('.column[data-level="'+selectedLevel+'"]').classList.add('wrong');bad('Mira los carteles: ¿la frase habla del presente, del pasado o del Mercado perfecto?');return}if(!hasCapitalI(input.value)){bad('En inglés, YO siempre se escribe con I mayúscula.');input.focus();return}if(comparable(input.value)!==comparable(q.en)){bad('La columna es correcta. Fíjate en el nombre del mercado y escribe el verbo correctamente.');input.focus();return}locked=true;const oldEuros=euros;correct++;MV_GUIDED_REWARDS.reward('mezcla',q.level,q.en);euros=MV_GUIDED_REWARDS.balance().euros;updateWallet();document.querySelector('.column[data-level="'+q.level+'"]').classList.add('correct');inputs().forEach(i=>i.disabled=true);$('feedback').className='feedback good';$('feedback').textContent=euros>oldEuros?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! El verbo ha llegado a su columna. 🎉';$('nextBtn').classList.remove('hidden');speak(q.en)}
+function checkAnswer(){if(locked)return;const q=missions[index],input=inputs().find(i=>i.value.trim());if(!input){bad('Primero elige una columna y escribe la frase.');return}selectedLevel=Number(input.dataset.level);if(selectedLevel!==q.level){document.querySelector('.column[data-level="'+selectedLevel+'"]').classList.add('wrong');bad('Mira los carteles: ¿la frase habla del presente, del pasado o del Mercado perfecto?');return}if(!hasCapitalI(input.value)){bad('En inglés, YO siempre se escribe con I mayúscula.');input.focus();return}if(comparable(input.value)!==comparable(q.en)){bad('La columna es correcta. Fíjate en el nombre del mercado y escribe el verbo correctamente.');input.focus();return}locked=true;const oldEuros=euros;correct++;euros=Math.floor(correct/5);updateWallet();document.querySelector('.column[data-level="'+q.level+'"]').classList.add('correct');inputs().forEach(i=>i.disabled=true);$('feedback').className='feedback good';$('feedback').textContent=euros>oldEuros?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! El verbo ha llegado a su columna. 🎉';$('nextBtn').classList.remove('hidden');speak(q.en)}
 function bad(text){$('feedback').className='feedback bad';$('feedback').textContent=text}
-function nextMission(){if(++index<missions.length){saveProgress();return render();}localStorage.setItem('mvConstructorGranMezclaPiloto','completed');clearProgress();show('finishScreen');$('finalText').innerHTML='<p class="score">'+esc(student)+', has colocado '+correct+' de '+missions.length+' frases.</p><p class="score">💰 Tu saldo pendiente es '+euros+' €.</p><p>Has seguido la evolución de cuatro verbos por los tres niveles.</p>'}
-function restart(){if($('gameScreen').classList.contains('hidden'))return;index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;render()}
-function playAgain(){index=0;correct=0;euros=MV_GUIDED_REWARDS.balance().euros;saveProgress();show('gameScreen');render()}
+function nextMission(){if(++index<missions.length){saveProgress();return render();}localStorage.setItem('mvConstructorGranMezclaPiloto','completed');clearProgress();show('finishScreen');$('finalText').innerHTML='<p class="score">'+esc(student)+', has colocado '+correct+' de '+missions.length+' frases.</p><p class="score">💰 Has ganado '+euros+' €.</p><p>Has seguido la evolución de cuatro verbos por los tres niveles.</p>'}
+function restart(){if($('gameScreen').classList.contains('hidden'))return;index=0;correct=0;euros=0;render()}
+function playAgain(){index=0;correct=0;euros=0;saveProgress();show('gameScreen');render()}
 function susan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
 function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const v=susan();if(v)u.voice=v;speechSynthesis.speak(u)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});if('speechSynthesis' in window)speechSynthesis.getVoices();
+inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});if('speechSynthesis' in window)speechSynthesis.getVoices();
 </script>
 </body>
 </html>
