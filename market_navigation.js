@@ -63,8 +63,8 @@
     overlay.querySelectorAll('a').forEach(function(a){a.onclick=function(e){e.preventDefault();return go(a.href)}});
     document.getElementById('mvRouteFinalExam').onclick=function(e){e.preventDefault();return openExam()};
     var button=document.getElementById('mvMenuNivelesBtn');
-    if(!button){button=document.createElement('button');button.id='mvMenuNivelesBtn';button.type='button';button.textContent='🏠 Menú niveles';document.body.appendChild(button)}
-    button.onclick=function(e){if(e)e.preventDefault();open();return false};
+    if(!button){button=document.createElement('button');button.id='mvMenuNivelesBtn';button.type='button';button.textContent='🧭 Menú de recorridos';document.body.appendChild(button)}
+    button.onclick=function(e){if(e)e.preventDefault();var exit=document.getElementById('exitScreen');if(exit&&(exit.classList.contains('show')||exit.classList.contains('active'))){return go('index.html')}open();return false};
     installStandFinalButton(n);
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('mv-route-open')){e.preventDefault();close()}},true);
   }
@@ -76,7 +76,7 @@
     event.preventDefault();
     event.stopImmediatePropagation();
     save();
-    location.href=new URL('index.html',location.href).href;
+    location.href=new URL('app.html',location.href).href;
   },true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 })();
