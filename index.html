@@ -221,49 +221,33 @@
   }catch(error){ location.replace('./app.html'); }
 })();
 </script>
-</head>
+<style id="mv-menu-recorridos-v1">
+body{overflow:auto!important}.mv-routes-menu{width:min(1180px,94vw)!important;max-width:1180px!important;margin:24px auto!important;padding:clamp(20px,3.4vw,42px)!important;text-align:left!important}.mv-routes-header{border-bottom:3px solid #d99c21;padding-bottom:16px;margin-bottom:18px}.mv-routes-header h1{margin:2px 0 6px!important;text-align:left!important;font-size:clamp(34px,5vw,60px)!important}.mv-routes-kicker{margin:0;color:#17679f;font-weight:1000;letter-spacing:.08em}.mv-route-section{margin:22px 0}.mv-route-section h2{margin:0 0 12px;color:#7b2d13;font-size:clamp(23px,3vw,32px)}.mv-route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.mv-route-card{min-height:118px;padding:17px;border:3px solid #9a5a21;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:#3b210d;box-shadow:0 8px 0 #8b4d18;transition:transform .15s,filter .15s}.mv-route-card:hover,.mv-route-card:focus-visible{transform:translateY(-3px);filter:brightness(1.03);outline:4px solid #e0a21d;outline-offset:3px}.mv-route-card span{font-size:28px}.mv-route-card strong{font-size:clamp(19px,2.4vw,28px);line-height:1.1;margin:5px 0}.mv-route-card small{font-size:14px;font-weight:800}.mv-route-card.verbs{background:#ffe19b}.mv-route-card.practice{background:#f6d895}.mv-route-card.next{background:#d8f0fb;border-color:#1675aa;box-shadow:0 8px 0 #1675aa;color:#034a72}.mv-route-card.coming{background:#eeeae3;border-color:#aaa29a;box-shadow:none;color:#766d65}.mv-route-note{margin:0;padding:13px 16px;border-left:5px solid #d99c21;border-radius:9px;background:#fff2c8;font-weight:800}.mv-route-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:25px;padding-top:20px;border-top:2px dashed #c99a5f}.mv-route-actions button{width:auto!important;min-width:220px!important;margin:0!important}@media(max-width:780px){.mv-route-grid{grid-template-columns:1fr}.mv-route-card{min-height:94px}.mv-routes-menu{margin:10px auto!important}.mv-route-actions{flex-direction:column}.mv-route-actions button{width:100%!important}}
+</style></head>
 <body>
-  <main class="card">
-    <h1>🛒 Mercado de Verbos</h1>
-    <p class="subtitle">Un único recorrido: aprende los verbos y construye frases</p>
-    <section class="grid" aria-label="Elegir nivel">
-      <a class="level" href="nivel1_libro1_test1.html">
-        <span class="level-icon">🧩</span>
-        <span class="big">Nivel 1</span>
-        <span class="market-name">Mercado del Presente</span>
-        <span class="small">Libro 1 / Test 1</span>
-      </a>
-      <a class="level" href="nivel2_libro2_test2.html">
-        <span class="level-icon">⏳</span>
-        <span class="big">Nivel 2</span>
-        <span class="market-name">Mercado del Pasado</span>
-        <span class="small">Libro 2 / Test 2</span>
-      </a>
-      <a class="level" href="nivel3_libro3_test3.html">
-        <span class="level-icon">👸</span>
-        <span class="big">Nivel 3</span>
-        <span class="market-name">Mercado Perfecto</span>
-        <span class="small">Libro 3 / Test 3</span>
-      </a>
-    </section>
-    <div class="constructor-wrap">
-      <a class="constructor" href="constructor_frases.html">
-        <span class="big">🏆 Constructor de Frases</span>
-        <span class="small">Nivel 1 · Nivel 2 · Nivel 3</span>
-        <span class="small" style="margin-top:8px">324 frases · Evolución del Mercado</span>
-      </a>
-    </div>
-    <a class="future-market future-market-link" href="https://mercado-del-futuro.viviancubamaja.chatgpt.site">
-      <span class="big">🧭 Mercado del Futuro</span>
-      <span class="small">WILL · WOULD · WILL HAVE · WOULD HAVE</span>
-      <span class="small">Futuros en movimiento · Yo solo · Gran mezcla · CAN</span>
-    </a>
-    <p class="note">Elige un nivel para aprender los verbos o entra al Constructor para utilizarlos en frases.</p>
-    <button class="teacher-toggle" id="openTeacherPanel">👩‍🏫 Área del profesor</button>
-    <button class="family-toggle" id="openFamilyPanel">👨‍👩‍👧 Familia</button>
-    <button class="logout-toggle" id="mvLogoutButton" type="button">🚪 Salir / Cambiar cuenta</button>
-
-  </main>
+  <main class="card mv-routes-menu">
+<header class="mv-routes-header"><div><p class="mv-routes-kicker">🧭 MENÚ NIVELES</p><h1>Menú de recorridos</h1><p class="subtitle">Elige dónde quieres aprender, practicar o construir.</p></div></header>
+<section class="mv-route-section"><h2>Mercado de los Verbos</h2><div class="mv-route-grid">
+<a class="mv-route-card verbs" href="nivel1_libro1_test1.html"><span>🧩</span><strong>Nivel 1</strong><small>Mercado del Presente</small></a>
+<a class="mv-route-card verbs" href="nivel2_libro2_test2.html"><span>⏳</span><strong>Nivel 2</strong><small>Mercado del Pasado</small></a>
+<a class="mv-route-card verbs" href="nivel3_libro3_test3.html"><span>👸</span><strong>Nivel 3</strong><small>Mercado Perfecto</small></a>
+</div></section>
+<section class="mv-route-section"><h2>Practica y construye</h2><div class="mv-route-grid">
+<a class="mv-route-card practice" href="constructor_frases.html"><span>🏆</span><strong>Constructor de Frases</strong><small>Recorrido guiado</small></a>
+<a class="mv-route-card practice" href="constructor_frases_yo_solo_8_tiempos.html"><span>🧍</span><strong>Yo Solo</strong><small>Práctica autónoma</small></a>
+<a class="mv-route-card practice" href="constructor_frases_mezcla.html"><span>🎲</span><strong>Gran Mezcla</strong><small>Todo el recorrido</small></a>
+</div></section>
+<section class="mv-route-section"><h2>Siguiente recorrido</h2><div class="mv-route-grid">
+<a class="mv-route-card next future-market-link" href="https://mercado-del-futuro.viviancubamaja.chatgpt.site"><span>🧭</span><strong>Mercado del Futuro</strong><small>WILL · WOULD · HAVE</small></a>
+<a class="mv-route-card next future-market-link" data-area="modales" href="https://mercado-del-futuro.viviancubamaja.chatgpt.site/?area=modales"><span>🧑‍🤝‍🧑</span><strong>CAN y sus compañeros</strong><small>Mercado de los Modales</small></a>
+<div class="mv-route-card coming" aria-disabled="true"><span>🔮</span><strong>Condicionales · Pasiva · Causativa</strong><small>Próximamente</small></div>
+</div></section>
+<section class="mv-route-section"><h2>Evaluación</h2><p class="mv-route-note">Los Tests Finales están dentro de cada nivel, debajo de sus puestos.</p></section>
+<div class="mv-route-actions">
+<button class="teacher-toggle" id="openTeacherPanel">👩‍🏫 Área del profesor</button>
+<button class="family-toggle" id="openFamilyPanel">👨‍👩‍👧 Área de familia</button>
+<button class="logout-toggle" id="mvLogoutButton" type="button">🚪 Salir / Cambiar cuenta</button>
+</div></main>
 
 <script id="mv-secure-logout-home">
 (function(){
@@ -280,14 +264,16 @@
 
 <script>
 (function(){
-  var link=document.querySelector('.future-market-link');
-  if(!link)return;
-  link.addEventListener('click',function(){
-    var url=new URL(link.href);
-    var student=(localStorage.getItem('mv_current_student')||'').trim();
-    if(student)url.searchParams.set('student',student);
-    url.searchParams.set('return',location.href);
-    link.href=url.toString();
+  document.querySelectorAll('.future-market-link').forEach(function(link){
+    link.addEventListener('click',function(){
+      var url=new URL(link.href);
+      var student=(localStorage.getItem('mv_current_student')||'').trim();
+      if(student)url.searchParams.set('student',student);
+      var area=(link.getAttribute('data-area')||'').trim();
+      if(area)url.searchParams.set('area',area); else url.searchParams.delete('area');
+      url.searchParams.set('return',location.href);
+      link.href=url.toString();
+    });
   });
 })();
 </script>
