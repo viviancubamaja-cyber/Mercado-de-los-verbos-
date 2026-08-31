@@ -1,0 +1,66 @@
+name: Correccion salida real a portada Alex
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/corregir-salida-alex.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  corregir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Corregir solo Salir del juego
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          files = {
+              "nivel1_libro1_test1.html": "n1",
+              "nivel2_libro2_test2.html": "n2",
+              "nivel3_libro3_test3.html": "n3",
+          }
+
+          for filename, level in files.items():
+              path = Path(filename)
+              text = path.read_text(encoding="utf-8")
+
+              if level == "n1":
+                  old = "quitGame(){Save.saveGame();location.href='./index.html';return false}"
+                  new = "quitGame(){Save.saveGame();location.href='./app.html';return false}"
+                  count = text.count(old)
+                  if count != 1:
+                      raise SystemExit(f"{filename}: se esperaba 1 salida antigua N1 y aparecieron {count}")
+                  text = text.replace(old, new, 1)
+              else:
+                  pattern = r"function quit\(e\)\{.*?return false\}\s*window\.quitGame=quit;"
+                  replacement = (
+                      "function quit(e){"
+                      "stop(e);"
+                      "if(state.isNavigating)return false;"
+                      "state.isNavigating=true;"
+                      "try{if(typeof window.saveGameState==='function')window.saveGameState(false)}catch(_e){}"
+                      "window.location.href='app.html';"
+                      "return false"
+                      "}window.quitGame=quit;"
+                  )
+                  text, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+                  if count != 1:
+                      raise SystemExit(f"{filename}: no se encontró exactamente el controlador temprano de salida")
+
+              path.write_text(text, encoding="utf-8")
+              print(f"{filename}: salida dirigida a app.html")
+
+          PY
+      - name: Guardar correccion
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nivel1_libro1_test1.html nivel2_libro2_test2.html nivel3_libro3_test3.html
+          git commit -m "Corrige Salir del juego para volver a la portada de Alex"
+          git push
