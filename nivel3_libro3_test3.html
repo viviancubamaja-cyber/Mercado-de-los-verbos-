@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script src="access_control.js"></script><script src="secure_guard.js"></script>
 <script id="mv-fase2-alumno-storage-3">
 (function(){
   window.MV_LEVEL_ID = "n3";
@@ -14,8 +13,23 @@
       .slice(0,40);
   }
   window.mvGetStudentName = function(){
+    try{
+      var account = JSON.parse(localStorage.getItem("mercadoVerbosLocalAccountV1") || "null");
+      var accountName = String(account && account.studentName || "").trim();
+      if(accountName) return accountName;
+    }catch(e){}
     return sessionStorage.getItem("mv_current_student_"+window.MV_LEVEL_ID) || "";
   };
+  function hydratePlayerName(){
+    var input = document.getElementById("playerName");
+    var name = window.mvGetStudentName();
+    if(input && name){
+      input.value = name;
+      input.readOnly = true;
+    }
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", hydratePlayerName);
+  else hydratePlayerName();
   window.mvSetStudentName = function(name){
     var clean = normName(name);
     if(!clean) return "";
@@ -985,6 +999,30 @@ body::before{background:transparent!important;}
 }
 #aula2GuideBanner .aula2-guide-text{
   max-width:100% !important;
+  flex:1 1 auto !important;
+}
+#aula2GuideBanner button.aula2-guide-audio{
+  min-width:44px !important;
+  width:44px !important;
+  height:40px !important;
+  min-height:40px !important;
+  padding:0 !important;
+  border:3px solid #4e3381 !important;
+  border-radius:12px !important;
+  background:#7652b5 !important;
+  color:#fff !important;
+  box-shadow:0 3px 0 #4e3381 !important;
+  font-size:21px !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+  flex:0 0 44px !important;
+}
+#aula2GuideBanner button.aula2-guide-audio:hover{
+  filter:brightness(1.08) !important;
+}
+#aula2GuideBanner button.aula2-guide-audio:focus-visible{
+  outline:4px solid #ffd143 !important;
+  outline-offset:2px !important;
 }
 #aula2GuideBanner button.aula2-guide-action{
   min-width:118px !important;
@@ -1326,8 +1364,9 @@ button.pay{
 })();
 </script>
 
+<link rel="stylesheet" href="mobile-responsive.css">
 </head>
-<body>
+<body class="legacy-market-page">
 <main class="screen">
   <div class="title" id="mainTitle"><span class="stand-main">STAND 1 · LEVEL 3</span><span class="stand-range">VERBS 1–10</span></div>
   <section class="panel seller">
@@ -1573,20 +1612,20 @@ function lcsMask(a,b){
   a=a.toUpperCase(); b=b.toUpperCase();
   const m=a.length,n=b.length, dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
   for(let i=m-1;i>=0;i--) for(let j=n-1;j>=0;j--) dp[i][j]=a[i]===b[j]?1+dp[i+1][j+1]:Math.max(dp[i+1][j],dp[i][j+1]);
-  let i=0,j=0, keepA=[], insertB=[];
+  let i=0,j=0, keepA=[], keepB=[], insertB=[];
   while(i<m && j<n){
-    if(a[i]===b[j]){keepA.push(i); i++; j++;}
+    if(a[i]===b[j]){keepA.push(i); keepB.push(j); i++; j++;}
     else if(dp[i+1][j]>=dp[i][j+1]) i++; else {insertB.push(b[j]); j++;}
   }
   while(j<n) insertB.push(b[j++]);
   const keepSet=new Set(keepA);
   const buy=[]; for(let k=0;k<m;k++) if(!keepSet.has(k)) buy.push(k);
-  return {buy, pay:insertB.join('')};
+  return {buy, pay:insertB.join(''), keepA, keepB};
 }
 function enrichVerb(v){
   const p1=lcsMask(v.en,v.past);
   const p2=lcsMask(v.past,v.part);
-  let out={...v, buy:p1.buy, pay:p1.pay, third:(v.past===v.part?'=':p2.pay), buy2:p2.buy};
+  let out={...v, buy:p1.buy, pay:p1.pay, keepSource:p1.keepA, keepPast:p1.keepB, third:(v.past===v.part?'=':p2.pay), buy2:p2.buy};
 
   // AJUSTES PEDAGÓGICOS DEL MERCADO
   // Stand 10: se vende todo lo que cambia y solo queda la consonante/base inicial.
@@ -1735,6 +1774,11 @@ function enrichVerb(v){
     out.buyWholeVerb = true;
   }
 
+  if(String(v.en).trim().toUpperCase()===String(v.past).trim().toUpperCase()){
+    out.buy=Array.from({length:String(v.en).trim().length},(_,index)=>index);
+    out.buyWholeVerb=true;
+  }
+
   return out;
 }
 function displayCoin(v){return v===''?'🎁':v}
@@ -1768,13 +1812,24 @@ function getStandCoins(){
   });
   return coins;
 }
+function getVisibleStandCoins(){
+  const pool=getStandCoins();
+  const required=current?[current.pay,current.third].filter((coin,index,list)=>pool.includes(coin)&&list.indexOf(coin)===index):[];
+  const distractors=pool.filter(coin=>!required.includes(coin));
+  const key=current?String(current.id):'stand-'+currentStand;
+  let seed=0;
+  for(let i=0;i<key.length;i++) seed=(seed*31+key.charCodeAt(i))>>>0;
+  const offset=distractors.length?seed%distractors.length:0;
+  const ordered=distractors.slice(offset).concat(distractors.slice(0,offset));
+  return required.concat(ordered.slice(0,3));
+}
 function renderCoins(){
   const row=document.getElementById('coinRow'); if(!row) return;
   row.classList.toggle('stand10-bank', currentStand===10);
   row.classList.toggle('stand8-bank', currentStand===8);
   row.classList.toggle('stand15-bank', currentStand===15);
   row.innerHTML='';
-  getStandCoins().forEach(c=>{const d=document.createElement('div');d.className=coinClass(c);d.textContent=displayCoin(c);d.onclick=()=>selectPayment(c,d);row.appendChild(d)});
+  getVisibleStandCoins().forEach(c=>{const d=document.createElement('div');d.className=coinClass(c);d.textContent=displayCoin(c);d.onclick=()=>selectPayment(c,d);row.appendChild(d)});
 }
 function renderRules(){
   const grid=document.getElementById('ruleGrid'); if(!grid) return;
@@ -1875,7 +1930,7 @@ function speakWord(kind='base'){
   window.speechSynthesis.speak(u);
 }
 function renderVerbButtons(){verbsDiv.innerHTML='';verbData.forEach(item=>{const b=document.createElement('button');b.textContent=item.es;if(completed.has(item.id)){b.classList.add('completed');b.disabled=true}else b.onclick=()=>chooseVerb(item.id);verbsDiv.appendChild(b)})}
-function chooseVerb(id){if(completed.has(id))return;current=verbData.find(v=>v.id===id);if(current&&current.en)current.en=current.en.trim();startTimerIfNeeded();stage='write';selected.clear();selectedPayment=null;originalLetters=[];workingLetters=[];clearCells();resetColumnStatus();resultDiv.textContent='';resultDiv.className='result';document.querySelectorAll('.verb-buttons button').forEach(b=>b.classList.toggle('selected',b.textContent===current.es));buyerChoice.textContent=current.es.toUpperCase();speech.textContent='Write the product in English.';stepText.textContent='Spell it: write the product in English inside Product.';hint.textContent='Then press Check verb.';const esBtn=document.getElementById('audioBuyerEsBtn'); if(esBtn) esBtn.classList.remove('hidden'); speakSelectedVerbEs();;renderBlanks((current.en||'').trim().length)}
+function chooseVerb(id){if(completed.has(id))return;current=verbData.find(v=>v.id===id);if(current&&current.en)current.en=current.en.trim();startTimerIfNeeded();stage='write';selected.clear();selectedPayment=null;originalLetters=[];workingLetters=[];clearCells();resetColumnStatus();resultDiv.textContent='';resultDiv.className='result';document.querySelectorAll('.verb-buttons button').forEach(b=>b.classList.toggle('selected',b.textContent===current.es));buyerChoice.textContent=current.es.toUpperCase();speech.textContent='Write the product in English.';stepText.textContent='Spell it: write the product in English inside Product.';hint.textContent='Then press Check verb.';const esBtn=document.getElementById('audioBuyerEsBtn'); if(esBtn) esBtn.classList.remove('hidden'); speakSelectedVerbEs();;renderBlanks((current.en||'').trim().length);renderCoins()}
 function clearCells(){productCell.innerHTML='';payCell.innerHTML='';newProductCell.innerHTML=''}
 function renderBlanks(n){productCell.innerHTML='';payCell.innerHTML='';newProductCell.innerHTML='';for(let i=0;i<n;i++){const box=document.createElement('div');box.className='tile blank';const input=document.createElement('input');input.maxLength=1;input.dataset.index=i;input.oninput=e=>{e.target.value=e.target.value.replace(/[^a-zA-Z]/g,'').toUpperCase();const next=productCell.querySelector(`input[data-index='${i+1}']`);if(e.target.value&&next)next.focus()};input.onkeydown=e=>{if(e.key==='Backspace'&&!e.target.value){const prev=productCell.querySelector(`input[data-index='${i-1}']`);if(prev)prev.focus()}};box.appendChild(input);productCell.appendChild(box)}const first=productCell.querySelector('input');if(first)first.focus()}
 function confirmEnglishVerb(){
@@ -1916,6 +1971,16 @@ function renderProductLetters(){
         resultDiv.textContent='';
         stepText.textContent='That letter stays. Look for the letter or letters that change.';
         hint.textContent='Only changing letters can be bought in this market.';
+        return;
+      }
+      if(current.buyWholeVerb){
+        if(selected.has(i)){
+          selected.delete(i);
+          t.classList.remove('selected-letter');
+        }else{
+          selected.add(i);
+          t.classList.add('selected-letter');
+        }
         return;
       }
       selected.has(i)?selected.delete(i):selected.add(i);
@@ -1978,6 +2043,7 @@ function appendStand5Payment(){
   newProductCell.innerHTML='';
   (base+payment).split('').forEach(l=>{const t=document.createElement('div');t.className='tile';t.textContent=l;newProductCell.appendChild(t)});
   stage='new-ready-check';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   // La columna 3 ya está formada correctamente: mostramos el OK y activamos su audio.
   setStatus('newStatus','ok');
   setActiveCol('newCol');
@@ -2133,6 +2199,7 @@ function appendColumn2Payment(){
     markAdjacentDuplicateLetters(newProductCell);
   }
   stage='new-ready-check-2';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   setStatus('newStatus','ok');
   setActiveCol('newCol');
   resultDiv.textContent='';speech.textContent='Check.';
@@ -2192,6 +2259,7 @@ function appendStand7Column1Payment(){
     tiles.forEach(t=>{if(t.textContent===letter)t.classList.add('changed-letter')});
   }
   stage='new-ready-check-7-base';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   setStatus('newStatus','ok');
   setActiveCol('newCol');
   resultDiv.textContent='';speech.textContent='Check.';
@@ -2253,6 +2321,7 @@ function appendStand8Column1Payment(){
   (base+payment).split('').forEach(l=>{const t=document.createElement('div');t.className='tile';t.textContent=l;newProductCell.appendChild(t)});
   markAdjacentDuplicateLetters(newProductCell);
   stage='new-ready-check-8-base';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   setStatus('newStatus','ok');
   setActiveCol('newCol');
   resultDiv.textContent='';speech.textContent='Check.';
@@ -2310,6 +2379,7 @@ function appendStand15Column1Payment(){
   newProductCell.innerHTML='';
   current.part.toUpperCase().split('').forEach(l=>{const t=document.createElement('div');t.className='tile';t.textContent=l;newProductCell.appendChild(t)});
   stage='new-ready-check-15-base';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   setStatus('newStatus','ok');
   setActiveCol('newCol');
   resultDiv.textContent='';speech.textContent='Check.';
@@ -2358,6 +2428,7 @@ function appendStand15MeltMolten(){
   newProductCell.innerHTML='';
   current.part.toUpperCase().split('').forEach(l=>{const t=document.createElement('div');t.className='tile';t.textContent=l;newProductCell.appendChild(t)});
   stage='new-ready-check-15-molten';
+  if(typeof window.updateGuide==='function') window.updateGuide();
   setStatus('newStatus','ok');
   setActiveCol('newCol');
   resultDiv.textContent='';speech.textContent='Check.';
@@ -2461,6 +2532,15 @@ function buildPayPreview(){
 
   // Si la moneda se añade al final, no dejamos el hueco en medio: el hueco va detrás de la última letra que queda.
   // Ej.: SLEEP -> SLEP _ ; KEEP -> KEP _ ; LEAVE -> LE _ _.
+  // Ruta general: las letras conservadas se colocan según su posición en la palabra destino.
+  if(current && Array.isArray(current.keepSource) && Array.isArray(current.keepPast) && current.keepSource.length===current.keepPast.length){
+    const keepTarget=new Set();
+    current.keepSource.forEach((sourceIndex,pairIndex)=>{
+      if(!selected.has(sourceIndex)) keepTarget.add(current.keepPast[pairIndex]);
+    });
+    return current.past.toUpperCase().split('').map((letter,targetIndex)=>keepTarget.has(targetIndex)?letter:null);
+  }
+
   if(payLetters.length && current && current.past.toUpperCase()===remaining.join('')+current.pay.toUpperCase()){
     return [...remaining,...payLetters.map(()=>null)];
   }
@@ -2486,6 +2566,7 @@ function buySelectedLetters(){if(!current||stage!=='buy')return;const chosen=[..
     // BITE/HIDE: after buying the silent E, column 2 is already complete (BIT/HID).
     // There is no payment for column 2, so we move directly to the special third-column step.
     stage='new-copy-2';
+    productCell.querySelectorAll('.tile').forEach(t=>t.classList.remove('clickable','selected-letter'));
     selected.clear();
     setProductOk(true);
     setStatus('payStatus','ok');
@@ -2550,7 +2631,7 @@ function selectPayment(value,el){if(!current)return;
     appendColumn2Payment();return;
   }
   selectedPayment=value;document.querySelectorAll('.coin').forEach(c=>c.classList.remove('selected-coin'));el.classList.add('selected-coin');if(value==='=')stepText.textContent='= selected. Press Pay to create the New Product.';else if(value==='')stepText.textContent='🎁 Gift selected. Now press Pay.';else stepText.textContent=`${value} selected. Now press Pay.`}
-function applySelectedPayment(){if(!current)return;if(currentStand===15&&stage==='new-copy-15-molten'){validateStand15MeltNewProduct();return}if(currentStand===15&&stage==='new-await-15-molten'){if(selectedPayment!=='O_N'){resultDiv.textContent='❌ Choose O_N and press Pay.';resultDiv.className='result danger';return}appendStand15MeltMolten();return}if(stage==='new-copy-15-base'||stage==='new-await-15-base-payment'||stage==='new-ready-check-15-base'){validateStand15Column1NewProduct();return}if(stage==='new-ready-check-15-molten'){validateStand15MeltNewProduct();return}if(current && current.id==='14-2' && stage==='new-await-2-payment'){if(selectedPayment!==current.third){resultDiv.textContent='❌ That payment does not match the third column.';resultDiv.className='result danger';stepText.textContent='Choose = and press Pay to unlock New Product.';return}appendColumn2Payment();return}if(stage==='new-copy'||stage==='new-await-n'||stage==='new-ready-check'){validateStand5NewProduct();return}if(stage==='new-copy-7-base'||stage==='new-await-7-base-payment'||stage==='new-ready-check-7-base'){validateStand7Column1NewProduct();return}if(stage==='new-copy-8-base'||stage==='new-await-8-base-payment'||stage==='new-ready-check-8-base'){validateStand8Column1NewProduct();return}if(stage==='new-copy-2'||stage==='new-await-2-payment'||stage==='new-ready-check-2'){validateColumn2NewProduct();return}if(selectedPayment===null){stepText.textContent='Choose a coin from the Payment Bank first.';return}if(stage==='pay'){if(selectedPayment!==current.pay){resultDiv.textContent='❌ That is not the correct payment.';resultDiv.className='result danger';return}workingLetters=current.past.toUpperCase().split('');renderWord(payCell,workingLetters);markStand9Column2ChangingVowel();if(current.id==='14-1'){const yTile=payCell.querySelectorAll('.tile')[2];if(yTile)yTile.classList.add('changed-letter');}if(current.id==='15-3'){const tiles=payCell.querySelectorAll('.tile');[1,5].forEach(i=>{if(tiles[i])tiles[i].classList.add('changed-letter')});}setStatus('payStatus','ok');setStatus('newStatus','wait');setActiveCol('newCol');stage='new';resultDiv.textContent='';speech.textContent='New Product.';if(currentStand===5){stage='new-copy';stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=current.id==='5-7'?'FLY uses FL + OWN.':'New Product = column 1 + N.';}else if(currentStand===7&&stand7UsesColumn1ForNew()){stage='new-copy-7-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${current.third}.`;}else if(currentStand===8&&stand8UsesColumn1ForNew()){stage='new-copy-8-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${current.third}.`;}else if(currentStand===15&&stand15UsesColumn1ForNew()){stage='new-copy-15-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${getStand15PaymentForNew()}.`;}else if(currentStand===15&&stand15MeltSpecial()){stage='new-copy-15-molten';setActiveCol('payCol');makeStand15MeltColumn2Clickable();stepText.textContent='MELTED is ready. Click column 2 Pay first; then choose O_N.';hint.textContent='The first E and the D in MELTED are marked in red because another change is coming.';}else if((currentStand===6||currentStand===7||currentStand===9)||stand8UsesColumn2ForNew()||stand14UsesColumn2ForNew()){stage='new-copy-2';makePayColumnClickableForNew();setActiveCol('payCol');stepText.textContent='Now click column 2 Pay. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 2 + ${current.third}.`;}else{stepText.textContent='Now you are in 3. New Product. Choose the correct payment in the Payment Bank and press Pay.';hint.textContent='Think about the third column of the stand.';}clearPaymentSelection();return}
+function applySelectedPayment(){if(!current)return;if(currentStand===15&&stage==='new-copy-15-molten'){validateStand15MeltNewProduct();return}if(currentStand===15&&stage==='new-await-15-molten'){if(selectedPayment!=='O_N'){resultDiv.textContent='❌ Choose O_N and press Pay.';resultDiv.className='result danger';return}appendStand15MeltMolten();return}if(stage==='new-copy-15-base'||stage==='new-await-15-base-payment'||stage==='new-ready-check-15-base'){validateStand15Column1NewProduct();return}if(stage==='new-ready-check-15-molten'){validateStand15MeltNewProduct();return}if(current && current.id==='14-2' && stage==='new-await-2-payment'){if(selectedPayment!==current.third){resultDiv.textContent='❌ That payment does not match the third column.';resultDiv.className='result danger';stepText.textContent='Choose = and press Pay to unlock New Product.';return}appendColumn2Payment();return}if(stage==='new-copy'||stage==='new-await-n'||stage==='new-ready-check'){validateStand5NewProduct();return}if(stage==='new-copy-7-base'||stage==='new-await-7-base-payment'||stage==='new-ready-check-7-base'){validateStand7Column1NewProduct();return}if(stage==='new-copy-8-base'||stage==='new-await-8-base-payment'||stage==='new-ready-check-8-base'){validateStand8Column1NewProduct();return}if(stage==='new-copy-2'||stage==='new-await-2-payment'||stage==='new-ready-check-2'){validateColumn2NewProduct();return}if(selectedPayment===null){stepText.textContent='Choose a coin from the Payment Bank first.';return}if(stage==='pay'){if(selectedPayment!==current.pay){resultDiv.textContent='❌ That is not the correct payment.';resultDiv.className='result danger';return}workingLetters=current.past.toUpperCase().split('');renderWord(payCell,workingLetters);markStand9Column2ChangingVowel();if(current.id==='14-1'){const yTile=payCell.querySelectorAll('.tile')[2];if(yTile)yTile.classList.add('changed-letter');}if(current.id==='15-3'){const tiles=payCell.querySelectorAll('.tile');[1,5].forEach(i=>{if(tiles[i])tiles[i].classList.add('changed-letter')});}setStatus('payStatus','ok');setStatus('newStatus','wait');setActiveCol('newCol');stage='new';resultDiv.textContent='';speech.textContent='New Product.';if(currentStand===5){stage='new-copy';stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=current.id==='5-7'?'FLY uses FL + OWN.':'New Product = column 1 + N.';}else if(currentStand===7&&stand7UsesColumn1ForNew()){stage='new-copy-7-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${current.third}.`;}else if(currentStand===8&&stand8UsesColumn1ForNew()){stage='new-copy-8-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${current.third}.`;}else if(currentStand===15&&stand15UsesColumn1ForNew()){stage='new-copy-15-base';renderProductLetters();setActiveCol('productCol');stepText.textContent='Now click column 1 Product. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 1 + ${getStand15PaymentForNew()}.`;}else if(currentStand===15&&stand15MeltSpecial()){stage='new-copy-15-molten';setActiveCol('payCol');makeStand15MeltColumn2Clickable();stepText.textContent='MELTED is ready. Click column 2 Pay first; then choose O_N.';hint.textContent='The first E and the D in MELTED are marked in red because another change is coming.';}else if((currentStand===6||currentStand===7||currentStand===9)||stand8UsesColumn2ForNew()||stand14UsesColumn2ForNew()){stage='new-copy-2';productCell.querySelectorAll('.tile').forEach(t=>t.classList.remove('clickable','selected-letter'));makePayColumnClickableForNew();setActiveCol('payCol');stepText.textContent='Now click column 2 Pay. It will copy into New Product; then choose the payment.';hint.textContent=`New Product = column 2 + ${current.third}.`;}else{stepText.textContent='Now you are in 3. New Product. Choose the correct payment in the Payment Bank and press Pay.';hint.textContent='Think about the third column of the stand.';}clearPaymentSelection();return}
  if(stage==='new'){if(selectedPayment!==current.third){resultDiv.textContent='❌ That payment does not match the third column.';resultDiv.className='result danger';stepText.textContent='Look at the stand and choose the correct payment for New Product.';return}if(currentStand===5){resultDiv.textContent='';speech.textContent='Copy Product.';stepText.textContent='Click column 1 Product first. It will copy into New Product; then choose the payment.';hint.textContent='New Product = column 1 + N.';clearPaymentSelection();return}workingLetters=current.part.toUpperCase().split('');renderWord(newProductCell,workingLetters);completeCurrentVerb();return}}
 function clearPaymentSelection(){selectedPayment=null;document.querySelectorAll('.coin').forEach(c=>c.classList.remove('selected-coin'))}
 function checkFinal(){if(stage==='done'){resultDiv.textContent='✅ Already completed.';return}if(stage==='new-copy'||stage==='new-await-n'||stage==='new-ready-check'){validateStand5NewProduct();return}if(stage==='new-copy-7-base'||stage==='new-await-7-base-payment'||stage==='new-ready-check-7-base'){validateStand7Column1NewProduct();return}if(stage==='new-copy-2'||stage==='new-await-2-payment'||stage==='new-ready-check-2'){validateColumn2NewProduct();return}if(stage==='new-copy-8-base'||stage==='new-await-8-base-payment'||stage==='new-ready-check-8-base'){validateStand8Column1NewProduct();return}if(stage==='new-copy-15-base'||stage==='new-await-15-base-payment'||stage==='new-ready-check-15-base'){validateStand15Column1NewProduct();return}if(stage==='new-copy-15-molten'||stage==='new-await-15-molten'||stage==='new-ready-check-15-molten'){validateStand15MeltNewProduct();return}if(stage==='new')applySelectedPayment();else stepText.textContent='Finish Product, Pay and New Product before Check.'}
@@ -2592,7 +2673,7 @@ function speakBook(lang){const list=allVerbs();const v=list[bookIndex];if(!('spe
 loadGameState();loadStand(currentStand);updateScoreboard();
 </script>
 
-\n<script id="v70-cronometro-y-libro-dormir">\n(function(){\n  function pauseButton(){return document.getElementById('pauseBtn');}\n  function ensureTimerRunning(){\n    if(window.isPaused) return;\n    if(!window.gameStart){\n      window.gameStart=Date.now();\n      if(window.timerInterval) clearInterval(window.timerInterval);\n      window.timerInterval=setInterval(window.updateTimerDisplay,1000);\n      if(typeof window.updateTimerDisplay==='function') window.updateTimerDisplay();\n    }\n    if(!window.currentVerbStart) window.currentVerbStart=Date.now();\n  }\n  window.startTimerIfNeeded=function(){\n    ensureTimerRunning();\n    window.currentVerbStart=Date.now();\n  };\n  window.togglePause=function(){\n    var btn=pauseButton();\n    if(!window.gameStart && !window.isPaused){\n      // Antes de empezar no se puede usar la pausa como botón de inicio.\n      ensureTimerRunning();\n      return;\n    }\n    if(window.isPaused){\n      window.isPaused=false;\n      document.body.classList.remove('game-paused');\n      window.gameStart=Date.now();\n      if(window.timerInterval) clearInterval(window.timerInterval);\n      window.timerInterval=setInterval(window.updateTimerDisplay,1000);\n      if(btn) btn.textContent='⏸️';\n      if(typeof window.updateTimerDisplay==='function') window.updateTimerDisplay();\n    }else{\n      window.elapsedBeforePause=window.getTotalSeconds ? window.getTotalSeconds() : (window.elapsedBeforePause||0);\n      window.isPaused=true;\n      document.body.classList.add('game-paused');\n      window.gameStart=null;\n      if(window.timerInterval) clearInterval(window.timerInterval);\n      window.timerInterval=null;\n      if(btn) btn.textContent='▶️';\n      if(typeof window.updateTimerDisplay==='function') window.updateTimerDisplay();\n    }\n  };\n  // Bloquea la trampa: cuando está en pausa no se puede seguir jugando.\n  document.addEventListener('click',function(e){\n    if(!window.isPaused) return;\n    var t=e.target;\n    if(t.closest && (t.closest('#pauseBtn') || t.closest('#exitScreen') || t.closest('#notebook') || t.closest('#startScreen'))) return;\n    e.stopPropagation();\n    e.preventDefault();\n  },true);\n  document.addEventListener('keydown',function(e){\n    if(!window.isPaused) return;\n    var t=e.target;\n    if(t && t.id==='playerName') return;\n    e.stopPropagation();\n    e.preventDefault();\n  },true);\n  // Al entrar en el mercado empieza el cronómetro: no espera a que el niño pulse otro botón.\n  var oldEnter=window.enterFromStart;\n  window.enterFromStart=function(){\n    if(typeof oldEnter==='function') oldEnter.apply(this,arguments);\n    window.isPaused=false;\n    document.body.classList.remove('game-paused');\n    ensureTimerRunning();\n  };\n  // Al volver del Save & Exit, no arranca solo: queda en pausa hasta tocar ▶️.\n  var oldReturn=window.returnToMarket;\n  window.returnToMarket=function(){\n    if(typeof oldReturn==='function') oldReturn.apply(this,arguments);\n    window.elapsedBeforePause=window.getTotalSeconds ? window.getTotalSeconds() : (window.elapsedBeforePause||0);\n    window.isPaused=true;\n    document.body.classList.add('game-paused');\n    window.gameStart=null;\n    if(window.timerInterval) clearInterval(window.timerInterval);\n    window.timerInterval=null;\n    var btn=pauseButton(); if(btn) btn.textContent='▶️';\n    if(typeof window.updateTimerDisplay==='function') window.updateTimerDisplay();\n  };\n  // Libro fijo de este punto del juego: dormir / sleep / slept / slept.\n  window.openNotebook=function(){\n    var nb=document.getElementById('notebook');\n    var es=document.getElementById('bookEs');\n    var en=document.getElementById('bookEn');\n    var past=document.getElementById('bookPast');\n    var part=document.getElementById('bookPart');\n    var count=document.getElementById('bookCount');\n    if(es) es.textContent='DORMIR';\n    if(en) en.textContent='SLEEP';\n    if(past) past.textContent='SLEPT';\n    if(part) part.textContent='SLEPT';\n    if(count) count.textContent='dormir · sleep / slept / slept';\n    if(nb) nb.classList.add('show');\n  };\n  window.prevBook=function(){window.openNotebook();};\n  window.nextBook=function(){window.openNotebook();};\n  // Si el juego carga ya dentro del mercado, empezamos a contar automáticamente.\n  setTimeout(function(){\n    var start=document.getElementById('startScreen');\n    var exit=document.getElementById('exitScreen');\n    var inStart=start && start.classList.contains('show');\n    var inExit=exit && exit.classList.contains('show');\n    if(!inStart && !inExit && !window.isPaused) ensureTimerRunning();\n  },600);\n})();\n</script>\n
+
 
 <style id="v71-libro-click-corregido">
 /* v71: el cuaderno debe abrirse por encima de la pantalla Save & Exit,
@@ -2795,6 +2876,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       shell.addEventListener(ev,function(e){
         var start=document.getElementById('startScreen');
         if(!start || !start.classList.contains('show')) return;
+        if(e.target && e.target.closest && e.target.closest('#startScreen .start-enter-v72-img')) return;
         var p=normPoint(e,shell);
         if(inRect(p,nameRect)){
           e.preventDefault(); e.stopPropagation();
@@ -3104,13 +3186,48 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     }else if(kind==='check'){
       action='<button type="button" class="aula2-guide-action check" onclick="event.preventDefault();event.stopPropagation();confirmEnglishVerb();return false;"><span>✓</span><span>CHECK</span></button>';
     }
-    return '<div class="aula2-guide-inner"><span class="aula2-guide-text">'+esc(text)+'</span>'+action+'</div>';
+    var audio='<button type="button" class="aula2-guide-audio" onclick="event.preventDefault();event.stopPropagation();aula2SpeakGuideInstruction();return false;" title="Escuchar instrucción" aria-label="Escuchar instrucción">🔊</button>';
+    return '<div class="aula2-guide-inner"><span class="aula2-guide-text">'+esc(text)+'</span>'+audio+action+'</div>';
   }
-  function setGuide(text, done, kind){
-    var g=ensureGuide(); if(!g) return;
-    g.innerHTML=guideHTML(text, kind);
+  function setGuide(text, done, kind, audioText){
+    const g=ensureGuide();
+    if(!g) return;
+
+    g.dataset.audioText=audioText||text;
+    const html=guideHTML(text, kind);
+
+    if(g.innerHTML!==html){
+      g.innerHTML=html;
+    }
+
     g.classList.toggle('aula2-done', !!done);
   }
+  function guideSpanishVoice(){
+    if(!('speechSynthesis' in window)) return null;
+    var voices=speechSynthesis.getVoices()||[];
+    var female=/(female|helena|m[oó]nica|paulina|marisol|luciana|sabina|google.*español|siri.*female)/i;
+    var male=/(male|jorge|diego|carlos|pablo)/i;
+    var spanish=voices.filter(function(v){return /^es(?:[-_]|$)/i.test(v.lang||'');});
+    return spanish.find(function(v){return female.test(v.name||'');})||
+      spanish.find(function(v){return !male.test(v.name||'');})||
+      spanish[0]||null;
+  }
+  window.aula2SpeakGuideInstruction=function(){
+    if(!('speechSynthesis' in window)) return false;
+    var guide=document.getElementById('aula2GuideBanner');
+    var text=guide ? String(guide.dataset.audioText||'').trim() : '';
+    if(!text) return false;
+    text=text.replace(/\bCHECK\b/gi,'chec').replace(/\bPAY\b/gi,'pei').replace(/\bBUY LETTERS\b/gi,'bai léters');
+    speechSynthesis.cancel();
+    var utterance=new SpeechSynthesisUtterance(text);
+    utterance.lang='es-ES';
+    utterance.rate=.82;
+    utterance.pitch=1;
+    var voice=guideSpanishVoice();
+    if(voice) utterance.voice=voice;
+    speechSynthesis.speak(utterance);
+    return false;
+  };
   window.aula2GiftAndPay=function(){
     try{
       var gift=Array.from(document.querySelectorAll('#coinRow .coin')).find(function(c){return (c.textContent||'').trim()==='🎁';});
@@ -3131,37 +3248,38 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       tagGiftCoin();
       clearButtonGlow();
       if(typeof stage==='undefined') return;
-      if(stage==='choose') { setGuide('👉 ELIGE UN VERBO'); return; }
-      if(stage==='write') { setGuide('👉 ESCRIBE EL VERBO EN INGLÉS', false, 'check'); glow('check'); return; }
-      if(stage==='buy') { setGuide('👉 COMPRA LETRAS QUE CAMBIAN', false, 'buy'); glow('buy'); return; }
+      if(stage==='choose') { setGuide('👉 ELIGE UN VERBO', false, '', 'Elige un verbo para empezar.'); return; }
+      if(stage==='write') { setGuide('👉 ESCRIBE EL VERBO EN INGLÉS', false, 'check', 'Escribe el verbo en inglés y pulsa CHECK.'); glow('check'); return; }
+      if(stage==='buy') { setGuide('👉 COMPRA LETRAS QUE CAMBIAN', false, 'buy', 'Desliza el ratón sobre el verbo para ver las letras disponibles para la venta. Selecciona lo que cambia y pulsa BUY LETTERS. En algunos casos tendrás que comprar el verbo completo.'); glow('buy'); return; }
       if(stage==='pay') {
         if(typeof current!=='undefined' && current && current.pay===''){
-          setGuide('🎉 ¿HAS CONSEGUIDO UN REGALO?', false, 'gift');
+          setGuide('🎉 ¿HAS CONSEGUIDO UN REGALO?', false, 'gift', 'Has conseguido un regalo. Elige el regalo en el banco y pulsa PAY.');
           glow('pay');
           return;
         }
-        setGuide('👉 ELIGE LA MONEDA Y PASA POR CAJA', false, 'pay'); glow('pay'); return;
+        setGuide('👉 ELIGE LA MONEDA Y PASA POR CAJA', false, 'pay', 'Elige la moneda correcta en el banco y pulsa PAY.'); glow('pay'); return;
       }
       if(/^new-await/.test(stage) || stage==='new') {
         if(typeof current!=='undefined' && current && current.third===''){
-          setGuide('🎉 ¿HAS CONSEGUIDO UN REGALO?', false, 'gift');
+          setGuide('🎉 ¿HAS CONSEGUIDO UN REGALO?', false, 'gift', 'Has conseguido un regalo. Elige el regalo en el banco y pulsa PAY.');
           glow('pay');
           return;
         }
         if(typeof current!=='undefined' && current && current.third==='='){
-          setGuide('👉 COLUMNAS IGUALES: ELIGE MONEDA', false, 'pay');
+          setGuide('👉 COLUMNAS IGUALES: ELIGE MONEDA', false, 'pay', 'Las columnas son iguales. Elige la moneda correcta y pulsa PAY.');
           glow('pay');
           return;
         }
-        setGuide('👉 ELIGE LA MONEDA Y PASA POR CAJA', false, 'pay'); glow('pay'); return;
+        setGuide('👉 ELIGE LA MONEDA Y PASA POR CAJA', false, 'pay', 'Elige la moneda correcta en el banco y pulsa PAY.'); glow('pay'); return;
       }
-      if(stage==='new-copy' || stage==='new-copy-7-base' || stage==='new-copy-8-base' || stage==='new-copy-15-base') { setGuide('👉 TOCA LA COLUMNA 1'); return; }
-      if(stage==='new-copy-2' || stage==='new-copy-15-molten') { setGuide('👉 TOCA LA COLUMNA 2'); return; }
-      if(/^new-ready-check/.test(stage)) { setGuide('👉 COMPRUEBA EL NUEVO PRODUCTO', false, 'check'); glow('check'); return; }
-      if(stage==='done') { setGuide('✅ VERBO COMPLETADO. ELIGE OTRO VERBO.', true); return; }
-      setGuide('👉 SIGUE EL SIGUIENTE PASO');
+      if(stage==='new-copy' || stage==='new-copy-7-base' || stage==='new-copy-8-base' || stage==='new-copy-15-base') { setGuide('👉 TOCA LA COLUMNA 1', false, '', 'Toca la columna 1 para continuar.'); return; }
+      if(stage==='new-copy-2' || stage==='new-copy-15-molten') { setGuide('👉 TOCA LA COLUMNA 2', false, '', 'Toca la columna 2 para continuar.'); return; }
+      if(/^new-ready-check/.test(stage)) { setGuide('👉 COMPRUEBA EL NUEVO PRODUCTO', false, 'check', 'Comprueba el nuevo producto y pulsa CHECK.'); glow('check'); return; }
+      if(stage==='done') { setGuide('✅ VERBO COMPLETADO. ELIGE OTRO VERBO.', true, '', 'Verbo completado. Elige otro verbo.'); return; }
+      setGuide('👉 SIGUE EL SIGUIENTE PASO', false, '', 'Sigue el siguiente paso.');
     }catch(e){}
   }
+  window.updateGuide=updateGuide;
 
   function protectReset(){
     var resetBtn=Array.from(document.querySelectorAll('button')).find(function(b){return (b.getAttribute('onclick')||'').indexOf('resetGame')>=0 && (b.textContent||'').trim().toLowerCase().indexOf('reset')>=0;});
@@ -3248,6 +3366,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       document.addEventListener(ev,function(e){
         var start=document.getElementById('startScreen');
         if(!start || !start.classList.contains('show')) return;
+        if(e.target && e.target.closest && e.target.closest('#startScreen .start-enter-v72-img')) return;
         var shell=document.querySelector('#startScreen .welcome-v72-shell');
         var input=document.getElementById('playerName');
         if(!shell || !input) return;
@@ -3928,6 +4047,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       document.addEventListener(ev,function(e){
         var start=document.getElementById('startScreen');
         if(!start || !start.classList.contains('show')) return;
+        if(e.target && e.target.closest && e.target.closest('#startScreen .start-enter-v72-img')) return;
         var shell=document.querySelector('#startScreen .welcome-v72-shell');
         var input=document.getElementById('playerName');
         if(!shell || !input) return;
@@ -4319,7 +4439,8 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     inp.autocomplete="off";
     inp.spellcheck=false;
     inp.addEventListener("input", function(){
-      inp.value=inp.value.replace(/[^a-zA-Z]/g,"").toUpperCase();
+      const isWasWere=inp.getAttribute("data-answer")==="WASWERE";
+      inp.value=inp.value.replace(isWasWere?/[^a-zA-Z\/, ]/g:/[^a-zA-Z]/g,"").toUpperCase();
       inp.classList.remove("ok","bad");
     });
     inp.addEventListener("keydown", function(e){
@@ -4557,7 +4678,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     var clean = window.mvSetStudentName ? window.mvSetStudentName(getName()) : '';
     if(!clean){ alert('Escribe el nombre del alumno antes de empezar.'); return false; }
     var r = oldEnter.apply(this, arguments);
-    restoreStudent();
+    setTimeout(restoreStudent, 0);
     setTimeout(restoreStudent, 100);
     return r;
   };
@@ -6870,6 +6991,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     }
     if(pastReady && part && b===part){ paintColumnsAndComplete(); return; }
   }
+  /* Listener global histórico neutralizado: la escritura canónica es renderBlanks().
   document.addEventListener('keydown',function(e){
     refreshFinalShortcut();
     var t=e.target;
@@ -6885,7 +7007,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       buffer += e.key.toUpperCase();
       processBuffer();
     }
-  }, true);
+  }, true); */
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',installHelp); else installHelp();
   setInterval(refreshFinalShortcut,800);
 })();
@@ -6945,7 +7067,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       if(msgs[0]) msgs[0].innerHTML='Has terminado todos los puestos del <b>NIVEL '+LEVEL+'</b>.<br><div style="font-size:30px;margin:12px 0;">⭐ Media de puestos: 7,5 / 10</div><b>Ahora realiza el TEST NIVEL '+LEVEL+'</b> para conseguir tu diploma.';
       if(msgs[1]) msgs[1].innerHTML='🏆 Si consigues 9 o 10, obtendrás tu diploma.';
       var actions=ov.querySelector('.mv44-actions');
-      if(actions) actions.innerHTML='<button type="button" class="mv44-btn mv44-btn-green" onclick="try{window.mv44StartGeneralExam&&window.mv44StartGeneralExam()}catch(e){}">📝 HACER TEST NIVEL '+LEVEL+'</button><button type="button" class="mv44-btn mv44-btn-yellow" onclick="document.getElementById('mv44TrainingOverlay').classList.remove('show');document.getElementById('mv44TrainingOverlay').style.display='none';">🏠 CERRAR</button>';
+      if(actions) actions.innerHTML='<button type="button" class="mv44-btn mv44-btn-green" onclick="try{window.mv44StartGeneralExam&&window.mv44StartGeneralExam()}catch(e){}">📝 HACER TEST NIVEL '+LEVEL+'</button><button type="button" class="mv44-btn mv44-btn-yellow" onclick="document.getElementById(\'mv44TrainingOverlay\').classList.remove(\'show\');document.getElementById(\'mv44TrainingOverlay\').style.display=\'none\';">🏠 CERRAR</button>';
       ov.classList.add('show'); ov.style.setProperty('display','flex','important');
     }
     return false;
@@ -6993,24 +7115,8 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     if(!b) return;
     if(st==='write'){
       if(en.indexOf(b)===0 || b.indexOf(en)===0) fillProduct(b);
-      if(b===en){
-        fillProduct(en);
-        try{ confirmEnglishVerb(); }catch(e){}
-        buffer=''; wrotePast=false;
-        show('✅ Infinitivo aceptado. Ahora puedes escribir <b>'+past+'</b>.');
-      }
       return;
     }
-    if(st==='done') return;
-    // En cualquier fase posterior, aceptar pasado o participio completos para acelerar la prueba.
-    if(b===part || (past===part && b===past)){ completeFast(); return; }
-    if(!wrotePast && b===past){
-      renderCol('payCell', past);
-      wrotePast=true; buffer='';
-      show('✅ Pasado aceptado. Ahora escribe <b>'+part+'</b>.');
-      return;
-    }
-    if(wrotePast && b===part){ completeFast(); return; }
   }
   document.addEventListener('keydown',function(e){
     var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
@@ -7019,10 +7125,41 @@ loadGameState();loadStand(currentStand);updateScoreboard();
     var c=getCurrent(); if(!c) return;
     var st=getStage(); if(!st || st==='choose' || st==='done') return;
     if(tag==='textarea') return;
+    if(
+      t &&
+      t.closest &&
+      t.closest('#productCell input') &&
+      e.key!=='Enter'
+    ){
+      return;
+    }
     var now=Date.now(); if(now-last>2000){buffer=''; wrotePast=false;} last=now;
     if(e.key==='Escape'){buffer=''; wrotePast=false; show('Teclado rápido reiniciado.'); e.preventDefault(); e.stopPropagation(); return;}
     if(e.key==='Backspace'){buffer=buffer.slice(0,-1); process(); e.preventDefault(); e.stopPropagation(); return;}
-    if(e.key==='Enter' || e.key===' '){process(); e.preventDefault(); e.stopPropagation(); return;}
+    if(e.key==='Enter'){
+      if(e.repeat || document.body.classList.contains('game-paused')) return;
+      if(t && t.closest && t.closest('button,a,[role="button"],#playerName,#mvExamNameInput,#mvFix5NameInputN3,.l1-test-input,.l2-test-input,.l3-test-input,.l3-final-test-input,input[data-answer]')) return;
+      var blockedScreen=Array.from(document.querySelectorAll('#startScreen,#exitScreen,#notebook,#l3FinalTestOverlay,#mvExamNameOverlay,#mvFix5NameGateN3')).some(function(el){
+        var css=window.getComputedStyle(el);
+        return css.display!=='none' && css.visibility!=='hidden' && css.opacity!=='0' && el.getClientRects().length>0;
+      });
+      if(blockedScreen) return;
+
+      if(st==='write' || /^new-ready-check/.test(st)){
+        confirmEnglishVerb();
+      }else if(st==='buy'){
+        buySelectedLetters();
+      }else if(st==='pay'){
+        applySelectedPayment();
+      }else{
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    if(e.key===' '){process(); e.preventDefault(); e.stopPropagation(); return;}
     if(/^[a-zA-Z]$/.test(e.key)){
       buffer += e.key.toUpperCase();
       process();
@@ -7323,6 +7460,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
       document.addEventListener(ev,function(e){
         var start=document.getElementById('startScreen');
         if(!start || !start.classList.contains('show')) return;
+        if(e.target && e.target.closest && e.target.closest('#startScreen .start-enter-v72-img')) return;
         var shell=document.querySelector('#startScreen .welcome-v72-shell');
         if(!shell) return;
         var p=pointInShell(e,shell);
@@ -7446,6 +7584,7 @@ loadGameState();loadStand(currentStand);updateScoreboard();
   bindStart(); setInterval(bindStart,700);
   document.addEventListener('click',function(e){
     var st=byId('startScreen'); if(!st || !st.classList.contains('show')) return;
+    if(e.target && e.target.closest && e.target.closest('#startScreen .start-enter-v72-img')) return;
     var shell=document.querySelector('#startScreen .welcome-v72-shell'); if(!shell) return;
     var r=shell.getBoundingClientRect();
     var x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
@@ -7941,6 +8080,7 @@ main.screen > section.seller.panel > .actions{
   document.addEventListener('click', function(ev){
     var btn = ev.target && ev.target.closest ? ev.target.closest('#aula2GuideBanner button.aula2-guide-action') : null;
     if(!btn) return;
+    if(btn.classList.contains('check')) return;
     ev.preventDefault();
     ev.stopPropagation();
     if(btn.classList.contains('check')) return safeCall('confirmEnglishVerb');
@@ -7952,6 +8092,7 @@ main.screen > section.seller.panel > .actions{
   document.addEventListener('pointerdown', function(ev){
     var btn = ev.target && ev.target.closest ? ev.target.closest('#aula2GuideBanner button.aula2-guide-action') : null;
     if(!btn) return;
+    if(btn.classList.contains('check')) return;
     btn.setAttribute('data-mv-pressed','1');
   }, true);
 })();
@@ -8115,11 +8256,11 @@ main.screen > section.seller.panel > .actions{
   function clearTest(){inputs().forEach(function(inp){inp.value=''; try{inp.defaultValue='';}catch(e){} try{inp.classList.remove('ok','bad','correct','wrong');}catch(e){}}); var r=result(); if(r) r.innerHTML='';}
   function rowSig(tr){if(!tr)return ''; var es=(tr.children&&tr.children[0]?tr.children[0].textContent:'').trim().toUpperCase(); var ans=Array.prototype.slice.call(tr.querySelectorAll('input')).map(function(inp){return String(inp.getAttribute('data-answer')||inp.dataset&&inp.dataset.answer||'').trim().toUpperCase();}).join('¦'); return es+'||'+ans;}
   function draftKeys(n){n=norm(n); return ['mv_final_test_draft_v1_n'+LEVEL+'_'+n,'mv_final_test_draft_v1_nivel'+LEVEL+'_'+n,'mv_final_test_draft_n'+LEVEL+'_'+n];}
-  function restore(n){n=norm(n); if(!n) return false; clearTest(); var raw=null; try{draftKeys(n).some(function(k){raw=localStorage.getItem(k); return !!raw;});}catch(e){} if(!raw) return false; var data=null; try{data=JSON.parse(raw);}catch(e){return false;} if(!data || (data.student && norm(data.student)!==n) || !Array.isArray(data.rows)) return false; var map={}; data.rows.forEach(function(row){if(row&&row.key)map[row.key]=row;}); var restored=0; var b=body(); if(!b)return false; Array.prototype.slice.call(b.querySelectorAll('tr')).forEach(function(tr){var row=map[rowSig(tr)]; if(!row)return; var vals=row.values||[], cls=row.classes||[]; Array.prototype.slice.call(tr.querySelectorAll('input')).forEach(function(inp,i){inp.value=vals[i]||''; if(inp.value)restored++; try{inp.classList.remove('ok','bad'); if(cls[i]&&cls[i].ok)inp.classList.add('ok'); if(cls[i]&&cls[i].bad)inp.classList.add('bad');}catch(e){} });}); var r=result(); if(r && restored>0) r.innerHTML=data.resultHTML || '<b>💾 TEST recuperado para '+pretty(n)+'.</b>'; return restored>0;}
+  function restore(n){n=norm(n); if(!n) return false; clearTest(); var raw=null; try{draftKeys(n).some(function(k){raw=localStorage.getItem(k); return !!raw;});}catch(e){} if(!raw) return false; var data=null; try{data=JSON.parse(raw);}catch(e){return false;} if(!data || (data.student && norm(data.student)!==n) || !Array.isArray(data.rows)) return false; var map={}; data.rows.forEach(function(row){if(row&&row.key)map[row.key]=row;}); var restored=0; var b=body(); if(!b)return false; Array.prototype.slice.call(b.querySelectorAll('tr')).forEach(function(tr){var row=map[rowSig(tr)]; if(!row)return; var vals=row.values||[], cls=row.classes||[]; Array.prototype.slice.call(tr.querySelectorAll('input')).forEach(function(inp,i){var restoredValue=vals[i]||''; if(inp.getAttribute('data-answer')==='WASWERE' && String(restoredValue).toUpperCase().replace(/[^A-Z]/g,'')==='WASWERE') restoredValue='WAS/WERE'; inp.value=restoredValue; if(inp.value)restored++; try{inp.classList.remove('ok','bad'); if(cls[i]&&cls[i].ok)inp.classList.add('ok'); if(cls[i]&&cls[i].bad)inp.classList.add('bad');}catch(e){} });}); var r=result(); if(r && restored>0) r.innerHTML=data.resultHTML || '<b>💾 TEST recuperado para '+pretty(n)+'.</b>'; return restored>0;}
   function ensureGate(){var ov=byId('mvFix5NameGateN'+LEVEL); if(!ov){ov=document.createElement('div'); ov.id='mvFix5NameGateN'+LEVEL; ov.innerHTML='<div class="mvfix5-card"><div class="mvfix5-title">📝 EXAMEN NIVEL '+LEVEL+'</div><div class="mvfix5-sub">Escribe nombre y apellido para hacer el examen</div><input id="mvFix5NameInputN'+LEVEL+'" class="mvfix5-input" maxlength="60" autocomplete="off" placeholder="NOMBRE Y APELLIDO"><div id="mvFix5NameMsgN'+LEVEL+'" class="mvfix5-msg"></div><button type="button" id="mvFix5StartN'+LEVEL+'" class="mvfix5-start">✅ COMENZAR EXAMEN</button><br><button type="button" id="mvFix5CancelN'+LEVEL+'" class="mvfix5-cancel">🏠 Cancelar</button></div>'; document.body.appendChild(ov);} return ov;}
-  function showGate(e){if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();} clearStudent(); clearTest(); forceHide(byId('mvExamNameOverlay')); var ov=ensureGate(); var inp=byId('mvFix5NameInputN'+LEVEL), msg=byId('mvFix5NameMsgN'+LEVEL); if(inp)inp.value=''; if(msg)msg.textContent=''; forceShow(ov); setTimeout(function(){if(inp)inp.focus();},60); return false;}
+  function showGate(e){if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();} clearTest(); forceHide(byId('mvExamNameOverlay')); var ov=ensureGate(); var inp=byId('mvFix5NameInputN'+LEVEL), msg=byId('mvFix5NameMsgN'+LEVEL); var canonicalName=''; try{canonicalName=typeof window.mvGetStudentName==='function'?String(window.mvGetStudentName()||'').trim():'';}catch(_e){} if(inp){if(canonicalName){inp.value=canonicalName;inp.readOnly=true;}else{inp.readOnly=false;}} if(msg)msg.textContent=''; forceShow(ov); setTimeout(function(){if(inp&&!inp.readOnly)inp.focus();},60); return false;}
   function openReal(n){forceHide(ensureGate()); forceHide(byId('mvExamNameOverlay')); clearTest(); remember(n); var real=window.__mvRealOpenFinalTest; if(typeof real==='function'){ try{ real.call(window); }catch(e){} } else if(typeof window['openLevel'+LEVEL+'FinalTest']==='function' && !window['openLevel'+LEVEL+'FinalTest'].__mvFix6Gate){ try{ window['openLevel'+LEVEL+'FinalTest'](); }catch(e){} } var test=byId('l'+LEVEL+'FinalTestOverlay'); forceShow(test); setTimeout(function(){ if(inputs().length===0 && typeof real==='function'){ try{ real.call(window); }catch(e){} forceShow(byId('l'+LEVEL+'FinalTestOverlay')); } restore(n); },80); setTimeout(function(){restore(n);},300); setTimeout(function(){restore(n);},900);}
-  function begin(e){if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();} var inp=byId('mvFix5NameInputN'+LEVEL), msg=byId('mvFix5NameMsgN'+LEVEL); var n=norm(inp&&inp.value); if(!n){if(msg)msg.textContent='✏️ Escribe nombre y apellido para comenzar el examen.'; if(inp)inp.focus(); return false;} openReal(n); return false;}
+  function begin(e){if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();} var inp=byId('mvFix5NameInputN'+LEVEL), msg=byId('mvFix5NameMsgN'+LEVEL); var canonicalName=''; try{canonicalName=typeof window.mvGetStudentName==='function'?String(window.mvGetStudentName()||'').trim():'';}catch(_e){} var n=norm(canonicalName||(inp&&inp.value)); if(!n){if(msg)msg.textContent='✏️ Escribe nombre y apellido para comenzar el examen.'; if(inp)inp.focus(); return false;} openReal(n); return false;}
   function cancel(e){if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();} forceHide(ensureGate()); clearStudent(); clearTest(); return false;}
   function isTestLauncher(t){if(!t||!t.closest)return false; if(t.closest('#mvFix5NameGateN'+LEVEL))return false; if(t.closest('.start-book-test-v'+LEVEL))return true; var b=t.closest('button,[onclick],a,div'); if(!b)return false; var onc=String(b.getAttribute('onclick')||''); if(onc.indexOf('openLevel'+LEVEL+'FinalTest')>=0)return true; return false;}
   ['pointerdown','touchstart','click'].forEach(function(ev){document.addEventListener(ev,function(e){var t=e.target; if(t&&t.closest&&t.closest('#mvFix5StartN'+LEVEL))return begin(e); if(t&&t.closest&&t.closest('#mvFix5CancelN'+LEVEL))return cancel(e); if(isTestLauncher(t))return showGate(e);},true);});
@@ -8960,12 +9101,7 @@ main.screen > section.seller.panel > .actions{
 })();
 </script>
 
-
-<style id="mv-mobile-clean-debug">
-/* Producción: el diagnóstico de Supabase era solo para pruebas. */
-#mv45DRealBox,#mv45DRealCheck,#mv45DRealStatus,#mv45DRealOpenFinal{display:none!important;visibility:hidden!important;pointer-events:none!important;}
-</style>
-
+<script src="constructor_wallet.js"></script><script src="market_wallet_bridge.js"></script>
 </body>
 </html>
 
@@ -9292,7 +9428,7 @@ main.screen > section.seller.panel > .actions{
         tr.appendChild(tdEs); tr.appendChild(tdInf); tr.appendChild(tdPast); tr.appendChild(tdPart); body.appendChild(tr);
       });
     }
-    if(overlay){ overlay.classList.add('show'); overlay.style.setProperty('display','flex','important'); setTimeout(function(){ var first=overlay.querySelector('.l3-final-test-input'); if(first) first.focus(); },100); }
+    if(overlay){ overlay.classList.add('show'); overlay.style.setProperty('display','flex','important'); overlay.style.setProperty('visibility','visible','important'); overlay.style.setProperty('opacity','1','important'); overlay.style.setProperty('pointer-events','auto','important'); setTimeout(function(){ var first=overlay.querySelector('.l3-final-test-input'); if(first) first.focus(); },100); }
     return false;
   }
   var oldOpenGeneral=window.openLevel3FinalTest;
@@ -9684,7 +9820,7 @@ main.screen > section.seller.panel > .actions{
     inp.setAttribute('data-answer', norm(answer));
     inp.autocomplete='off';
     inp.spellcheck=false;
-    inp.addEventListener('input',function(){ inp.value=String(inp.value||'').replace(/[^a-zA-Z]/g,'').toUpperCase(); inp.classList.remove('ok','bad','correct','wrong'); });
+    inp.addEventListener('input',function(){ var isWasWere=inp.getAttribute('data-answer')==='WASWERE'; inp.value=String(inp.value||'').replace(isWasWere?/[^a-zA-Z\/, ]/g:/[^a-zA-Z]/g,'').toUpperCase(); inp.classList.remove('ok','bad','correct','wrong'); });
     inp.addEventListener('keydown',function(e){
       if(e.key==='Enter'){
         e.preventDefault();
@@ -9877,43 +10013,4 @@ main.screen > section.seller.panel > .actions{
   -webkit-text-stroke:.45px #2b160b;text-shadow:-1px -1px 0 #2b160b,1px -1px 0 #2b160b,-1px 1px 0 #2b160b,1px 1px 0 #2b160b,0 2px 2px #000;
 }
 </style>
-
-<script id="mv-creator-test-mode-v2">
-(function(){
-  if(window.__mvCreatorTestModeV2) return;
-  window.__mvCreatorTestModeV2=true;
-  function testName(){
-    try{return sessionStorage.getItem('mv_creator_test_mode')==='1' ? (sessionStorage.getItem('mv_creator_test_name')||'') : '';}catch(e){return '';}
-  }
-  function applyName(){
-    var n=testName(); if(!n) return;
-    var input=document.getElementById('playerName')||document.getElementById('studentName')||document.getElementById('nameInput');
-    if(input){ input.value=n; input.readOnly=true; input.setAttribute('aria-label','Nombre de prueba automático'); }
-    try{
-      var L=String(window.MV_LEVEL_ID||'');
-      sessionStorage.setItem('mv_current_student',n);
-      if(L) sessionStorage.setItem('mv_current_student_'+L,n);
-      var num=(L.match(/(\d+)/)||[])[1];
-      if(num){sessionStorage.setItem('mv_current_student_'+num,n);sessionStorage.setItem('mv_current_student_n'+num,n);}
-      localStorage.setItem('mv_last_student',n);localStorage.setItem('mv_last_alumno',n);
-      if(typeof window.mvSetStudentName==='function') window.mvSetStudentName(n);
-    }catch(e){}
-  }
-  /* Las pruebas de la creadora no deben ensuciar Supabase. Solo se bloquean escrituras a sesiones. */
-  var nativeFetch=window.fetch;
-  if(nativeFetch && !window.__mvCreatorFetchWrapped){
-    window.__mvCreatorFetchWrapped=true;
-    window.fetch=function(input,init){
-      var url=typeof input==='string'?input:(input&&input.url)||'';
-      var method=String((init&&init.method)||'GET').toUpperCase();
-      if(testName() && /supabase\.co\/rest\/v1\/sesiones/i.test(url) && /^(POST|PATCH|PUT|DELETE)$/.test(method)){
-        return Promise.resolve(new Response('',{status:204,statusText:'Creator test: not persisted'}));
-      }
-      return nativeFetch.apply(this,arguments);
-    };
-  }
-  applyName();
-  document.addEventListener('DOMContentLoaded',applyName);
-  setTimeout(applyName,50);setTimeout(applyName,250);setTimeout(applyName,800);
-})();
-</script>
+<script src="student_identity.js"></script>
