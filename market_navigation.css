@@ -1,0 +1,23 @@
+#mvRouteMenuOverlay{display:none;position:fixed;inset:0;z-index:2147483646;background:rgba(28,15,5,.72);align-items:center;justify-content:center;padding:18px;font-family:Arial,sans-serif}
+#mvRouteMenuOverlay.mv-route-open{display:flex}
+.mv-route-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff8df;border:5px solid #7a3b18;border-radius:26px;box-shadow:0 20px 60px rgba(0,0,0,.48);padding:22px;color:#43230c}
+.mv-route-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.mv-route-head h2{margin:0;font-size:clamp(25px,4vw,38px);color:#7b2d13}
+.mv-route-close{border:0;border-radius:12px;background:#7b4b20;color:#fff;padding:10px 14px;font-size:17px;font-weight:900;cursor:pointer}
+.mv-route-section-title{margin:18px 0 9px;font-size:18px;font-weight:1000;color:#7b2d13}
+.mv-route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mv-route-link,.mv-route-action,.mv-route-soon{min-height:68px;border:3px solid #9a5a22;border-radius:16px;padding:10px 9px;background:#ffe29a;color:#43230c;text-decoration:none;text-align:center;font-size:16px;font-weight:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 0 #9a5a22}
+.mv-route-link:hover,.mv-route-action:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.mv-route-action{width:100%;font-family:inherit;background:#c9f3d2;border-color:#16833a;box-shadow:0 4px 0 #16833a;color:#0b4d20}
+.mv-route-future{background:#dff4ff;border-color:#2176a7;box-shadow:0 4px 0 #2176a7;color:#124c70}
+.mv-route-soon{background:#eee9df;border-color:#aaa098;box-shadow:none;color:#756d66;cursor:default}
+.mv-route-current{outline:4px solid #ffb400;outline-offset:1px}
+#mv45DRealBox,#mv45E2Tools,#mv45EFinalShortcut,#mv45EKeyboardHelp{display:none!important;visibility:hidden!important;pointer-events:none!important}
+.mv-stand-final-test{display:block;width:calc(100% - 10px);margin:16px auto 5px;padding:13px 10px;border:3px solid #147b34;border-radius:16px;background:linear-gradient(#dff9d9,#bcebb8);color:#0a5424;font:1000 17px/1.15 Arial,sans-serif;text-align:center;cursor:pointer;box-shadow:0 5px 0 #147b34,0 8px 15px rgba(0,0,0,.18)}
+.mv-stand-final-test:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.mv-stand-final-test:active{transform:translateY(3px);box-shadow:0 2px 0 #147b34}
+@media(max-width:700px){.mv-route-grid{grid-template-columns:1fr 1fr}.mv-route-card{padding:16px}}
+@media(max-width:440px){.mv-route-grid{grid-template-columns:1fr}}
+
+/* Controles técnicos ocultos en producción. */
+#mv45DRealBox,#mv45E2Tools,#mv45E2Help,#mv45EFinalShortcut,#mv45EKeyboardHelp{display:none!important}
