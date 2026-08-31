@@ -1,5 +1,10 @@
 (function(){
   'use strict';
+  // Limpieza de controles técnicos: la función permanece, los carteles de desarrollo no.
+  const cleanupStyle=document.createElement('style');
+  cleanupStyle.id='mv-production-cleanup';
+  cleanupStyle.textContent='#mv45DRealBox,#mv45E2Tools,#mv45E2Help,#mv45EFinalShortcut,#mv45EKeyboardHelp{display:none!important}';
+  (document.head||document.documentElement).appendChild(cleanupStyle);
   document.documentElement.style.visibility='hidden';
   function returnToAccess(){ location.replace(new URL('./app.html',location.href).href); }
   (async function(){
