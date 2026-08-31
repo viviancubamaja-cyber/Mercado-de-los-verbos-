@@ -68,5 +68,15 @@
     installStandFinalButton(n);
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('mv-route-open')){e.preventDefault();close()}},true);
   }
+  // Regla única de salida para los tres niveles.
+  // El botón amarillo abandona el nivel; el verde conserva su comportamiento interno.
+  document.addEventListener('click',function(event){
+    var target=event.target&&event.target.closest?event.target.closest('#exitQuit,#exitScreen .exit-visible-quit,#exitScreen .exit-quit-hotspot'):null;
+    if(!target)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    save();
+    location.href=new URL('index.html',location.href).href;
+  },true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 })();
