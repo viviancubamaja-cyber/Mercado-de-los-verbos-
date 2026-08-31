@@ -55,6 +55,23 @@
     }));
     return saveSession(result);
   }
+  async function issuePasswordReset(username,minutes){
+    const current=readSession();
+    if(!current)throw new Error('Debes entrar con una cuenta autorizada.');
+    const result=await rpc('mv_issue_password_reset_code',{
+      p_session_token:current.token,p_username:clean(username).toLowerCase(),p_minutes:Number(minutes)||30
+    });
+    if(!result||result.ok===false)throw new Error((result&&result.message)||'No se pudo generar el código.');
+    return result;
+  }
+  async function resetPassword(username,code,newPassword){
+    const result=await rpc('mv_reset_password',{
+      p_username:clean(username).toLowerCase(),p_code:clean(code),p_new_password:String(newPassword||'')
+    });
+    if(!result||result.ok===false)throw new Error((result&&result.message)||'No se pudo cambiar la contraseña.');
+    clearSession();
+    return result;
+  }
   async function validate(){
     const current=readSession();
     if(!current)return null;
@@ -68,5 +85,5 @@
     return !!session&&[].concat(roles||[]).map(String).includes(session.role);
   }
 
-  window.MV_ACCESS={activate,login,validate,session:readSession,logout:clearSession,hasRole,rpc};
+  window.MV_ACCESS={activate,login,issuePasswordReset,resetPassword,validate,session:readSession,logout:clearSession,hasRole,rpc};
 })();
