@@ -68,6 +68,35 @@
     installStandFinalButton(n);
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('mv-route-open')){e.preventDefault();close()}},true);
   }
+  // N2 y N3 conservan un capturador antiguo en window que reconoce la clase
+  // .exit-quit-hotspot antes que cualquier script posterior. Esta capa independiente
+  // evita activar ese capturador sin modificar el motor estable de los niveles.
+  function installRealExitLayer(){
+    var original=document.querySelector('#exitScreen .exit-quit-hotspot');
+    if(!original)return;
+    var layer=document.createElement('button');
+    layer.type='button';
+    layer.id='mvRealExitGame';
+    layer.setAttribute('aria-label','Salir del juego y volver a la portada de Álex');
+    layer.style.cssText='position:fixed;display:none;z-index:2147483647;opacity:0;background:transparent;border:0;padding:0;margin:0;cursor:pointer;pointer-events:auto;';
+    document.body.appendChild(layer);
+    function place(){
+      var r=original.getBoundingClientRect();
+      var visible=r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;
+      layer.style.display=visible?'block':'none';
+      if(!visible)return;
+      layer.style.left=r.left+'px';layer.style.top=r.top+'px';
+      layer.style.width=r.width+'px';layer.style.height=r.height+'px';
+    }
+    layer.addEventListener('pointerdown',function(e){e.stopPropagation()},false);
+    layer.addEventListener('touchstart',function(e){e.stopPropagation()},{passive:true});
+    layer.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();save();
+      location.href=new URL('app.html',location.href).href;
+    },false);
+    new MutationObserver(place).observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});
+    addEventListener('resize',place);addEventListener('scroll',place,true);place();
+  }
   // Regla única de salida para los tres niveles.
   // El botón amarillo abandona el nivel; el verde conserva su comportamiento interno.
   document.addEventListener('click',function(event){
@@ -78,5 +107,5 @@
     save();
     location.href=new URL('app.html',location.href).href;
   },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){install();installRealExitLayer()});else{install();installRealExitLayer()}
 })();
