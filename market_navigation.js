@@ -1,5 +1,15 @@
 (function(){
   'use strict';
+  // Una recarga manual dentro de un nivel reinicia el recorrido completo.
+  // La navegación normal desde el menú no se considera una recarga.
+  try{
+    var mvNavigation=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+    if(mvNavigation&&mvNavigation.type==='reload'){
+      try{if(typeof window.saveGameState==='function')window.saveGameState(false)}catch(_saveError){}
+      location.replace(new URL('app.html',location.href).href);
+      return;
+    }
+  }catch(_navigationError){}
   if(window.__mvSharedRouteMenu)return;
   window.__mvSharedRouteMenu=true;
 
