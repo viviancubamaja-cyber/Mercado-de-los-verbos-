@@ -51,7 +51,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
 <div class="app">
   <div class="topbar">
     <div class="brand"><div class="logo">🏪</div><div><div class="title">Mercado de los Verbos</div><div class="subtitle">CAMINA POR LAS FRASES · NIVEL 1</div></div></div>
-    <div class="actions"><button class="btn-home" onclick="location.href='index.html'">🏪 MERCADO</button><button class="btn-audio" onclick="speakCurrent()">🔊 ESCUCHAR</button><button class="btn-reset" onclick="restartLesson()">↻ REINICIAR</button></div>
+    <div class="actions"><button id="levelNavigationButton" class="btn-home" type="button" onclick="handleLevelNavigation()">🧭 MENÚ DE RECORRIDOS</button><button class="btn-audio" onclick="speakCurrent()">🔊 ESCUCHAR</button><button class="btn-reset" onclick="restartLesson()">↻ REINICIAR</button></div>
   </div>
 
   <section id="startScreen" class="panel hero">
@@ -90,7 +90,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
     <div id="ruleCard" class="rule-card"></div>
   </section>
 
-  <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h2>¡Zona completada!</h2><div id="finalMessage"></div><div class="controls"><button class="start" onclick="goMenu()">VOLVER AL MENÚ</button></div></section>
+  <section id="finishScreen" class="panel finish hidden"><div class="trophy">🏆</div><h2>¡Zona completada!</h2><div id="finalMessage"></div><div class="controls"><button class="start" onclick="goMenu()">VOLVER AL NIVEL 1</button></div></section>
 </div>
 <script src="constructor_wallet.js"></script>
 <script src="constructor_guided_rewards.js"></script>
@@ -152,7 +152,9 @@ const beData=[
 ];
 let student='',zone='',kind='affirmative',questions=[],index=0,selected=[],correct=0,locked=false;
 const $=id=>document.getElementById(id);
-function show(id){['startScreen','menuScreen','lessonScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
+function show(id){['startScreen','menuScreen','lessonScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id));updateLevelNavigation(id);}
+function updateLevelNavigation(screen){const button=$('levelNavigationButton');if(!button)return;const inActivity=screen==='lessonScreen'||screen==='finishScreen';button.textContent=inActivity?'← NIVEL 1':'🧭 MENÚ DE RECORRIDOS';}
+function handleLevelNavigation(){const inActivity=!$('lessonScreen').classList.contains('hidden')||!$('finishScreen').classList.contains('hidden');if(inActivity)return goMenu();location.href='index.html';}
 const progressKey='mvConstructorProgressN1';
 function saveProgress(){if(!student||!zone||!questions.length)return;localStorage.setItem(progressKey,JSON.stringify({student,zone,questions,index,correct}));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||!p.zone||!Array.isArray(p.questions)||!p.questions.length||p.index<0||p.index>=p.questions.length)return false;zone=p.zone;questions=p.questions;index=p.index;correct=p.correct||0;kind='affirmative';$('zoneTitle').textContent=zone==='simple'?'🧩 Los Solitarios':zone==='be'?'👑 El Rey BE':'🌟 YO SOLO';$('studentLabel').textContent='Jugador/a: '+student;$('typeSwitch').classList.add('hidden');show('lessonScreen');renderQuestion();return true}catch(e){return false;}}
