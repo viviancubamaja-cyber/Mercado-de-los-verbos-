@@ -87,3 +87,99 @@
 
   window.MV_ACCESS={activate,login,issuePasswordReset,resetPassword,validate,session:readSession,logout:clearSession,hasRole,rpc};
 })();
+
+/* Gran Mezcla: mantiene un orden aleatorio estable durante una partida y
+   genera un orden nuevo al empezar de cero, reiniciar o volver a jugar. */
+(function(){
+  'use strict';
+  if(!/constructor_frases_mezcla\.html$/i.test(location.pathname||''))return;
+
+  window.addEventListener('DOMContentLoaded',function(){
+    try{
+      if(typeof missions==='undefined'||!Array.isArray(missions)||missions.length<2)return;
+
+      const base=missions.slice();
+      const ORDER_KEY='mvConstructorMezclaOrderV2';
+      const PROGRESS_KEY='mvConstructorProgressMezcla';
+
+      function identity(){return base.map(function(_,i){return i;});}
+      function valid(order){
+        return Array.isArray(order)&&order.length===base.length&&
+          order.every(function(v){return Number.isInteger(v)&&v>=0&&v<base.length;})&&
+          new Set(order).size===base.length;
+      }
+      function readOrder(){
+        try{
+          const order=JSON.parse(localStorage.getItem(ORDER_KEY)||'null');
+          return valid(order)?order:null;
+        }catch(e){return null;}
+      }
+      function readProgress(){
+        try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null');}
+        catch(e){return null;}
+      }
+      function randomOrder(previous){
+        let order,tries=0;
+        do{
+          order=identity();
+          for(let i=order.length-1;i>0;i--){
+            const j=Math.floor(Math.random()*(i+1));
+            [order[i],order[j]]=[order[j],order[i]];
+          }
+          tries++;
+        }while(tries<12&&(
+          order.every(function(v,i){return v===i;})||
+          (valid(previous)&&order.every(function(v,i){return v===previous[i];}))
+        ));
+        return order;
+      }
+      function apply(order){
+        if(!valid(order))return;
+        order.forEach(function(sourceIndex,targetIndex){
+          missions[targetIndex]=base[sourceIndex];
+        });
+        localStorage.setItem(ORDER_KEY,JSON.stringify(order));
+      }
+      function fresh(){
+        const previous=readOrder();
+        const order=randomOrder(previous);
+        apply(order);
+        return order;
+      }
+
+      const progress=readProgress();
+      const saved=readOrder();
+      if(saved)apply(saved);
+      else if(progress&&Number.isInteger(progress.index)&&progress.index>0)apply(identity());
+      else fresh();
+
+      if(typeof window.startGame==='function'){
+        const originalStart=window.startGame;
+        window.startGame=function(){
+          const input=document.getElementById('studentName');
+          const name=input?String(input.value||'').trim():'';
+          const p=readProgress();
+          const resuming=!!(p&&p.student===name&&Number.isInteger(p.index)&&p.index>=0&&p.index<base.length);
+          if(!resuming)fresh();
+          return originalStart.apply(this,arguments);
+        };
+      }
+      if(typeof window.restart==='function'){
+        const originalRestart=window.restart;
+        window.restart=function(){
+          fresh();
+          return originalRestart.apply(this,arguments);
+        };
+      }
+      if(typeof window.playAgain==='function'){
+        const originalPlayAgain=window.playAgain;
+        window.playAgain=function(){
+          fresh();
+          return originalPlayAgain.apply(this,arguments);
+        };
+      }
+    }catch(error){
+      console.warn('Gran Mezcla: no se pudo aplicar el orden aleatorio.',error);
+    }
+  });
+})();
