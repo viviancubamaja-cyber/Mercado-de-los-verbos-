@@ -74,7 +74,7 @@
     document.getElementById('mvRouteFinalExam').onclick=function(e){e.preventDefault();return openExam()};
     var button=document.getElementById('mvMenuNivelesBtn');
     if(!button){button=document.createElement('button');button.id='mvMenuNivelesBtn';button.type='button';button.textContent='🧭 Menú de recorridos';document.body.appendChild(button)}
-    button.onclick=function(e){if(e)e.preventDefault();var exit=document.getElementById('exitScreen');if(exit&&(exit.classList.contains('show')||exit.classList.contains('active'))){return go('index.html')}open();return false};
+    button.onclick=function(e){if(e)e.preventDefault();return go('index.html')};
     installStandFinalButton(n);
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('mv-route-open')){e.preventDefault();close()}},true);
   }
