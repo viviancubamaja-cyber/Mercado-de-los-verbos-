@@ -230,6 +230,12 @@ function soloAnswerVariants(){
 function hasLowercasePronounI(s){
   return/(^|\s)i(?=\s|[.!?]|$)/.test(String(s));
 }
+function negativeSoloMissionEs(s){
+  const words=String(s).replace(/[.]+$/,'').trim().split(/\s+/),first=(words[0]||'').toLowerCase();
+  const subjectWords=['el','la','los','las','mi','mis','tu','tus','su','sus'].includes(first)?2:1;
+  if(words.length<=subjectWords)return'No '+words.join(' ').toLowerCase()+'.';
+  return words.slice(0,subjectWords).join(' ')+' no '+words.slice(subjectWords).join(' ')+'.';
+}
 function soloMissionEs(q){
   const k=q.testKind;
   let base=q.es.trim();
@@ -238,9 +244,7 @@ function soloMissionEs(q){
     base=base.replace(/[.]+$/,'');
     return '¿'+base.charAt(0).toUpperCase()+base.slice(1)+'?';
   }
-  const firstSpace=base.indexOf(' ');
-  if(firstSpace>0) return base.slice(0,firstSpace)+' no'+base.slice(firstSpace);
-  return 'No '+base.charAt(0).toLowerCase()+base.slice(1);
+  return negativeSoloMissionEs(base);
 }
 function updateSoloTyping(){
   if(zone!=='solo'||locked)return;
