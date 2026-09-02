@@ -1,7 +1,9 @@
 #mvRouteMenuOverlay{display:none;position:fixed;inset:0;z-index:2147483646;background:rgba(28,15,5,.72);align-items:center;justify-content:center;padding:18px;font-family:Arial,sans-serif}
 #mvRouteMenuOverlay.mv-route-open{display:flex}
-#mvMenuNivelesBtn{position:fixed!important;top:14px!important;left:14px!important;z-index:2147483647!important;border:3px solid #7a3b18!important;border-radius:16px!important;background:#ffe08a!important;color:#4b2100!important;font-family:Arial,sans-serif!important;font-weight:900!important;font-size:16px!important;padding:10px 14px!important;box-shadow:0 4px 0 #8d4b20,0 8px 16px rgba(0,0,0,.25)!important;cursor:pointer!important}
+#mvSellerMenuSlot{display:flex!important;justify-content:center!important;width:100%!important;margin:0 0 5px!important}
+#mvMenuNivelesBtn{position:static!important;width:100%!important;z-index:auto!important;border:3px solid #7a3b18!important;border-radius:14px!important;background:#ffe08a!important;color:#4b2100!important;font-family:Arial,sans-serif!important;font-weight:900!important;font-size:15px!important;line-height:1.15!important;padding:9px 8px!important;box-shadow:0 4px 0 #8d4b20,0 7px 13px rgba(0,0,0,.18)!important;cursor:pointer!important}
 #mvMenuNivelesBtn:hover{filter:brightness(1.04)!important}
+#standTheme{display:none!important}
 #coverScreen{background:#fff!important}
 .mv-route-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff8df;border:5px solid #7a3b18;border-radius:26px;box-shadow:0 20px 60px rgba(0,0,0,.48);padding:22px;color:#43230c}
 .mv-route-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
