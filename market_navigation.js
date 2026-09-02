@@ -48,8 +48,22 @@
     stands.insertAdjacentElement('afterend',button);
   }
   function placeMenuButton(button){
+    if(!button)return;
+    if(level()===2||level()===3){
+      var title=document.getElementById('mainTitle');
+      if(!title)return;
+      title.classList.add('mv-menu-in-title');
+      var titleSlot=document.getElementById('mvTitleMenuSlot');
+      if(!titleSlot){
+        titleSlot=document.createElement('div');
+        titleSlot.id='mvTitleMenuSlot';
+        title.insertBefore(titleSlot,title.firstChild);
+      }
+      titleSlot.appendChild(button);
+      return;
+    }
     var sellerName=document.getElementById('sellerName');
-    if(!button||!sellerName)return;
+    if(!sellerName)return;
     var slot=document.getElementById('mvSellerMenuSlot');
     if(!slot){
       slot=document.createElement('div');
@@ -95,6 +109,12 @@
     var button=document.getElementById('mvMenuNivelesBtn');
     if(!button){button=document.createElement('button');button.id='mvMenuNivelesBtn';button.type='button';button.textContent='🧭 Menú de recorridos';document.body.appendChild(button)}
     placeMenuButton(button);
+    if(n===2||n===3){
+      var title=document.getElementById('mainTitle');
+      if(title)new MutationObserver(function(){
+        if(!document.getElementById('mvTitleMenuSlot'))placeMenuButton(button);
+      }).observe(title,{childList:true});
+    }
     button.onclick=function(e){if(e)e.preventDefault();return go('index.html')};
     installCoverMenuButton();
     installStandFinalButton(n);
