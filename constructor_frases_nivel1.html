@@ -38,6 +38,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
 .solo-write input.typing-good{color:#258247;border-color:#63a879;background:#f2fff5}
 .solo-write input.typing-bad{color:#b43b32;border-color:#d56b61;background:#fff5f3}
 .solo-write input.complete{color:#176a34;border-color:#3f9b5b;background:#dff6e5}
+.solo-write input.revealed{color:#75500f;border-color:#d8a730;background:#fff0ba}
 .solo-write .write-label{font-size:17px;font-weight:900;color:#795b36;margin-bottom:10px}
 .feedback{min-height:64px;margin-top:18px;border-radius:18px;padding:13px 16px;text-align:center;font-size:21px;font-weight:900;display:flex;align-items:center;justify-content:center}.feedback.neutral{background:#eee7db;color:#6b5d49}.feedback.good{background:#d9f3df;color:#216d3a}.feedback.bad{background:#ffe0dc;color:#9b332d}
 .controls{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:15px}.check{background:var(--green);color:white}.delete{background:#efbd5b;color:#553c12}.next{background:#607fc7;color:white}
@@ -150,7 +151,7 @@ const beData=[
  {person:'They',be:'are',actionIng:'swimming',response:'',place:'in the pool',time:'',es:'Ellos están nadando en la piscina.',mode:'ing'},
  {person:'You',be:'are',actionIng:'singing',response:'a song',place:'at school',time:'',es:'Tú estás cantando una canción en el colegio.',mode:'ing'}
 ];
-let student='',zone='',kind='affirmative',questions=[],index=0,selected=[],correct=0,locked=false;
+let student='',zone='',kind='affirmative',questions=[],index=0,selected=[],correct=0,locked=false,soloAttempts=0;
 const $=id=>document.getElementById(id);
 function show(id){['startScreen','menuScreen','lessonScreen','finishScreen'].forEach(x=>$(x).classList.toggle('hidden',x!==id));updateLevelNavigation(id);}
 function updateLevelNavigation(screen){const button=$('levelNavigationButton');if(!button)return;const inActivity=screen==='lessonScreen'||screen==='finishScreen';button.textContent=inActivity?'← NIVEL 1':'🧭 MENÚ DE RECORRIDOS';}
@@ -219,7 +220,15 @@ function soloExpectedText(){
   return expected(questions[index]).join(' ');
 }
 function normalizeAnswer(s){
-  return String(s).trim().replace(/\s+/g,' ').replace(/[.]+$/,'').toLowerCase();
+  return String(s).trim().replace(/[’]/g,"'").replace(/\s+/g,' ').replace(/[.]+$/,'').toLowerCase();
+}
+function soloAnswerVariants(){
+  const answer=normalizeAnswer(soloExpectedText());
+  const expanded=answer.replace(/\bdon't\b/g,'do not').replace(/\bdoesn't\b/g,'does not').replace(/\bisn't\b/g,'is not').replace(/\baren't\b/g,'are not');
+  return[...new Set([answer,expanded])];
+}
+function hasLowercasePronounI(s){
+  return/(^|\s)i(?=\s|[.!?]|$)/.test(String(s));
 }
 function soloMissionEs(q){
   const k=q.testKind;
@@ -234,12 +243,15 @@ function soloMissionEs(q){
   return 'No '+base.charAt(0).toLowerCase()+base.slice(1);
 }
 function updateSoloTyping(){
-  if(zone!=='solo')return;
-  $('soloInput').classList.remove('typing-good','typing-bad','complete');
+  if(zone!=='solo'||locked)return;
+  const input=$('soloInput'),typed=normalizeAnswer(input.value),lowercaseI=hasLowercasePronounI(input.value);
+  input.classList.remove('typing-good','typing-bad','complete','revealed');
+  if(!typed)return;
+  input.classList.add(!lowercaseI&&soloAnswerVariants().some(answer=>answer.startsWith(typed))?'typing-good':'typing-bad');
 }
 
 function renderQuestion(reset=true){
-  if(reset){selected=[];locked=false;}
+  if(reset){selected=[];locked=false;soloAttempts=0;}
   const q=questions[index],ans=expected(q);
   const activeZone=zone==='solo'?q.source:zone;
   const activeKind=q.testKind||kind;
@@ -256,6 +268,7 @@ function renderQuestion(reset=true){
     $('missionText').textContent=soloMissionEs(q)+'  →  Ahora hazla tú solo.';
     $('soloInput').value='';
     $('soloInput').className='';
+    $('soloInput').readOnly=false;
     setTimeout(()=>$('soloInput').focus(),0);
   }else{
     $('missionText').textContent=q.es+'  →  '+({affirmative:'Haz una frase afirmativa.',negative:'Haz una frase negativa.',question:'Haz una pregunta.'}[activeKind]);
@@ -323,21 +336,32 @@ function checkAnswer(){
   if(locked)return;
   const ans=expected(questions[index]);
   if(zone==='solo'){
-    const typed=normalizeAnswer($('soloInput').value);
-    const target=normalizeAnswer(ans.join(' '));
-    if(!typed){bad('Escribe primero la frase.');$('soloInput').focus();return;}
-    if(typed===target){
+    const input=$('soloInput'),typed=normalizeAnswer(input.value);
+    if(!typed){bad('Escribe primero la frase.');input.focus();return;}
+    if(!hasLowercasePronounI(input.value)&&soloAnswerVariants().includes(typed)){
       locked=true;correct++;
-      $('soloInput').classList.remove('typing-good','typing-bad');
-      $('soloInput').classList.add('complete');
+      input.classList.remove('typing-good','typing-bad');
+      input.classList.add('complete');
+      input.readOnly=true;
       $('feedback').className='feedback good';
       const prize=MV_GUIDED_REWARDS.reward('n1',zone,'slot-'+index);
       $('feedback').textContent=prize.wonEuro?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! La has construido tú solo. 🎉';
       $('nextBtn').classList.remove('hidden');
       speak(ans.join(' '));
     }else{
-      bad('Inténtalo otra vez.');
-      $('soloInput').focus();
+      soloAttempts++;
+      if(soloAttempts>=3){
+        locked=true;
+        const answer=ans.join(' ');
+        input.value=answer;input.className='revealed';input.readOnly=true;
+        $('feedback').className='feedback neutral';
+        $('feedback').textContent='La respuesta es: '+answer+' Pulsa SIGUIENTE para continuar.';
+        $('nextBtn').classList.remove('hidden');
+        speak(answer);
+        return;
+      }
+      bad('Revisa la frase. Intento '+soloAttempts+' de 3.');
+      input.focus();
     }
     return;
   }
@@ -377,7 +401,7 @@ if('speechSynthesis'in window)speechSynthesis.getVoices();
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 $('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 $('soloInput').addEventListener('input',updateSoloTyping);
-$('soloInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});
+$('soloInput').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(locked)nextQuestion();else checkAnswer();});
 </script>
 </body>
 </html>
