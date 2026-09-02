@@ -55,11 +55,7 @@ button:hover{filter:brightness(1.04)}button:active{transform:translateY(3px);box
     <div class="actions"><button id="levelNavigationButton" class="btn-home" type="button" onclick="handleLevelNavigation()">🧭 MENÚ DE RECORRIDOS</button><button class="btn-audio" onclick="speakCurrent()">🔊 ESCUCHAR</button><button class="btn-reset" onclick="restartLesson()">↻ REINICIAR</button></div>
   </div>
 
-  <section id="startScreen" class="panel hero">
-    <h1>Camina por las frases</h1>
-    <p>Construye 108 frases en tres recorridos: primero con un camino guiado, después con el Rey BE y finalmente tú solo.</p>
-    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"/><button class="start" onclick="startGame()">EMPEZAR</button></div>
-  </section>
+  <section id="startScreen" class="hidden" aria-hidden="true"><input id="studentName" type="hidden"/></section>
 
   <section id="menuScreen" class="panel hidden">
     <div class="hero"><h1>Nivel 1 · Mercado del Presente</h1><p>Elige una zona del mercado.</p></div>
@@ -160,7 +156,12 @@ const progressKey='mvConstructorProgressN1';
 function saveProgress(){if(!student||!zone||!questions.length)return;localStorage.setItem(progressKey,JSON.stringify({student,zone,questions,index,correct}));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||!p.zone||!Array.isArray(p.questions)||!p.questions.length||p.index<0||p.index>=p.questions.length)return false;zone=p.zone;questions=p.questions;index=p.index;correct=p.correct||0;kind='affirmative';$('zoneTitle').textContent=zone==='simple'?'🧩 Los Solitarios':zone==='be'?'👑 El Rey BE':'🌟 YO SOLO';$('studentLabel').textContent='Jugador/a: '+student;$('typeSwitch').classList.add('hidden');show('lessonScreen');renderQuestion();return true}catch(e){return false;}}
 function clearProgress(){localStorage.removeItem(progressKey);}
-async function startGame(){student=$('studentName').value.trim();if(!student){$('studentName').focus();return;}localStorage.setItem('mv_current_student',student);await MV_GUIDED_REWARDS.start(student);if(loadProgress())return;show('menuScreen');}
+function currentStudent(){
+ const stored=(localStorage.getItem('mv_current_student')||sessionStorage.getItem('mv_current_student')||localStorage.getItem('mv_last_student')||localStorage.getItem('mv_last_alumno')||'').trim();
+ if(stored)return stored;
+ try{return String((window.MV_ACCESS&&MV_ACCESS.session()&&MV_ACCESS.session().displayName)||'').trim()}catch(e){return''}
+}
+async function startGame(name){student=String(name||$('studentName').value||'').trim();if(!student)return;localStorage.setItem('mv_current_student',student);MV_GUIDED_REWARDS.start(student).catch(e=>console.warn('[Recompensas N1]',e));if(loadProgress())return;show('menuScreen');}
 function goMenu(){show('menuScreen');zone='';}
 function openZone(z){
   zone=z;index=0;correct=0;kind='affirmative';
@@ -403,9 +404,9 @@ function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return 
 function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u);}
 if('speechSynthesis'in window)speechSynthesis.getVoices();
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 $('soloInput').addEventListener('input',updateSoloTyping);
 $('soloInput').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(locked)nextQuestion();else checkAnswer();});
+startGame(currentStudent());
 </script>
 </body>
 </html>
