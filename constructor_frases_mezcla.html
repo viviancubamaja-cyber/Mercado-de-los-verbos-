@@ -29,12 +29,7 @@ button,.back{font:inherit;font-weight:900;border:0;border-radius:14px;padding:11
     <div class="actions"><a class="back" href="constructor_frases.html">🏆 CONSTRUCTOR</a><button class="reset" onclick="restart()">↻ REINICIAR</button></div>
   </header>
 
-  <section id="startScreen" class="panel hero">
-    <div class="icon">🌟</div>
-    <h1>El verbo viaja</h1>
-    <p>Lee la frase, descubre en qué nivel vive y escríbela en su columna. El mismo verbo aparecerá de formas diferentes y sin complementos.</p>
-    <div class="namebox"><input id="studentName" autocomplete="off" placeholder="Escribe tu nombre"><button class="start" onclick="startGame()">EMPEZAR</button></div>
-  </section>
+  <section id="startScreen" class="hidden" aria-hidden="true"><input id="studentName" type="hidden"></section>
 
   <section id="gameScreen" class="panel hidden">
     <div class="head"><div><h1>¿Dónde vive esta frase?</h1><div id="player" class="small"></div></div><div class="status"><div id="wallet" class="wallet">💰 0 €</div><div id="counter" class="badge"></div></div></div>
@@ -78,7 +73,8 @@ const progressKey='mvConstructorProgressMezcla';
 function saveProgress(){if(!student)return;localStorage.setItem(progressKey,JSON.stringify({student,index,correct,euros}));}
 function loadProgress(){try{const p=JSON.parse(localStorage.getItem(progressKey)||'null');if(!p||p.student!==student||p.index<0||p.index>=missions.length)return false;index=p.index;correct=p.correct||0;euros=p.euros||0;$('player').textContent='Jugador/a: '+student;show('gameScreen');render();return true}catch(e){return false;}}
 function clearProgress(){localStorage.removeItem(progressKey);}
-function startGame(){student=$('studentName').value.trim();if(!student)return $('studentName').focus();if(loadProgress())return;index=0;correct=0;euros=0;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
+function currentStudent(){const stored=(localStorage.getItem('mv_current_student')||sessionStorage.getItem('mv_current_student')||localStorage.getItem('mv_last_student')||localStorage.getItem('mv_last_alumno')||'').trim();if(stored)return stored;try{return String((window.MV_ACCESS&&MV_ACCESS.session()&&MV_ACCESS.session().displayName)||'').trim()}catch(e){return''}}
+function startGame(name){student=String(name||$('studentName').value||'').trim();if(!student)return;localStorage.setItem('mv_current_student',student);if(loadProgress())return;index=0;correct=0;euros=0;$('player').textContent='Jugador/a: '+student;show('gameScreen');saveProgress();render()}
 function updateWallet(){$('wallet').textContent='💰 '+euros+' €'}
 function render(){locked=false;selectedLevel=null;const q=missions[index];$('counter').textContent=(index+1)+' / '+missions.length;$('bar').style.width=(index/missions.length*100)+'%';updateWallet();$('verbName').textContent='El verbo que viaja: '+q.verb;$('spanish').textContent=q.es;inputs().forEach(i=>{i.value='';i.disabled=false});document.querySelectorAll('.column').forEach(c=>c.classList.remove('active','correct','wrong'));$('feedback').className='feedback neutral';$('feedback').textContent='Elige una columna y escribe la frase en inglés.';$('nextBtn').classList.add('hidden')}
 function choose(input){if(locked)return;selectedLevel=Number(input.dataset.level);inputs().forEach(i=>{if(i!==input)i.value=''});document.querySelectorAll('.column').forEach(c=>{c.classList.remove('wrong');c.classList.toggle('active',Number(c.dataset.level)===selectedLevel)})}
@@ -93,7 +89,7 @@ function playAgain(){index=0;correct=0;euros=0;saveProgress();show('gameScreen')
 function susan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}
 function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;u.pitch=1;const v=susan();if(v)u.voice=v;speechSynthesis.speak(u)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});if('speechSynthesis' in window)speechSynthesis.getVoices();
+inputs().forEach(i=>{i.addEventListener('input',()=>choose(i));i.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()})});if('speechSynthesis' in window)speechSynthesis.getVoices();startGame(currentStudent());
 </script>
 </body>
 </html>
