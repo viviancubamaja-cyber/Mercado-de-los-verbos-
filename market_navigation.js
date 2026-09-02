@@ -47,6 +47,17 @@
     button.onclick=function(e){e.preventDefault();return openExam()};
     stands.insertAdjacentElement('afterend',button);
   }
+  function placeMenuButton(button){
+    var sellerName=document.getElementById('sellerName');
+    if(!button||!sellerName)return;
+    var slot=document.getElementById('mvSellerMenuSlot');
+    if(!slot){
+      slot=document.createElement('div');
+      slot.id='mvSellerMenuSlot';
+      sellerName.insertAdjacentElement('afterend',slot);
+    }
+    slot.appendChild(button);
+  }
   function install(){
     if(document.getElementById('mvRouteMenuOverlay'))return;
     var n=level();
@@ -74,6 +85,7 @@
     document.getElementById('mvRouteFinalExam').onclick=function(e){e.preventDefault();return openExam()};
     var button=document.getElementById('mvMenuNivelesBtn');
     if(!button){button=document.createElement('button');button.id='mvMenuNivelesBtn';button.type='button';button.textContent='🧭 Menú de recorridos';document.body.appendChild(button)}
+    placeMenuButton(button);
     button.onclick=function(e){if(e)e.preventDefault();return go('index.html')};
     installStandFinalButton(n);
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('mv-route-open')){e.preventDefault();close()}},true);
