@@ -61,8 +61,8 @@ function balance(){return wallet||blank()}
 window.MV_GUIDED_REWARDS={start,reward,sync,render,balance,missionId};
 })();
 
-/* Niveles 2 y 3: YO SOLO se retira de la interfaz.
-   Gran Mezcla asume la práctica autónoma de colocar cada frase en su columna. */
+/* Nivel 3: YO SOLO permanece retirado de la interfaz mientras se prueba
+   primero su recuperación independiente en el Nivel 2. */
 (function(){
 'use strict';
 
@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded',function(){
  const path=location.pathname||'';
  const n2=/constructor_frases_nivel2\.html$/i.test(path);
  const n3=/constructor_frases_nivel3\.html$/i.test(path);
- if(!n2&&!n3)return;
+ if(!n3)return;
 
  const level=n2?2:3;
  const progressKey=n2?'mvConstructorProgressN2':'mvConstructorProgressN3';
