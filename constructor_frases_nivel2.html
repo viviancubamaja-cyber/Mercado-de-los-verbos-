@@ -115,12 +115,13 @@ function soloVariants(q){
  const expanded=answer.replace(/\bdidn't\b/g,'did not').replace(/\bwasn't\b/g,'was not').replace(/\bweren't\b/g,'were not');
  return[...new Set([answer,expanded])]
 }
+function hasLowercasePronounI(s){return/(^|\s)i(?=\s|[.!?]|$)/.test(String(s))}
 function typing(){
  if(zone!=='solo'||locked)return;
- const input=$('soloInput'),typed=norm(input.value);
+ const input=$('soloInput'),typed=norm(input.value),lowercaseI=hasLowercasePronounI(input.value);
  input.className='';
  if(!typed)return;
- input.classList.add(soloVariants(questions[index]).some(answer=>answer.startsWith(typed))?'good':'badtyping')
+ input.classList.add(!lowercaseI&&soloVariants(questions[index]).some(answer=>answer.startsWith(typed))?'good':'badtyping')
 }
 function revealSoloAnswer(a){
  locked=true;
@@ -131,10 +132,10 @@ function revealSoloAnswer(a){
  $('next').classList.remove('hidden');
  speak(answer)
 }
-function checkAnswer(){if(locked)return;const a=expected(questions[index]);let ok;if(zone==='solo'){const typed=norm($('soloInput').value);if(!typed)return bad('Escribe primero la frase.');ok=soloVariants(questions[index]).includes(typed);if(!ok){soloAttempts++;if(soloAttempts>=3)return revealSoloAnswer(a);bad('Revisa la frase. Intento '+soloAttempts+' de 3.');$('soloInput').focus();return}}else{if(selected.length!==a.length)return bad('Todavía faltan palabras en el camino.');ok=a.every((w,i)=>w===selected[i]);if(!ok)return bad('Inténtalo otra vez. Observa el modelo de arriba y sigue el recorrido de las flechas.')}locked=true;correct++;const prize=MV_GUIDED_REWARDS.reward('n2',zone,'slot-'+index);$('feedback').className='feedback goodfb';$('feedback').textContent=prize.wonEuro?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! Has viajado correctamente al pasado. 🎉';$('next').classList.remove('hidden');if(zone==='solo'){$('soloInput').className='complete';$('soloInput').readOnly=true}speak(a.join(' '))}
+function checkAnswer(){if(locked)return;const a=expected(questions[index]);let ok;if(zone==='solo'){const input=$('soloInput'),typed=norm(input.value);if(!typed)return bad('Escribe primero la frase.');ok=!hasLowercasePronounI(input.value)&&soloVariants(questions[index]).includes(typed);if(!ok){soloAttempts++;if(soloAttempts>=3)return revealSoloAnswer(a);bad('Revisa la frase. Intento '+soloAttempts+' de 3.');input.focus();return}}else{if(selected.length!==a.length)return bad('Todavía faltan palabras en el camino.');ok=a.every((w,i)=>w===selected[i]);if(!ok)return bad('Inténtalo otra vez. Observa el modelo de arriba y sigue el recorrido de las flechas.')}locked=true;correct++;const prize=MV_GUIDED_REWARDS.reward('n2',zone,'slot-'+index);$('feedback').className='feedback goodfb';$('feedback').textContent=prize.wonEuro?'¡Cinco frases correctas! Has ganado 1 € para tu hucha. 🪙':'¡Perfecto! Has viajado correctamente al pasado. 🎉';$('next').classList.remove('hidden');if(zone==='solo'){$('soloInput').className='complete';$('soloInput').readOnly=true}speak(a.join(' '))}
 function bad(m){$('feedback').className='feedback badfb';$('feedback').textContent=m}
 function nextQuestion(){if(++index<questions.length){saveProgress();return render();}localStorage.setItem('mvConstructorN2_'+zone,'completed');clearProgress();const done=['past','be','solo'].filter(z=>localStorage.getItem('mvConstructorN2_'+z)==='completed').length;show('finish');$('final').innerHTML=`<p class="score">🏆 ¡Has construido 36 frases!</p><p class="score">💰 Tu saldo pendiente: ${MV_GUIDED_REWARDS.balance().euros} €.</p><p>${esc(student)}, has completado esta zona practicando el pasado.</p>${done===3?'<p class="score">🎉 ¡Nivel 2 completado: 108 frases!</p>':''}`}
 function constructorSusan(){const voices=speechSynthesis.getVoices()||[];return voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&/\bSusan\b/i.test(v.name||''))||voices.find(v=>/^en[-_]GB/i.test(v.lang||'')&&!/(Daniel|George|Arthur|male)/i.test(v.name||''))||null}function speakCurrent(){if(zone)speak(expected(questions[index]).join(' '))}function speak(t){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.75;u.pitch=1;const voice=constructorSusan();if(voice)u.voice=voice;speechSynthesis.speak(u)}if('speechSynthesis'in window)speechSynthesis.getVoices();
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});$('soloInput').addEventListener('input',typing);$('soloInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()});
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});$('soloInput').addEventListener('input',typing);$('soloInput').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(locked)nextQuestion();else checkAnswer()});
 </script></body></html>
