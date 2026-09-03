@@ -22,7 +22,7 @@
     try{if(typeof window.saveGame==='function')window.saveGame()}catch(e){}
     try{if(typeof window.l1ForceInternalSave==='function')window.l1ForceInternalSave()}catch(e){}
   }
-  function go(url){save();try{var u=new URL(url,location.href);if(u.hostname==='mercado-del-futuro.viviancubamaja.chatgpt.site'){var student=(localStorage.getItem('mv_current_student')||'').trim();if(student)u.searchParams.set('student',student);u.searchParams.set('return',new URL('index.html',location.href).href);url=u.href}}catch(e){}location.href=url;return false}
+  function go(url){save();try{var u=new URL(url,location.href);if(/\/mercado-futuro(?:\/|$)/.test(u.pathname)){var student=(localStorage.getItem('mv_current_student')||'').trim();if(student)u.searchParams.set('student',student);u.searchParams.set('return',new URL('index.html',location.href).href);url=u.href}}catch(e){}location.href=url;return false}
   function openExam(){
     close();
     var n=level();
@@ -97,8 +97,8 @@
       link('🧍 Yo Solo','constructor_frases_yo_solo_8_tiempos.html')+
       link('🎲 Gran Mezcla','constructor_frases_mezcla.html')+'</div>'+
       '<div class="mv-route-section-title">Siguiente recorrido</div><div class="mv-route-grid">'+
-      link('🧭 Mercado del Futuro','https://mercado-del-futuro.viviancubamaja.chatgpt.site','mv-route-future')+
-      link('🦸 Mercado de los Modales · CAN y sus compañeros','https://mercado-del-futuro.viviancubamaja.chatgpt.site/?area=modales','mv-route-future')+
+      link('🧭 Mercado del Futuro','mercado-futuro/index.html','mv-route-future')+
+      link('🦸 Mercado de los Modales · CAN y sus compañeros','mercado-futuro/index.html?area=modales','mv-route-future')+
       '<div class="mv-route-soon">🔮 Condicionales · Pasiva · Causativa<br>Próximamente</div></div>'+
       '<div class="mv-route-section-title">Evaluación</div><button class="mv-route-action" id="mvRouteFinalExam" type="button">📕 Test final · Nivel '+n+'</button></div>';
     document.body.appendChild(overlay);
